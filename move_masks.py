@@ -74,23 +74,24 @@ def pawn_forward(x,y,direction,board=blank()):
 
 def enpassants():
     pass
-    
-def mask_dictionary():
+
+def mask_dictionary(func=lambda x : x):
+    #change func to np.packbits for true bitboards
     d = []
     for i in range(0,8):
 
         for j in range(0,8):
           a = {}
-          a['knight'] = np.packbits(knight_moves(i,j))
-          a['rook'] = np.packbits(rook_moves(i,j))
-          a['bishop'] = np.packbits(bishop_moves(i,j))
-          a['queen'] = np.packbits(queen_moves(i,j))
-          a['king'] = np.packbits(king_moves(i,j))
+          a['knight'] = func(knight_moves(i,j))
+          a['rook'] = func(rook_moves(i,j))
+          a['bishop'] = func(bishop_moves(i,j))
+          a['queen'] = func(queen_moves(i,j))
+          a['king'] = func(king_moves(i,j))
           p = {}
-          p['white_forward'] = np.packbits(pawn_forward(i,j,1))
-          p['black_forward'] = np.packbits(pawn_forward(i,j,-1))
-          p['white_attack'] = np.packbits(pawn_attacks(i,j,1))
-          p['black_attack'] = np.packbits(pawn_attacks(i,j,-1))
+          p['white_forward'] = func(pawn_forward(i,j,1))
+          p['black_forward'] = func(pawn_forward(i,j,-1))
+          p['white_attack'] = func(pawn_attacks(i,j,1))
+          p['black_attack'] = func(pawn_attacks(i,j,-1))
           a['pawn'] = p
             
 
@@ -98,12 +99,27 @@ def mask_dictionary():
           d.append(a)
     return d
 
+def rank_arrays():
+    for i in range(255):
+        pass
+            
+
+def mask_dictionary_proper_bit_boards():
+    return mask_dictionary(func=np.packbits)
 d = mask_dictionary()
 
+def bit_combs(A=np.zeros(8),depth=0):
+    if depth == 8:
+        yield A
+    else:
+        for i in range(2):
+            A[depth] = i
+            for word in bit_combs(A.copy(),depth+1):
+                yield word
 
 
-
-            
+for word in bit_combs():
+    print(word)
 
         
 
