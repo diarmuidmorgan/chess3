@@ -17,3 +17,19 @@ uint64_t board_to_word(int * a){
 	
 	return number;
 }
+/*This is a rubbish way of doing it obviously.
+ *
+ */
+uint64_t highest_significant_bit_index(uint64_t word) {
+
+	uint64_t index = 0LL;
+       	while (word != 0){
+		uint64_t i = ffsll(word);
+		index += i;
+		word >> i;
+
+
+	}	
+	return index;
+
+}
