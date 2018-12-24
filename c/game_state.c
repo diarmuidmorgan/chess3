@@ -42,7 +42,22 @@ GS * initial_game_state(){
 	return gs;
 
 }
+GS * copy_game_state(GS * gs) {
+	GS * new = malloc(sizeof(GS));
+	for (int i=0; i<2; i++) {
+	new->pawns[i] = gs->pawns[i];
+	new->rooks[i] = gs->rooks[i];
+	new->knights[i] = gs->knights[i];
+	new->bishops[i] = gs->bishops[i];
+	new->kings[i] = gs->kings[i];
+	new->queens[i] = gs->queens[i];
+	new->all_pieces = gs->all_pieces;
+	new->enpassants[i] = gs->enpassants[i]
 
+	}
+	return new;
+
+}
 
 
 
