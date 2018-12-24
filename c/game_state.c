@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "start_positions.c"
 #include "binary_ops.c"
 typedef struct {
@@ -44,18 +46,20 @@ GS * initial_game_state(){
 }
 GS * copy_game_state(GS * gs) {
 	GS * new = malloc(sizeof(GS));
-	for (int i=0; i<2; i++) {
-	new->pawns[i] = gs->pawns[i];
-	new->rooks[i] = gs->rooks[i];
-	new->knights[i] = gs->knights[i];
-	new->bishops[i] = gs->bishops[i];
-	new->kings[i] = gs->kings[i];
-	new->queens[i] = gs->queens[i];
-	new->all_pieces = gs->all_pieces;
-	new->enpassants[i] = gs->enpassants[i]
-
-	}
+	memcpy(new,gs,sizeof(GS));
 	return new;
+}
+
+void game_state_change_color(GS * gs, int color) {
+	//flip the color bit
+	gs->color = color;
+	gs->pawns[color] = gs->pawns[color] & gs->pieces[color];
+	gs->rooks[color] = gs->rooks[color] & gs->pieces[color];
+	gs->knights[color] = gs->knights[color] & gs->pieces[color];
+	gs->bishops[color] = gs->bishops[color] & gs->pieces[color];
+	gs->kings[color] = gs->kings[color] & gs->pieces[color];
+	gs->queens[color] = gs->queens[color] & gs->pieces[color];
+
 
 }
 
