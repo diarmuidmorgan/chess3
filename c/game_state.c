@@ -12,7 +12,9 @@ typedef struct {
 	uint64_t queens[2];
 	uint64_t pieces[2];
 	uint64_t all_pieces;
-
+	uint64_t enpassants[2];
+	int castle_king_side[2];
+	int castle_queen_side[2];
 
 
 } GS;
@@ -35,7 +37,8 @@ GS * initial_game_state(){
 	gs->pieces[0] = gs->pawns[0] | gs->rooks[0] | gs->knights[0] | gs->bishops[0] | gs->kings[0] | gs->queens[0]; 	
 	gs->pieces[1] = gs->pawns[1] | gs->rooks[1] | gs->knights[1] | gs->bishops[1] | gs->kings[1] | gs->queens[1];
 	gs->all_pieces = gs->pieces[0] | gs->pieces[1];
-	
+	gs->enpassants[0] = 0LL;
+	gs->enpassants[1] = 0LL;
 	return gs;
 
 }
