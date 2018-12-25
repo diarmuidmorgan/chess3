@@ -56,7 +56,7 @@ void print_game_state(GS * gs) {
 
 }
 
-
+/*
 int main () {
 	
 	//printf("HELLO");	
@@ -68,3 +68,5 @@ int main () {
 	return 0;
 
 }
+*/
+

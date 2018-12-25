@@ -17,7 +17,7 @@ typedef struct {
 	uint64_t enpassants[2];
 	int castle_king_side[2];
 	int castle_queen_side[2];
-
+	int color;
 
 } GS;
 GS * initial_game_state(){
@@ -41,6 +41,7 @@ GS * initial_game_state(){
 	gs->all_pieces = gs->pieces[0] | gs->pieces[1];
 	gs->enpassants[0] = 0LL;
 	gs->enpassants[1] = 0LL;
+	gs->color = 0;
 	return gs;
 
 }

@@ -1,5 +1,4 @@
 #include "game_state.c"
-#include "binary_ops.c"
 #include <stdio.h>
 #include <stdlib.h>
 #include "move_masks.c"
