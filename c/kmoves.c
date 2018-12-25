@@ -53,7 +53,7 @@ int main () {
 		print_game_state(new);
 		binary_print_board(move_squares);
 		free(new);
-		q++;
+		
 		printf("\n");
 		new = knight_move(gs, msks, &knights, &move_squares, &piece_incr, &move_incr);
 		
