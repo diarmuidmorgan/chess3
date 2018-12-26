@@ -45,6 +45,89 @@ GS * initial_game_state(){
 	return gs;
 
 }
+GS * blank_game_state() {
+	GS * gs = malloc(sizeof(GS));
+	for (int i=0; i<2;i++) {
+	gs->pawns[i] = board_to_word(blank_bit_array());
+	gs->rooks[i] = board_to_word(blank_bit_array());
+	gs->knights[i] = board_to_word(blank_bit_array());
+	gs->bishops[i] = board_to_word(blank_bit_array());
+	gs->kings[i] = board_to_word(blank_bit_array());
+	gs->queens[i] = board_to_word(blank_bit_array());
+	}
+	return gs;
+}
+
+GS * game_state_from_position_string(char * s, int c) {
+	GS * gs = blank_game_state();
+	gs->color = c;
+	for (int i=0;i<8; i++){
+
+		for (int j=0; j<8;j++) {
+			int INDEX = i*8 + j;
+			switch(s[INDEX]) {
+
+				case('p') :
+					gs->pawns[0] |= 1LL << INDEX;
+					break;
+				case('P') :
+					gs->pawns[1] |= 1LL << INDEX;
+					break;
+				case('r') :
+					gs->rooks[0] |= 1LL << INDEX;
+					break;
+				case('R') :
+					gs->rooks[1] |= 1LL << INDEX;
+					break;
+				case('h') :
+					gs->knights[0] |= 1LL << INDEX;
+					break;
+				case('H') :
+					gs->knights[1] |= 1LL << INDEX;
+					break;
+				case('b') :
+					gs->bishops[0] |= 1LL << INDEX;
+					break;
+				case('B') :
+					gs->pawns[1] |= 1LL << INDEX;
+					break;
+				case('q') :
+					gs->queens[0] |= 1LL << INDEX;
+					break;
+				case('Q') :
+					gs->queens[1] |= 1LL << INDEX;
+					break;
+				case('k') :
+					gs->kings[0] |= 1LL << INDEX;
+					break;
+				case('K') :
+					gs->kings[0] |= 1LL << INDEX;
+					break;
+
+				}
+			}
+		}
+	for (int color =0; color < 2; color++){
+		gs->pieces[color] = gs->pawns[color] | gs->rooks[color] 
+				    | gs->knights[color] | gs->bishops[color] 
+				    | gs->rooks[color] | gs->queens[color] | gs->kings [color];
+		
+		gs->enpassants[color] = 0LL;}
+	gs->all_pieces = gs->pieces[0] | gs->pieces[1];
+	return gs;
+}
+
+GS * read_position_from_file (char * fname) {
+
+	FILE *fp;
+	char s[1000];
+	fp =fopen(fname,"r");
+	fgets(s,1000, fp);
+	fclose(fp);
+	return game_state_from_position_string(s,0);
+
+}
+
 GS * copy_game_state(GS * gs) {
 	GS * new = malloc(sizeof(GS));
 	memcpy(new,gs,sizeof(GS));

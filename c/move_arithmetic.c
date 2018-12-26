@@ -1,131 +1,149 @@
-#include "game_state.c"
-#include <stdio.h>
-#include <stdlib.h>
 #include "move_masks.c"
-#include <stdint.h>
-#include <strings.h>
-#include <math.h>
-/*This isn't good.
- * Really want to treat the move generation functions, as something like generators.
- * E.g knights_moves should consume a copy of the 'knight squares' each time it is called, only yielding one new game_state
- * at a time. This would be preferable, i think, to returning some kind of list with every possible configuration in it.
- *
- *
- *
+#include <stdio.h>
+/* Boolean - returns if the generator is still valid.
+ * Handles incrementing the piece position counter, picking the new move msk,  and shifting the piece array
  */
-
-/*Returns a single game state to be played to greater depth.
- *@params Gs - gs, the current game state, uint64_t * msks - the move msks, uint64_t * knights, a destructible copy of the knights
- * uint64_t - a destructible copy of possible squares so far - can be null on first try
- */
-uint64_t diagonal_prototype(uint64_t * msks, uint64_t index) {
+uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, uint64_t * piece_incr) {
 	
-	// how to handle friendly and unfriendly pieces
-	// and the diagonal with the friendly and unfriendly masks
-	// if 0LL, then return the whole diagonal
-	// and the two seperately, split on which is the smallest?
-	// index = ffsll( msk & opposing)
-	// index2 = ffsll (msk & friendly)
-	// // return (msk ^ msk[index]) ^ (msk[index2] & (1LL << index2));
-	// this will only work downwards. Need a reverse bit search for the other direction
-		
-	
-}
-
-GS * pawn_attack_moves(GS * gs, uint64_t * msks, uint64_t * pawns, uint64_t * move_squares, uint64_t * piece_incr, uint64_t * move_incr) {
-	int color = gs->color;
-	int rcolor = ~color;
-	int PAWNS;
-	uint64_t index_p;
-	uint64_t index_m;
-	if (&move_squares == 0LL){
-		if &pawns == 0LL)
-		return NULL; 
-	else {
-		//shift the knights
-		index_p = ffsll(pawns);
-		&piece_incr += index_p;
-		//anding with pieces[rcolor] is the only significant difference with below method. Maybe we can recycle?
-		//also that we have to set pawns in the 
-		&move_squares = msks[&piece_incr + PAWNS] & gs->pieces[rcolor];
-		&pawns = &pawns >> index_p;
-		&move_incr = 0;
-	
-		if (&move_squares == 0LL)
-		return NULL;
-		}
-	index = ffsll(&move_squares);
-	&move_squares = &move_squares >> index;
-	&move_incr += index;
-	// Create masks for new and old positions.
-	uint64_t new_pos = 1LL << &move_incr -1;
-	uint64_t old_pos = 1LL <<&piece_incr -1;
-	// Create the new game state
-	GS * new_gs = copy_game_state(gs);
-	// Correct the bits in the game state. 
-      	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
-	new_gs->pawns[color] = new_gs->pawns[color] & new_gs->pieces[color];
-	new_gs->pieces[rcolor] = new_gs->pieces[rcolor] & (~new_pos);
-	//below method is kind of excessive if no pieces have been taken
-	///but maybe its faster than checking
-	game_state_change_color(gs,rcolor);	
-	return new_gs;
-
-
-
-}	
-GS * knight_move(GS * gs, uint64_t * msks, uint64_t * knights, uint64_t * move_squares, uint64_t * piece_incr, uint64_t * move_incr) {
-	int color = gs->color;
-	int rcolor = ~color;
-	uint64_t index_p;
-	uint64_t index_m;
-	//run out of both pieces and potential moves
-	if (&move_squares == 0LL){
-		if &knights == 0LL)
-		return NULL; 
-		else {
-		//shift the knights
-		index_p = ffsll(knights);
-		&piece_incr += index_p;
-		&move_squares = msks[&piece_incr + 4] & ~gs->pieces[color];
-		&knights = &knights >> index_p;
-		&move_incr = 0;
-		}
-	
+	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
+	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
+	uint64_t index = ffsll(msk);
+	// handles the case where the first piece is of the same color
+	if ( (gs->pieces[color] & (1LL << (index - 1) )) == gs->pieces[color]) 
+		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
+	// 
+	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX]);
 
 }
-GS * king_move(GS * gs, uint64_t * msks, uint64_t * kings, 
-		uint64_t * move_squares, uint64_t * piece_incr, uint64_t * move_incr) {
-	int KING_INDEX;
-	//get colors
+/*Same as above, only we use the super slow highest_significant_bit() function to determine the blocking piece
+ *
+ */
+uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, uint64_t * piece_incr) {
+	
+	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
+	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
+	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
+	uint64_t index = highest_significant_bit_index(msk);
+	// handles the case where the first piece is of the same color
+	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) 
+		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
+	// 
+	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX]);
+
+}
+void knight_king_masking_function (GS * gs, uint64_t * move_squares, 
+		uint64_t * msks, uint64_t msk_number, 
+		uint64_t * piece_incr, uint64_t color) {
+
+	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
+
+}
+
+void pawn_attack_masking_function (GS * gs, uint64_t * move_squares, 
+		uint64_t * msks, uint64_t msk_number, 
+		uint64_t * piece_incr, uint64_t color) {
+
+	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[~(gs->color)];
+
+}
+/* This - alot more fucking complicated ...
+ *
+ * SLIDING PIECES!
+ */
+void bishop_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
+	
+	
+	*move_squares = *move_squares | sliding_ray_lsb_masking(10, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_lsb_masking(11, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(12, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(13, msks, gs, color, piece_incr);
+}
+
+void rook_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
+		*move_squares = *move_squares | sliding_ray_lsb_masking(6, msks, gs,color,piece_incr);
+	*move_squares = *move_squares | sliding_ray_lsb_masking(8, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(7, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(9, msks, gs, color, piece_incr);
+}
+
+void queen_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
+	
+	
+	bishop_masking_function(gs, piece_incr,
+				move_squares, msks,
+				msk_number, color);
+	rook_masking_function(gs, piece_incr, 
+				move_squares, msks,
+				msk_number, color);
+}
+
+
+int next_piece(GS * gs, int msk_number, 
+		uint64_t * msks, uint64_t * pieces, 
+		uint64_t * move_squares, uint64_t * piece_incr, 
+		uint64_t * move_incr, void (*masking_function)()) {
+	//return NULL if pieces have been consumed.
+	if (*pieces == 0LL) return 0;
+	int index_p = ffsll(*pieces);  
+	*piece_incr += index_p;
+	//replace this with first order function??
+	//*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[gs->color];
+	masking_function(move_squares, msks, msk_number, gs->color);
+	*pieces = *pieces >> index_p;
+	*move_incr = 0;
+	return 1;
+}
+/*
+ *@returns - boolean, true if there is another valid move to be played.
+ */
+int next_move (GS * gs, int msk_number, 
+		uint64_t * msks, uint64_t * pieces, 
+		uint64_t * move_squares, uint64_t * piece_incr, 
+		uint64_t * move_incr) {
+
+	if (*move_squares == 0LL) return 0;
+	uint64_t index_m = ffsll(*move_squares);
+	*move_incr += index_m;
+	*move_squares = *move_squares >> index_m;
+}
+/*simple move - should work for knights, kings and some pawn moves?
+ */
+void make_simple_move (GS * new_gs, uint64_t * selected_pieces, uint64_t move_incr, uint64_t piece_incr) {
 	int color = new_gs->color;
-	int rcolor = ~color; 
-	
-	//if the generator is being initialized
-	if (&move_squares == 0LL){
-		//find the king and set increment. Retrieve the right mask.
-		uint64_t index = ffsll(&kings);
-		&piece_incr = index;
-		&move_squares = msk[index + KING_INDEX] & (~ gs->pieces[color]);
-		if (&move_squares == 0LL) 
-			return NULL;
-	}
-		
-	index = ffsll(&move_squares);
-	&move_squares = &move_squares >> index;
-	&move_incr += index;
-	// Create masks for new and old positions.
-	uint64_t new_pos = 1LL << &move_incr -1;
-	uint64_t old_pos = 1LL <<&piece_incr -1;
-	// Create the new game state
-	GS * new_gs = copy_game_state(gs);
-	// Correct the bits in the game state. 
-      	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
-	new_gs->kings[color] = new_gs->kings[color] & new_gs->pieces[color];
-	new_gs->pieces[rcolor] = new_gs->pieces[rcolor] & (~new_pos);
-	//below method is kind of excessive if no pieces have been taken
-	///but maybe its faster than checking
-	game_state_change_color(gs,rcolor);	
-	return new_gs;
+	uint64_t new_pos = 1LL << (move_incr - 1);
+	uint64_t old_pos = 1LL  << (piece_incr -1);
+	//GS * new_gs = copy_game_state(gs);
+	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
+	//this bit could also be made into a higher order function?????
+	*selected_pieces = (*selected_pieces ^ old_pos) | new_pos;
+	new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
 
 }
+
+/*
+int main () {
+	printf("WORKING");
+	GS * gs = initial_game_state();
+	uint64_t knights = gs->knights[0];
+	binary_print_board(knights);
+	uint64_t move_squares = 0LL;
+	uint64_t piece_incr = 0LL;
+	uint64_t move_incr = 0LL;
+	uint64_t * msks = build_mask_object();
+	//print_game_state(gs);
+	//print_game_state(gs);
+	GS * new = knight_move(gs,msks,&knights,&move_squares,
+				&piece_incr, &move_incr);
+       	while (new != NULL){
+		printf("%" PRIu64 "\n", move_squares);
+		print_game_state(new);
+		binary_print_board(move_squares);
+		free(new);
+		
+		printf("\n");
+		new = knight_move(gs, msks, &knights, &move_squares, &piece_incr, &move_incr);
+		
+	}	
+	return 0;
+
+} */
