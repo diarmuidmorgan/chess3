@@ -79,16 +79,20 @@ uint64_t pawn_moves(int x, int y, int direction) {
 
 }
 
-uint64_t diagonal(int x, int y, int xincr, int yincr) {
-
+uint64_t diagonal(int i, int j, int xincr, int yincr) {
+	int x = i + xincr;
+	int y = j + yincr;
 	int * b = blank_bit_array();
-	for (x+=xincr; x>=0 && x <= 7; x+=xincr){
-
-		for(y+=yincr;y>=0 && y <= 7; y+=yincr){
+	while (x>=0 && x <= 7 && y>=0 && y <= 7 ){
+	
+		
+		
 
 		b[x*8+y] = 1;
+		x+= xincr;
+		y+=yincr;
 		}
-	}
+	
 
 	return board_to_word(b);
 }
@@ -109,7 +113,7 @@ uint64_t rank(int x, int y,int direction){
 	for (y+=direction; y>=0 && y<=7; y+=direction){
 		b[x*8 + y] = 1;
 	}
-	return b;
+	return board_to_word(b);
 }
 uint64_t rank_up(int x, int y){
 	return rank(x,y,-1);

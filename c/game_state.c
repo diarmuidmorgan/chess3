@@ -36,8 +36,10 @@ GS * initial_game_state(){
 	gs->kings[1] = board_to_word(starting_king_black());
 	gs->queens[0] = board_to_word(starting_queen_white());
 	gs->queens[1] = board_to_word(starting_queen_black());
-	gs->pieces[0] = gs->pawns[0] | gs->rooks[0] | gs->knights[0] | gs->bishops[0] | gs->kings[0] | gs->queens[0]; 	
-	gs->pieces[1] = gs->pawns[1] | gs->rooks[1] | gs->knights[1] | gs->bishops[1] | gs->kings[1] | gs->queens[1];
+	gs->pieces[0] = gs->pawns[0] | gs->rooks[0] | gs->knights[0] 
+		| gs->bishops[0] | gs->kings[0] | gs->queens[0]; 	
+	gs->pieces[1] = gs->pawns[1] | gs->rooks[1] | gs->knights[1] 
+		| gs->bishops[1] | gs->kings[1] | gs->queens[1];
 	gs->all_pieces = gs->pieces[0] | gs->pieces[1];
 	gs->enpassants[0] = 0LL;
 	gs->enpassants[1] = 0LL;
@@ -129,8 +131,31 @@ GS * read_position_from_file (char * fname) {
 }
 
 GS * copy_game_state(GS * gs) {
+	/*
+	 * This code only seems to return a shallow copy and I'm not sure why
 	GS * new = malloc(sizeof(GS));
 	memcpy(new,gs,sizeof(GS));
+	return new;
+	*/
+	GS * new = malloc(sizeof(gs));
+	for (int color = 0; color<2; color++) {
+
+	
+	
+	//this is all fucked!	
+	*new->pawns[color] = *(gs->pawns[color]);
+	*new->knights[color] = *(gs->knights[color]);
+	*new->rooks[color] = *(gs->rooks[color]);
+	*new->bishops[color] = *(gs->bishops[color]);
+	*new->queens[color] = *(gs->queens[color]);
+	*new->kings[color] = *(gs->kings[color]);
+	*new->enpassants[color]=*(gs->enpassants[color]);
+	*new->pieces[color]=*(gs->pieces[color]);
+
+
+	}
+	new->color = gs->color;
+	new->all_pieces = gs->all_pieces;
 	return new;
 }
 

@@ -4,8 +4,10 @@
  * Handles incrementing the piece position counter, picking the new move msk,  and shifting the piece array
  */
 uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, uint64_t * piece_incr) {
-	
+		
 	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
+	//printf("this tha mask");
+	//binary_print_board(msks[(*piece_incr-1) * 14 + INDEX]);
 	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
 	uint64_t index = ffsll(msk);
 	// handles the case where the first piece is of the same color
@@ -28,12 +30,11 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) 
 		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
 	// 
-	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX]);
+	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + index]);
 
 }
-void knight_king_masking_function (GS * gs, uint64_t * move_squares, 
-		uint64_t * msks, uint64_t msk_number, 
-		uint64_t * piece_incr, uint64_t color) {
+void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
 	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
 
@@ -52,9 +53,14 @@ void pawn_attack_masking_function (GS * gs, uint64_t * move_squares,
  */
 void bishop_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
 	
+
+	*move_squares = *move_squares | sliding_ray_lsb_masking(10LL, msks, gs, color, piece_incr);
+	//binary_print_board(*move_squares);
+	//printf("-------");
+	*move_squares = *move_squares | sliding_ray_lsb_masking(11LL, msks, gs, color, piece_incr);
+	//binary_print_board(*move_squares);
+	//printf("---------");
 	
-	*move_squares = *move_squares | sliding_ray_lsb_masking(10, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_lsb_masking(11, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(12, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(13, msks, gs, color, piece_incr);
 }
@@ -88,7 +94,7 @@ int next_piece(GS * gs, int msk_number,
 	*piece_incr += index_p;
 	//replace this with first order function??
 	//*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[gs->color];
-	masking_function(move_squares, msks, msk_number, gs->color);
+	masking_function(gs, piece_incr,move_squares, msks, msk_number,(uint64_t) gs->color);
 	*pieces = *pieces >> index_p;
 	*move_incr = 0;
 	return 1;
@@ -111,13 +117,17 @@ int next_move (GS * gs, int msk_number,
 void make_simple_move (GS * new_gs, uint64_t * selected_pieces, uint64_t move_incr, uint64_t piece_incr) {
 	int color = new_gs->color;
 	uint64_t new_pos = 1LL << (move_incr - 1);
+	printf("new pos below.....");
+	//binary_print_board(new_pos);
 	uint64_t old_pos = 1LL  << (piece_incr -1);
 	//GS * new_gs = copy_game_state(gs);
 	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
 	//this bit could also be made into a higher order function?????
 	*selected_pieces = (*selected_pieces ^ old_pos) | new_pos;
-	new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
-
+	//new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
+	binary_print_board(new_gs->pieces[color]);
+	printf("and what the algo thinks is the game state");
+	print_game_state(new_gs);
 }
 
 /*
