@@ -4,6 +4,9 @@
 #include <string.h>
 #include "start_positions.c"
 #include "binary_ops.c"
+/* Basic struct for holding position data
+*
+*/
 typedef struct {
 
 	uint64_t pawns[2];
@@ -20,6 +23,9 @@ typedef struct {
 	int color;
 
 } GS;
+/* Constructor prodcedure. Returns a game state * with starting position set.
+*
+*/
 GS * initial_game_state(){
 	
 	
@@ -47,18 +53,25 @@ GS * initial_game_state(){
 	return gs;
 
 }
+/* Helper method. Returns an empty game state *.
+*
+*/
 GS * blank_game_state() {
 	GS * gs = malloc(sizeof(GS));
 	for (int i=0; i<2;i++) {
-	gs->pawns[i] = board_to_word(blank_bit_array());
-	gs->rooks[i] = board_to_word(blank_bit_array());
-	gs->knights[i] = board_to_word(blank_bit_array());
-	gs->bishops[i] = board_to_word(blank_bit_array());
-	gs->kings[i] = board_to_word(blank_bit_array());
-	gs->queens[i] = board_to_word(blank_bit_array());
+	gs->pawns[i] = 0LL;
+	gs->rooks[i] = 0LL;
+	gs->knights[i] = 0LL;
+	gs->bishops[i] = 0LL;
+	gs->kings[i] = 0LL;
+	gs->queens[i] = 0LL;
 	}
 	return gs;
 }
+/* Helper method. Constructs a game state from a 64 character string
+e.g ___________________________Q___________________________
+*
+*/
 
 GS * game_state_from_position_string(char * s, int c) {
 	GS * gs = blank_game_state();
@@ -119,6 +132,9 @@ GS * game_state_from_position_string(char * s, int c) {
 	return gs;
 }
 
+/* Reads position from file as 64 character string. Hopefully.
+*
+*/
 GS * read_position_from_file (char * fname) {
 
 	FILE *fp;
@@ -129,7 +145,10 @@ GS * read_position_from_file (char * fname) {
 	return game_state_from_position_string(s,0);
 
 }
-
+/* Should return a deep copy of the gamestate
+* Currently does not, actually do that.
+*
+*/
 GS * copy_game_state(GS * gs) {
 	/*
 	 * This code only seems to return a shallow copy and I'm not sure why
@@ -142,7 +161,7 @@ GS * copy_game_state(GS * gs) {
 
 	
 	
-	//this is all fucked!	
+	/*this is all fucked!	
 	*new->pawns[color] = *(gs->pawns[color]);
 	*new->knights[color] = *(gs->knights[color]);
 	*new->rooks[color] = *(gs->rooks[color]);
@@ -151,14 +170,26 @@ GS * copy_game_state(GS * gs) {
 	*new->kings[color] = *(gs->kings[color]);
 	*new->enpassants[color]=*(gs->enpassants[color]);
 	*new->pieces[color]=*(gs->pieces[color]);
-
+	*/
+	memcpy(new->pawns[color], gs->pawns[color], sizeof(uint64_t));
+	memcpy(new->knights[color], gs->knights[color], sizeof(uint64_t));
+	memcpy(new->rooks[color], gs->rooks[color], sizeof(uint64_t));
+	memcpy(new->bishops[color], gs->bishops[color], sizeof(uint64_t));
+	memcpy(new->queens[color], gs->queens[color], sizeof(uint64_t));
+	memcpy(new->kings[color], gs->kings[color], sizeof(uint64_t));
+	memcpy(new->enpassants[color], gs->enpassants[color], sizeof(uint64_t));
+	memcpy(new->pieces[color], gs->pieces[color], sizeof(uint64_t));
 
 	}
 	new->color = gs->color;
-	new->all_pieces = gs->all_pieces;
+	memcpy(new->all_pieces, gs->all_pieces,sizeof(uint64_t));
 	return new;
 }
 
+/* Procedure for handing the game state from one player to the next.
+* Needs to check for and update any pieces that have been removed.
+*
+*/
 void game_state_change_color(GS * gs, int color) {
 	//flip the color bit
 	gs->color = color;

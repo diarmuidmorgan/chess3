@@ -6,9 +6,13 @@ int count_pieces (uint64_t pieces) {
 	int count = 0;
 	while (pieces != 0LL)
 		pieces = pieces >> ffsll(pieces);
+		count ++;
 	return count;
 }
 
+/* Simplest possible evaluation function
+*
+*/
 int base_score( GS * gs ) {
 
 	int scores[2] = {0,0};

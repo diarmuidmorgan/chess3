@@ -66,12 +66,14 @@ uint64_t pawn_attacks(int x, int y, int direction){
 }
 uint64_t pawn_moves(int x, int y, int direction) {
 	int * b = blank_bit_array();
-	if ((x==1 && direction == -1) || (y==1 && direction == 1)){
+	
+	if ((x==1 && direction == 1) || (x==6 && direction == -1)){
 	if (valid_coords(x+(2*direction),y)){
 		b[8*(x+(2*direction)) + y] = 1;
 			}
 
 	}
+	
 	if (valid_coords((x+direction), y)){
 		b[8*(x+direction) + y] = 1;
 	}
@@ -85,9 +87,6 @@ uint64_t diagonal(int i, int j, int xincr, int yincr) {
 	int * b = blank_bit_array();
 	while (x>=0 && x <= 7 && y>=0 && y <= 7 ){
 	
-		
-		
-
 		b[x*8+y] = 1;
 		x+= xincr;
 		y+=yincr;

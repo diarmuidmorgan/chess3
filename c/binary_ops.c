@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include <strings.h>
 #include <inttypes.h>
+/* Base method, converts a 64 word binary array to a uint64_t number
+* 
+**/
 uint64_t board_to_word(int * a){
 	
 	uint64_t number = 0LL;
@@ -18,8 +21,8 @@ uint64_t board_to_word(int * a){
 	
 	return number;
 }
-/*This is a rubbish way of doing it obviously.
- *
+/*Very inefficient method of finding the index of the highest significant bit in uint64_t word.
+ * The reverse of ffsll()
  */
 uint64_t highest_significant_bit_index(uint64_t word) {
 
@@ -34,7 +37,9 @@ uint64_t highest_significant_bit_index(uint64_t word) {
 	return index;
 
 }
-
+/* Helper method. Prints uint64_t word in 8*8 grid of zeros and ones.
+*
+*/
 void binary_print_board(uint64_t word) {
 	int index;
 	int A[64];
