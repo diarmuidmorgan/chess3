@@ -1,7 +1,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "printer.c"
-//add castliong
+//add castling
+#define PAWNMVINDEX 0
+#define PAWNATINDEX 2
+#define KNIGHTMINDEX 4
+#define KINGMINDEX 5
+#define RANKUINDEX 6
+#define COLLINDEX 7
+#define RANKDINDEX 8
+#define COLRINDEX 9
+#define DIAGULINDEX 10
+#define DIAGURINDEX 11
+#define DIAGDLINDEX 12
+#define DIAGDRINDEX 13
+ 
 int valid_coords(int x, int y){
 	
 	if (x>=0 && x <=7 && y>=0 && y <= 7){
@@ -134,6 +147,10 @@ uint64_t col_right(int x, int y){
 	return column(x,y,1);
 }
 
+/*
+* packages all of the masks into one large array.
+*
+*/
 uint64_t * build_mask_object() {
 	int index;
 	uint64_t * ob = malloc(64 * 14 * sizeof(uint64_t));
@@ -144,18 +161,18 @@ uint64_t * build_mask_object() {
 		index = (i*8 + j )*14;
 		ob[index] = pawn_moves(i,j,1);
 		ob[index+1] = pawn_moves(i,j,-1);
-		ob[index+2] = pawn_attacks(i,j,1);
-		ob[index+3] = pawn_attacks(i,j,-1);
-		ob[index+4] = knight_moves(i,j,0);
-		ob[index+5] = king_moves(i,j);
-		ob[index+6] = rank_up(i,j);
-		ob[index+7] = rank_down(i,j);
-		ob[index+8] = col_left(i,j);
-		ob[index+9] = col_right(i,j);
-		ob[index+10] = diagonal_up_left(i,j);
-		ob[index+11] = diagonal_up_right(i,j);
-		ob[index+12] = diagonal_down_left(i,j);
-		ob[index+13] = diagonal_down_right(i,j);
+		ob[index+PAWNATINDEX] = pawn_attacks(i,j,1);
+		ob[index+PAWNATINDEX+1] = pawn_attacks(i,j,-1);
+		ob[index+KNIGHTMINDEX] = knight_moves(i,j,0);
+		ob[index+KINGMINDEX] = king_moves(i,j);
+		ob[index+RANKUINDEX] = rank_up(i,j);
+		ob[index+COLLINDEX] = col_left(i,j);
+		ob[index+RANKDINDEX] = rank_down(i,j);
+		ob[index+COLRINDEX] = col_right(i,j);
+		ob[index+DIAGULINDEX] = diagonal_up_left(i,j);
+		ob[index+DIAGURINDEX] = diagonal_up_right(i,j);
+		ob[index+DIAGDLINDEX] = diagonal_down_left(i,j);
+		ob[index+DIAGDRINDEX] = diagonal_down_right(i,j);
 
 
 		}

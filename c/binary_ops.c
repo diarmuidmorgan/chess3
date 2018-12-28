@@ -4,6 +4,7 @@
 /* Base method, converts a 64 word binary array to a uint64_t number
 * 
 **/
+
 uint64_t board_to_word(int * a){
 	
 	uint64_t number = 0LL;

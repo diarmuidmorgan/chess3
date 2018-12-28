@@ -2,113 +2,6 @@
 #include <stdio.h>
 
 
-uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, uint64_t * piece_incr) {
-		
-	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
-	//printf("this tha mask");
-	//binary_print_board(msks[(*piece_incr-1) * 14 + INDEX]);
-	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
-	uint64_t index = ffsll(msk);
-	// handles the case where the first piece is of the same color
-	if ( (gs->pieces[color] & (1LL << (index - 1) )) == gs->pieces[color]) 
-		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
-	// 
-	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX]);
-
-}
-/*Same as above, only we use the super slow highest_significant_bit() function 
-to determine the blocking piece
- *
- */
-uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, uint64_t * piece_incr) {
-	
-	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
-	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
-	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
-	uint64_t index = highest_significant_bit_index(msk);
-	// handles the case where the first piece is of the same color
-	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) 
-		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
-	// 
-	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + index]);
-
-}
-/* Simplest masking function. 
-Simply ands the base move mask with the inverse of the player's pieces.
-* 
-
-*/
-void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
-	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
-
-	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
-
-}
-/* Pawn attack masking function.
-Same as above, but ands the base mask with pieces of the other color.
-*/
-
-void pawn_attack_masking_function (GS * gs, uint64_t * move_squares, 
-		uint64_t * msks, uint64_t msk_number, 
-		uint64_t * piece_incr, uint64_t color) {
-
-	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[~(gs->color)];
-
-}
-/* Masking function for pawn forward moves.
-* Slightly more complicated. Inefficient. 
-*/
-void pawn_forward_masking_function ( GS * gs, uint64_t * move_squares,
-									uint64_t * msks, uint64_t msk_number,
-									uint64_t * piece_incr, uint64_t color){
-	
-	uint64_t msk = msks[(*piece_incr-1)*14 + color];
-	//determine which squares can be moved to in the mask.
-	*move_squares = *move_squares & ~gs->all_pieces;
-	//find the first valid square
-	int index = ffsll(*move_squares);
-	//check that the first free square is directly in front. If it isn't, we set moves squares
-	// to 0, as the possible double pawn move won't be valid either.
-	if (index!= 0 && abs(*piece_incr - index) != 8)
-		*move_squares = 0LL;
-	
-
-									}
-/* This - alot more fucking complicated ...
- *
- * SLIDING PIECES!
- */
-void bishop_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
-	
-
-	*move_squares = *move_squares | sliding_ray_lsb_masking(10LL, msks, gs, color, piece_incr);
-	//binary_print_board(*move_squares);
-	//printf("-------");
-	*move_squares = *move_squares | sliding_ray_lsb_masking(11LL, msks, gs, color, piece_incr);
-	//binary_print_board(*move_squares);
-	//printf("---------");
-	
-	*move_squares = *move_squares | sliding_ray_hsb_masking(12, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_hsb_masking(13, msks, gs, color, piece_incr);
-}
-
-void rook_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
-		*move_squares = *move_squares | sliding_ray_lsb_masking(6, msks, gs,color,piece_incr);
-	*move_squares = *move_squares | sliding_ray_lsb_masking(8, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_hsb_masking(7, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_hsb_masking(9, msks, gs, color, piece_incr);
-}
-
-void queen_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
-	
-	
-	bishop_masking_function(gs, piece_incr,
-				move_squares, msks,
-				msk_number, color);
-	rook_masking_function(gs, piece_incr, 
-				move_squares, msks,
-				msk_number, color);
-}
 
 /* The things is, we really need a 'checksquares' kind of mask in order to do this.
 * Damn, better build that first?
@@ -121,7 +14,7 @@ int castling_kingside_function (GS * gs, uint64_t * castle_masks){
 
 	if (!gs->castle_king_side[gs->color]) return 0;
 	if (castle_masks[gs->color] == castle_masks[gs->color] & ~gs->all_pieces){
-		uint64_t check_squares = generate_check_squares(~gs->color);
+		uint64_t check_squares = generate_check_squares(gs, ~gs->color);
 		if (castle_masks[gs->color] == castle_masks[gs->color] & ~check_squares)
 			return 1;
 	}
@@ -171,7 +64,8 @@ int next_move (GS * gs, int msk_number,
 }
 /*simple move - should work for knights, kings and some pawn moves?
  */
-void make_simple_move (GS * new_gs, uint64_t * selected_pieces, uint64_t move_incr, uint64_t piece_incr) {
+void make_simple_move (GS * new_gs, uint64_t * selected_pieces, 
+						uint64_t move_incr, uint64_t piece_incr) {
 	
 	int color = new_gs->color;
 	uint64_t new_pos = 1LL << (move_incr - 1);
@@ -188,21 +82,106 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces, uint64_t move_in
 	print_game_state(new_gs);
 }
 
-/* Problem here is we have to know which pieces are pinned first?
+/* GETTING CHECK SQUARES AND PIN SQUARES TO DETERMINE VALID CASTLING. 
+
+
+Problem here is we have to know which pieces are pinned first?
  This seems horrendously expensive. Though we would only have to do it if castling is already valid,
  except for passing through attacked squares. Which is probably only true in a fraction of the moves?
  We would also use the two below methods for parsing Game notation, important in the (seemingly less
  and less possible) ML stage.
 */
-uint64_t generate_pin_masks(GS * gs, uint64_t * msks){
+uint64_t generate_pin_masks(GS * gs, 
+						uint64_t * msks){
+
+	int color =  -1 * gs->color;
+	int rcolor=gs->color;
+	uint64_t pin_mask = 0LL;
+	//for bishops, queens and rooks
+	// select each potential ray
+	// determine whether a king of opposing color is in that ray
+	// determine number of pieces blocking the ray
+	//
+	uint64_t pieces = gs->bishops[color];
+	int msk_numbers1[4] = {10,11,12,13};
+	int msk_numbers2[4] = msk_numbers = {10,11,12,13};
+	add_to_pin_mask(pieces, &pin_mask, gs, &msk_numbers1, msks,color,rcolor);
+	pieces = gs->rooks[color];
+	
+	add_to_pin_mask(pieces, &pin_mask, gs, &msk_numbers2, msks,color,rcolor);
+	pieces = gs->queens[color];
+	add_to_pin_mask(pieces, &pin_mask, gs, &msk_numbers2, msks,color,rcolor);
+	pieces = gs->queens[color];
+	
+	add_to_pin_mask(pieces, &pin_mask, gs, &msk_numbers1, msks,color,rcolor);
+	return pin_mask; 
+}
+void add_to_pin_mask (uint64_t pieces, uint64_t * pin_mask, 
+					GS * gs, int * msk_numbers, int * msks, int color, int rcolor){
+	uint64_t piece_incr = 0LL;
+	while(cycle_pieces(gs,&pieces,&piece_incr)) {
+		uint64_t ray = msks[(piece_incr -1) * 14 + 10];
+		uint64_t ray_with_king = ray && gs->kings[rcolor];
+		for(int i=0; i<2; i ++){
+			//return if the king was found inside this ray
+			if (add_to_pin_mask_update(ffsll, piece_incr, color, rcolor, msk_numbers[i]))
+				break;
+		}
+		for (int i=2; i<4; i++){
+			if (add_to_pin_mask_update(highest_significant_bit_index, piece_incr, color, rcolor, msk_numbers[i]))
+				break;
+
+		}
+	}
+}
+int add_to_pin_mask_update( int (* bit_find_func)(), uint64_t piece_incr, 
+							int color, int rcolor, int msk_number){
+	uint64_t ray = msks[(piece_incr -1) * 14 + msk_number];
+	uint64_t ray_with_king = ray && gs->kings[rcolor];
+	if (ray_with_king == ray){
+			uint64_t pieces_inbetween = ray_with_king & gs->all_pieces & (~gs->kings[rcolor]);
+			int first = func(pieces_inbetween);
+			if (first!=0){
+				int count = 1;
+				while (pieces_inbetween != 0LL && count == 1){
+					pieces_inbetween = pieces_inbetween >> bit_find_func(pieces_inbetween);
+					count ++;
+				}
+				if (count == 1 && (gs->pieces[rcolor] & (1LL << (first-1) == gs->pieces[rcolor] ))
+					pin_mask |= 1LL << first;
+
+			}
+			return 1;
+		}
+	return 0;
+}
+
+void add_attack_squares (GS * gs, uint64_t * attack_squares, int msk_number, uint64_t pieces, void (* masking_function)()){
+	uint64_t piece_incr = 0LL;
+	uint64_t move_squares = 0LL;
+	uint64_t move_incr = 0LL;
+	while (next_piece(gs, msk_number, msks, &pieces, &move_squares, &piece_incr, &move_incr, masking_function)){
+
+		*attack_squares |= move_squares;
+	}
 
 
 }
-uint64_t generate_check_squares(GS * gs, int color){
 
-	uint64_t check_squares = 0LL;
-	uint64_t move_squares = 0LL;
-	next_piec
+uint64_t generate_attack_squares(GS * gs, int color, uint64_t * msks){
 
-
+	uint64_t attack_squares = 0LL;
+	uint64_t pieces = gs->pawns[color];
+	add_attack_squares(&attack_squares, 2, pieces, pawn_attack_masking_function);
+	pieces = gs->kings[color];
+	add_attack_squares(&attack_squares, 3, pieces, knight_king_masking_function);
+	pieces = gs->knights[color];
+	add_attack_squares(&attack_squares, 3, pieces, knight_king_masking_function);
+	pieces = gs->bishops[color];
+	add_attack_squares(&attack_squares, 3, pieces, bishop_masking_function);
+	pieces = gs->queens[color];
+	add_attack_squares(&attack_squares, 3, pieces, queen_masking_function);
+	pieces = gs->rooks[color];
+	add_attack_squares(&attack_squares, 3, pieces, rook_masking_function);
+	return attack_squares;
 }
