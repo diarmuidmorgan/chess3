@@ -91,6 +91,7 @@ GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
 		
 		*piece_incr = 0LL;
 		*move_incr = 0LL;
+		free(new);
 		return NULL;
 	}
 

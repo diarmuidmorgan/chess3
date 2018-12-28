@@ -152,8 +152,13 @@ GS * copy_game_state (GS * gs){
 		create new, rather than the size of GS. Maybe memcpy() might have worked after all?;
 
 		Now seems relatively solid.
+
+		
 	*/
+	//OK valgrinder seems to think this is causing memory leak??
 	//GS * new = malloc(sizeof(gs));
+
+	/*
 	for (int color = 0; color<2; color++) {
 		new->pawns[color] = gs->pawns[color];
 		new->knights[color] = gs->knights[color];
@@ -168,6 +173,10 @@ GS * copy_game_state (GS * gs){
 	
 
 	new ->all_pieces = gs->all_pieces;
+	new->color = gs->color;
+	return new;
+	*/
+	memcpy(new, gs, sizeof(GS));
 	return new;
 }
 /* Should return a deep copy of the gamestate

@@ -35,7 +35,7 @@ void loop_with_generator(GS * gs, int depth, int * positions_considered, uint64_
 	selected_pieces = new->knights;
 	//binary_print_board(gs->knights[0]);
 	new = game_state_generator(gs, new, &piece_incr, &move_incr, 
-	&pieces, &move_squares, msks, selected_pieces, KNIGHTMINDEX, knight_king_masking_function);
+	&pieces, &move_squares, msks, selected_pieces, KNIGHTMINDEX, knight_masking_function);
 	
 	//loop_with_generator(new,depth,positions_considered);
 	while (new != NULL){
@@ -72,7 +72,30 @@ void loop_with_generator(GS * gs, int depth, int * positions_considered, uint64_
 		
 		//printf("%" PRIu64 "\n", piece_incr);
 		//loop_with_generator(new, depth, positions_considered);
+	}
+		pieces = gs->kings[0];
+    piece_incr = 0LL;
+	move_incr = 0LL;
+	free(new);
+	new = copy_game_state(gs);
+	selected_pieces = new->kings;
+	new = game_state_generator(gs, new, &piece_incr, &move_incr, 
+	&pieces, &move_squares, msks, selected_pieces, PAWNMVINDEX, pawn_masking_function);
+	
+	while (new != NULL){
+		loop_with_generator(new, depth, positions_considered, msks);
+		free(new);
+		new = copy_game_state(gs);
+		selected_pieces = new->kings;
+		
+		
+		new = game_state_generator(gs, new, &piece_incr, &move_incr, &pieces, 
+							&move_squares, msks, selected_pieces, PAWNMVINDEX, king_masking_function);
+		
+		//printf("%" PRIu64 "\n", piece_incr);
+		//loop_with_generator(new, depth, positions_considered);
 	}/*
+
     pieces = gs->bishops[0];
     piece_incr = 0LL;
 	move_incr = 0LL;
@@ -166,7 +189,7 @@ int main () {
 	*positions = 0;
 	GS * gs = initial_game_state();
 	//generation_loop(gs);
-	loop_with_generator(gs, 6, positions, msks);
+	loop_with_generator(gs, 4, positions, msks);
 	
 	printf("\n%d\n",*positions);
 	return 0;
