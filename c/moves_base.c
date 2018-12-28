@@ -47,24 +47,23 @@ void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
 Same as above, but ands the base mask with pieces of the other color.
 */
 
-void pawn_attack_masking_function (GS * gs, uint64_t * move_squares, 
-		uint64_t * msks, uint64_t msk_number, 
-		uint64_t * piece_incr, uint64_t color) {
+void pawn_attack_masking_function (GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
-	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[~(gs->color)];
+	*move_squares = msks[(*piece_incr - 1) * 14 + PAWNATINDEX] & gs->pieces[~(gs->color)];
 
 }
 /* Masking function for pawn forward moves.
 * Slightly more complicated. Inefficient. 
 * Does not handle pawn promotion.
 */
-void pawn_forward_masking_function ( GS * gs, uint64_t * move_squares,
-									uint64_t * msks, uint64_t msk_number,
-									uint64_t * piece_incr, uint64_t color){
+void pawn_forward_masking_function (GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
 	
-	uint64_t msk = msks[(*piece_incr-1)*14 + color];
+	uint64_t msk = msks[(*piece_incr-1)*14 + PAWNMVINDEX + color];
+	binary_print_board(msk);
 	//determine which squares can be moved to in the mask.
-	*move_squares = *move_squares & ~gs->all_pieces;
+	*move_squares = msk & ~gs->all_pieces;
 	//find the first valid square
 	int index = ffsll(*move_squares);
 	//check that the first free square is directly in front. If it isn't, we set moves squares

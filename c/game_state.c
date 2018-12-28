@@ -145,17 +145,38 @@ GS * read_position_from_file (char * fname) {
 	return game_state_from_position_string(s,0);
 
 }
+GS * copy_game_state (GS * gs){
+	GS * new = malloc(sizeof(GS));
+	/* leads to madness and dumped cores
+	*/
+	//GS * new = malloc(sizeof(gs));
+	for (int color = 0; color<2; color++) {
+		new->pawns[color] = gs->pawns[color];
+		new->knights[color] = gs->knights[color];
+		new->rooks[color] =  gs->rooks[color];
+		new->bishops[color] = gs->bishops[color];
+		new->queens[color] = gs->queens[color];
+		new->kings[color] = gs->kings[color];
+		new->enpassants[color]= gs->enpassants[color];
+		new->pieces[color]=  gs->pieces[color];
+
+	}
+	
+
+	new ->all_pieces = gs->all_pieces;
+	return new;
+}
 /* Should return a deep copy of the gamestate
 * Currently does not, actually do that.
 *
-*/
+*
 GS * copy_game_state(GS * gs) {
 	/*
 	 * This code only seems to return a shallow copy and I'm not sure why
 	GS * new = malloc(sizeof(GS));
 	memcpy(new,gs,sizeof(GS));
 	return new;
-	*/
+	*
 	GS * new = malloc(sizeof(gs));
 	for (int color = 0; color<2; color++) {
 
@@ -170,7 +191,7 @@ GS * copy_game_state(GS * gs) {
 	*new->kings[color] = *(gs->kings[color]);
 	*new->enpassants[color]=*(gs->enpassants[color]);
 	*new->pieces[color]=*(gs->pieces[color]);
-	*/
+	*
 	memcpy(new->pawns[color], gs->pawns[color], sizeof(uint64_t));
 	memcpy(new->knights[color], gs->knights[color], sizeof(uint64_t));
 	memcpy(new->rooks[color], gs->rooks[color], sizeof(uint64_t));
@@ -186,10 +207,10 @@ GS * copy_game_state(GS * gs) {
 	return new;
 }
 
-/* Procedure for handing the game state from one player to the next.
+* Procedure for handing the game state from one player to the next.
 * Needs to check for and update any pieces that have been removed.
 *
-*/
+*
 void game_state_change_color(GS * gs, int color) {
 	//flip the color bit
 	gs->color = color;
@@ -203,5 +224,5 @@ void game_state_change_color(GS * gs, int color) {
 
 }
 
-
+*/
 
