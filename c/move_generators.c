@@ -61,7 +61,7 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	//printf("reading game state");
 	//binary_print_board(new_gs->knights[0]);
 	//new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
-	
+	return;
 }
 GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
 						uint64_t * move_incr, uint64_t * pieces, 

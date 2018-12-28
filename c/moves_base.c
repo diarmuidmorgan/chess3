@@ -30,6 +30,7 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
 	// 
 	return msks[(*piece_incr - 1) * 14 + INDEX] ^ (msks[(index -1) * 14 + index]);
+	
 
 }
 /* Simplest masking function. 
@@ -41,6 +42,7 @@ void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
 	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
+	return;
 
 }
 
@@ -48,12 +50,14 @@ void knight_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
 		knight_king_masking_function (gs, piece_incr, move_squares, msks, KNIGHTMINDEX, color);
+		return;
 
 	}
 void king_masking_function(GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
 
 		knight_king_masking_function (gs, piece_incr, move_squares, msks, KINGMINDEX, color);
+		return;
 	}
 /* Pawn attack masking function.
 Same as above, but ands the base mask with pieces of the other color.
@@ -64,6 +68,7 @@ void pawn_attack_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
 	*move_squares |= msks[(*piece_incr - 1) * 14 + PAWNATINDEX + color] & gs->pieces[~(gs->color)];
+	return;
 
 }
 /* Masking function for pawn forward moves.
@@ -87,6 +92,7 @@ void pawn_forward_masking_function (GS * gs, uint64_t * piece_incr,
 		return ;
 	else 
 		*move_squares |= temp_move_squares;
+		return;
 	
 
 									}
@@ -94,7 +100,7 @@ void pawn_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
 		pawn_attack_masking_function(gs, piece_incr, move_squares, msks, msk_number, color);
 		pawn_forward_masking_function(gs, piece_incr, move_squares, msks, msk_number, color);
-
+	return;
 	}
 /* This - alot more fucking complicated ...
  *
@@ -112,6 +118,7 @@ void bishop_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_sq
 	
 	*move_squares = *move_squares | sliding_ray_hsb_masking(12LL, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(13LL, msks, gs, color, piece_incr);
+	return;
 }
 
 void rook_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
@@ -119,6 +126,7 @@ void rook_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squa
 	*move_squares = *move_squares | sliding_ray_lsb_masking(8, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(7, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(9, msks, gs, color, piece_incr);
+	return;
 }
 
 void queen_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
@@ -130,4 +138,6 @@ void queen_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squ
 	rook_masking_function(gs, piece_incr, 
 				move_squares, msks,
 				msk_number, color);
+	return;
+
 }

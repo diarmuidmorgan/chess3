@@ -5,8 +5,15 @@
 * This is an absolutely horrible game loop
 *  :(
 */
+
+/* If we just put everything on a stack, that will handle the memory leak right?
+*
+*/
+
+
+
 void loop_with_generator(GS * gs, int depth, int * positions_considered, uint64_t * msks){
-	char s[1000];
+	//char s[1000];
 	//scanf("%s", &s);
 	if (depth == 0) return;
 
@@ -65,7 +72,7 @@ void loop_with_generator(GS * gs, int depth, int * positions_considered, uint64_
 		
 		//printf("%" PRIu64 "\n", piece_incr);
 		//loop_with_generator(new, depth, positions_considered);
-	}
+	}/*
     pieces = gs->bishops[0];
     piece_incr = 0LL;
 	move_incr = 0LL;
@@ -143,14 +150,14 @@ void loop_with_generator(GS * gs, int depth, int * positions_considered, uint64_
 
 
 
-
+    //free(selected_pieces);
 	free(new);
     //free(pieces);
     //free(piece_incr);
     //free(move_incr);
     //free(selected_pieces);
     //free(selected_pieces);
-
+    return;
 	}
 
 int main () {
