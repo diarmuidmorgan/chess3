@@ -24,7 +24,7 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	uint64_t msk = msks[(*piece_incr -1) * 14 + INDEX] & gs->all_pieces;
 	if(msk == 0LL) return msks[(*piece_incr-1) * 14 + INDEX];
 	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
-	uint64_t index = highest_significant_bit_index(msk);
+	uint64_t index = __builtin_clzll(msk) + 1;
 	// handles the case where the first piece is of the same color
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) 
 		return msks[(*piece_incr -1) * 14 + INDEX] ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));
@@ -43,6 +43,18 @@ void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
 	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
 
 }
+
+void knight_masking_function (GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
+
+		knight_king_masking_function (gs, piece_incr, move_squares, msks, KNIGHTMINDEX, color);
+
+	}
+void king_masking_function(GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
+
+		knight_king_masking_function (gs, piece_incr, move_squares, msks, KINGMINDEX, color);
+	}
 /* Pawn attack masking function.
 Same as above, but ands the base mask with pieces of the other color.
 */
@@ -98,8 +110,8 @@ void bishop_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_sq
 	//binary_print_board(*move_squares);
 	//printf("---------");
 	
-	*move_squares = *move_squares | sliding_ray_hsb_masking(12, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_hsb_masking(13, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(12LL, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(13LL, msks, gs, color, piece_incr);
 }
 
 void rook_masking_function (GS * gs, uint64_t * piece_incr, uint64_t * move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){

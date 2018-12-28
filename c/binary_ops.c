@@ -24,14 +24,16 @@ uint64_t board_to_word(int * a){
 }
 /*Very inefficient method of finding the index of the highest significant bit in uint64_t word.
  * The reverse of ffsll()
+ * 
+ * This is redundant! Can just use __builtin_clzll + 1 instead. Thank god! This was horrible
  */
 uint64_t highest_significant_bit_index(uint64_t word) {
 
 	uint64_t index = 0LL;
-       	while (word != 0){
+       	while (word != 0LL){
 		uint64_t i = ffsll(word);
 		index += i;
-		word >> i;
+		word = word >> i;
 
 
 	}	
