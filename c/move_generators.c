@@ -19,7 +19,7 @@ int next_piece(GS * gs, int msk_number,
 	//*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[gs->color];
 	masking_function(gs, piece_incr,move_squares, msks, msk_number,(uint64_t) gs->color);
 	*pieces = *pieces >> index_p;
-	*move_incr = 0;
+	*move_incr = 0LL;
 	return 1;
 }
 /*
@@ -46,13 +46,115 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	uint64_t new_pos = 1LL << (move_incr - 1);
 	
 	uint64_t old_pos = 1LL  << (piece_incr -1);
+	//printf("about to make this move _____>");
+	//binary_print_board(new_pos);
+	//binary_print_board(old_pos);
 	//GS * new_gs = copy_game_state(gs);
 	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
+	//binary_print_board(new_gs->pieces[color]);
 	//this bit could also be made into a higher order function?????
-	*selected_pieces = (*selected_pieces ^ old_pos) | new_pos;
+	//printf("the old piece positions");
+	//binary_print_board(selected_pieces[color]);
+	//printf("the new piece positions");
+	selected_pieces[color] = (selected_pieces[color] ^ old_pos) | new_pos;
+	//binary_print_board(selected_pieces[color]);
+	//printf("reading game state");
+	//binary_print_board(new_gs->knights[0]);
 	//new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
 	
 }
+GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
+						uint64_t * move_incr, uint64_t * pieces, 
+						uint64_t * move_squares, uint64_t * msks,
+						uint64_t * selected_pieces, int msk_number, void (* masking_function)){
+
+	printf("%" PRIu64 "\n", *move_incr);
+	printf("%" PRIu64 "\n", *piece_incr);
+	int CAN_MOVE = 0;
+	if (next_move(gs, msk_number, msks, pieces, move_squares, piece_incr, move_incr)){
+		CAN_MOVE = 1;
+		printf("UHHH");
+	}
+	else if (next_piece(gs, msk_number, msks, pieces,
+		 move_squares, piece_incr, move_incr, 
+			masking_function) && 
+			next_move(gs, msk_number, msks, pieces, move_squares, piece_incr, move_incr)){
+			CAN_MOVE = 1;
+			printf("DUD");
+	}
+	if (CAN_MOVE){
+			
+			//binary_print_board(1LL << (*move_incr - 1));
+			make_simple_move(new, selected_pieces,*move_incr, *piece_incr);
+			
+			return new;
+	}
+	else {
+		printf("FUCKED");
+		*piece_incr = 0LL;
+		*move_incr = 0LL;
+		return NULL;
+	}
+
+						}
+void loop_with_generator(GS * gs){
+	uint64_t * msks = build_mask_object();
+	uint64_t piece_incr = 0LL;
+	uint64_t move_incr = 0LL;
+	uint64_t pieces = 0LL;
+	uint64_t move_squares;
+	uint64_t * selected_pieces;
+	int msk_number;
+	piece_incr = 0LL;
+	move_incr = 0LL;
+	pieces = gs->knights[0];
+	
+	move_squares = 0LL;
+	GS * new = copy_game_state(gs);
+	selected_pieces = new->knights;
+	//binary_print_board(gs->knights[0]);
+	new = game_state_generator(gs, new, &piece_incr, &move_incr, 
+	&pieces, &move_squares, msks, selected_pieces, KNIGHTMINDEX, knight_king_masking_function);
+	
+	while (new != NULL){
+		print_game_state(new);
+		printf("\n\n");
+		free(new);
+		new = copy_game_state(gs);
+		
+		
+		
+		new = game_state_generator(gs, new, &piece_incr, &move_incr, &pieces, 
+							&move_squares, msks, selected_pieces, KNIGHTMINDEX, knight_king_masking_function);
+		printf("%" PRIu64 "\n", piece_incr);
+	}
+	pieces = gs->pawns[0];
+	free(new);
+	new = copy_game_state(gs);
+	selected_pieces = new->pawns;
+	new = game_state_generator(gs, new, &piece_incr, &move_incr, 
+	&pieces, &move_squares, msks, selected_pieces, PAWNMVINDEX, pawn_masking_function);
+	
+	while (new != NULL){
+		print_game_state(new);
+		printf("\n\n");
+		free(new);
+		new = copy_game_state(gs);
+		
+		
+		
+		new = game_state_generator(gs, new, &piece_incr, &move_incr, &pieces, 
+							&move_squares, msks, selected_pieces, PAWNMVINDEX, pawn_masking_function);
+		printf("%" PRIu64 "\n", piece_incr);
+	}
+
+
+
+
+
+	}
+
+
 void generation_loop (GS * gs){
 	uint64_t * msks = build_mask_object();
 	uint64_t piece_incr = 0LL;
@@ -68,9 +170,10 @@ void generation_loop (GS * gs){
 	msk_number = PAWNMVINDEX+1;
 	while (next_piece(gs, msk_number, msks,&pieces,
 		&move_squares,&piece_incr, &move_incr, 
-			pawn_forward_masking_function)){
+			pawn_masking_function)){
 			//binary_print_board(move_squares);
 			move_incr = 0;
+
 		while (next_move(gs, msk_number, msks, &pieces, &move_squares, &piece_incr, &move_incr)){
 			//binary_print_board(1LL << (move_incr -1));
 			GS * new = copy_game_state(gs);
@@ -130,7 +233,7 @@ void test_loop(GS * gs, int TEST_PAWNATTACKS, int TEST_PAWNMOVES, int TEST_KNIGH
 }
 int main () {
 	GS * gs = initial_game_state();
-	//test_loop(gs,0,1,0);
-	generation_loop(gs);
+	//generation_loop(gs);
+	loop_with_generator(gs);
 	return 0;
 }

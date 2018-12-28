@@ -147,7 +147,11 @@ GS * read_position_from_file (char * fname) {
 }
 GS * copy_game_state (GS * gs){
 	GS * new = malloc(sizeof(GS));
-	/* leads to madness and dumped cores
+	/* was leading to madness and dumped cores
+	*  OK so ---> as seen below I was trying to use the size of a pointer to
+		create new, rather than the size of GS. Maybe memcpy() might have worked after all?;
+
+		Now seems relatively solid.
 	*/
 	//GS * new = malloc(sizeof(gs));
 	for (int color = 0; color<2; color++) {

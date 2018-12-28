@@ -47,10 +47,11 @@ void knight_king_masking_function (GS * gs, uint64_t * piece_incr,
 Same as above, but ands the base mask with pieces of the other color.
 */
 
+
 void pawn_attack_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color) {
 
-	*move_squares = msks[(*piece_incr - 1) * 14 + PAWNATINDEX] & gs->pieces[~(gs->color)];
+	*move_squares |= msks[(*piece_incr - 1) * 14 + PAWNATINDEX + color] & gs->pieces[~(gs->color)];
 
 }
 /* Masking function for pawn forward moves.
@@ -61,18 +62,28 @@ void pawn_forward_masking_function (GS * gs, uint64_t * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
 	
 	uint64_t msk = msks[(*piece_incr-1)*14 + PAWNMVINDEX + color];
-	binary_print_board(msk);
+	//binary_print_board(msk);
 	//determine which squares can be moved to in the mask.
-	*move_squares = msk & ~gs->all_pieces;
+	uint64_t temp_move_squares = msk & ~gs->all_pieces;
 	//find the first valid square
-	int index = ffsll(*move_squares);
+	int index;
+	if(color==0) index = ffsll(temp_move_squares);
+	else index = highest_significant_bit_index(temp_move_squares);
 	//check that the first free square is directly in front. If it isn't, we set moves squares
 	// to 0, as the possible double pawn move won't be valid either.
 	if (index!= 0 && abs(*piece_incr - index) != 8)
-		*move_squares = 0LL;
+		return ;
+	else 
+		*move_squares |= temp_move_squares;
 	
 
 									}
+void pawn_masking_function (GS * gs, uint64_t * piece_incr,
+	uint64_t* move_squares, uint64_t * msks, uint64_t msk_number, uint64_t color){
+		pawn_attack_masking_function(gs, piece_incr, move_squares, msks, msk_number, color);
+		pawn_forward_masking_function(gs, piece_incr, move_squares, msks, msk_number, color);
+
+	}
 /* This - alot more fucking complicated ...
  *
  * SLIDING PIECES!
