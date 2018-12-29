@@ -230,7 +230,8 @@ int main () {
 	pawn_tester("positions/pawns2.chess", "positions/pawns2correct.chess");
 	rook_tester("positions/rooks.chess", "positions/rookscorrect.chess");
 	test_pins("positions/pins1.chess", "positions/pins1correct.chess");
-	
+	test_pins("positions/pins2.chess", "positions/pins2correct.chess");	
+	test_pins("positions/pins3.chess", "positions/pins3correct.chess");
 	/*
 	printf("examine this...");
 	binary_print_board(gs->pieces[1]);

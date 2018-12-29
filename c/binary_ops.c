@@ -23,11 +23,7 @@ uint64_t board_to_word(int * a){
 	
 	return number;
 }
-/*Very inefficient method of finding the index of the highest significant bit in uint64_t word.
- * The reverse of ffsll()
- * 
- * This is redundant! Can just use __builtin_clzll + 1 instead. Thank god! This was horrible
- */
+
 int bitscanforward(uint64_t msk){
 	return ffsll(msk);
 }
@@ -37,19 +33,6 @@ int bitscanreverse(uint64_t msk){
 
 }
 
-uint64_t highest_significant_bit_index(uint64_t word) {
-
-	uint64_t index = 0LL;
-       	while (word != 0LL){
-		uint64_t i = ffsll(word);
-		index += i;
-		word = word >> i;
-
-
-	}	
-	return index;
-
-}
 /* Helper method. Prints uint64_t word in 8*8 grid of zeros and ones.
 *
 */

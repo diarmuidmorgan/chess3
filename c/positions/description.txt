@@ -1,1 +1,0 @@
-Should list series of positions for tests.
