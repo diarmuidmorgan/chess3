@@ -1,6 +1,6 @@
 #include "moves_base.c"
 
-int cycle_pieces (GS * gs, uint64_t * pieces, uint64_t * piece_incr){
+int cycle_pieces (GS * gs, uint64_t * pieces, int * piece_incr){
 	if(*pieces==0LL) return 0;
 	int index_p = ffsll(*pieces);
 	*piece_incr += index_p;
@@ -9,8 +9,8 @@ int cycle_pieces (GS * gs, uint64_t * pieces, uint64_t * piece_incr){
 }
 int next_piece(GS * gs, int msk_number, 
 		uint64_t * msks, uint64_t * pieces, 
-		uint64_t * move_squares, uint64_t * piece_incr, 
-		uint64_t * move_incr, void (*masking_function)()) {
+		uint64_t * move_squares, int * piece_incr, 
+		int * move_incr, void (*masking_function)()) {
 	//return NULL if pieces have been consumed.
 	if (*pieces == 0LL) return 0;
 	int index_p = ffsll(*pieces);  
@@ -19,7 +19,7 @@ int next_piece(GS * gs, int msk_number,
 	//*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & gs->pieces[gs->color];
 	masking_function(gs, piece_incr,move_squares, msks, msk_number,(uint64_t) gs->color);
 	*pieces = *pieces >> index_p;
-	*move_incr = 0LL;
+	*move_incr = 0;
 	return 1;
 }
 /*
@@ -28,11 +28,11 @@ int next_piece(GS * gs, int msk_number,
  */
 int next_move (GS * gs, int msk_number, 
 		uint64_t * msks, uint64_t * pieces, 
-		uint64_t * move_squares, uint64_t * piece_incr, 
-		uint64_t * move_incr) {
+		uint64_t * move_squares, int * piece_incr, 
+		int * move_incr) {
 	
 	if (*move_squares == 0LL) return 0;
-	uint64_t index_m = ffsll(*move_squares);
+	int index_m = ffsll(*move_squares);
 	*move_incr += index_m;
 	*move_squares = *move_squares >> index_m;
 	return 1;
@@ -40,9 +40,10 @@ int next_move (GS * gs, int msk_number,
 /*simple move - should work for knights, kings and some pawn moves?
  */
 void make_simple_move (GS * new_gs, uint64_t * selected_pieces, 
-						uint64_t move_incr, uint64_t piece_incr) {
+						int move_incr, int piece_incr) {
 	
 	int color = new_gs->color;
+	int r_color = (color + 1) % 2;
 	uint64_t new_pos = 1LL << (move_incr - 1);
 	
 	uint64_t old_pos = 1LL  << (piece_incr -1);
@@ -57,14 +58,18 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	//binary_print_board(selected_pieces[color]);
 	//printf("the new piece positions");
 	selected_pieces[color] = (selected_pieces[color] ^ old_pos) | new_pos;
+
+	// here we have to update the other color's "all pieces variable"
+	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
+	flip_game_state(new_gs, r_color);
 	//binary_print_board(selected_pieces[color]);
 	//printf("reading game state");
 	//binary_print_board(new_gs->knights[0]);
 	//new_gs->pieces[~color] = new_gs->pieces[~color] & (~ new_pos); 
 	return;
 }
-GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
-						uint64_t * move_incr, uint64_t * pieces, 
+GS * game_state_generator(GS * gs, GS * new, int * piece_incr,
+						int * move_incr, uint64_t * pieces, 
 						uint64_t * move_squares, uint64_t * msks,
 						uint64_t * selected_pieces, int msk_number, void (* masking_function)){
 
@@ -89,8 +94,8 @@ GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
 	}
 	else {
 		
-		*piece_incr = 0LL;
-		*move_incr = 0LL;
+		*piece_incr = 0;
+		*move_incr = 0;
 		free(new);
 		return NULL;
 	}
@@ -98,7 +103,7 @@ GS * game_state_generator(GS * gs, GS * new, uint64_t * piece_incr,
 						}
 
 
-
+/*
 void generation_loop (GS * gs){
 	
 	uint64_t * msks = build_mask_object();
@@ -136,7 +141,7 @@ void generation_loop (GS * gs){
 *	Seems like incredibly dull and difficult work?
 	How did I do it in python? Just parsing all of those games and checking
 	the engine didn't crash?
-*/
+/
 void test_loop(GS * gs, int TEST_PAWNATTACKS, int TEST_PAWNMOVES, int TEST_KNIGHTS){
 	uint64_t * msks = build_mask_object();
 	print_game_state(gs);
@@ -176,3 +181,5 @@ void test_loop(GS * gs, int TEST_PAWNATTACKS, int TEST_PAWNMOVES, int TEST_KNIGH
 			binary_print_board(move_squares);
 	}
 }
+
+*/

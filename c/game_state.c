@@ -30,6 +30,7 @@ GS * initial_game_state(){
 	
 	
 	GS * gs = malloc(sizeof(GS));
+	
 	gs->pawns[0] = board_to_word(starting_pawns_white());
 	gs->pawns[1] = board_to_word(starting_pawns_black());
 	gs->rooks[0] = board_to_word(starting_rooks_white());
@@ -104,7 +105,7 @@ GS * game_state_from_position_string(char * s, int c) {
 					gs->bishops[0] |= 1LL << INDEX;
 					break;
 				case('B') :
-					gs->pawns[1] |= 1LL << INDEX;
+					gs->bishops[1] |= 1LL << INDEX;
 					break;
 				case('q') :
 					gs->queens[0] |= 1LL << INDEX;
@@ -116,7 +117,7 @@ GS * game_state_from_position_string(char * s, int c) {
 					gs->kings[0] |= 1LL << INDEX;
 					break;
 				case('K') :
-					gs->kings[0] |= 1LL << INDEX;
+					gs->kings[1] |= 1LL << INDEX;
 					break;
 
 				}
@@ -179,6 +180,21 @@ GS * copy_game_state (GS * gs){
 	memcpy(new, gs, sizeof(GS));
 	return new;
 }
+
+void flip_game_state (GS * gs, int color){
+
+	gs->color = color;
+	
+	gs->pawns[color] &= gs->pieces[color];
+	gs->rooks[color] &= gs->pieces[color];
+	gs->knights[color] &= gs->pieces[color];
+	gs->bishops[color] &= gs->pieces[color];
+	gs->queens[color] &= gs->pieces[color];
+	gs->knights[color] &= gs->pieces[color];
+
+
+}
+
 /* Should return a deep copy of the gamestate
 * Currently does not, actually do that.
 *

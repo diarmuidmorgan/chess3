@@ -35,7 +35,7 @@ void print_game_state(GS * gs) {
 	set_string_cell(string, 'H', gs->knights[1]);
 	set_string_cell(string, 'B', gs->bishops[1]);
 	set_string_cell(string, 'Q', gs->queens[1]);
-	set_string_cell(string, 'k', gs->kings[1]);
+	set_string_cell(string, 'K', gs->kings[1]);
 	
 	printf("\n");
 	for (int i = 0; i <8; i++){

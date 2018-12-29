@@ -2,7 +2,7 @@
 #include <strings.h>
 #include <inttypes.h>
 /* Base method, converts a 64 word binary array to a uint64_t number
-* 
+* Destroys the provided pointer 'a'.
 **/
 
 uint64_t board_to_word(int * a){
@@ -19,6 +19,7 @@ uint64_t board_to_word(int * a){
 		base = base * expo;
 		
 	}
+	free(a);
 	
 	return number;
 }
