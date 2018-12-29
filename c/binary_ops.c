@@ -28,6 +28,15 @@ uint64_t board_to_word(int * a){
  * 
  * This is redundant! Can just use __builtin_clzll + 1 instead. Thank god! This was horrible
  */
+int bitscanforward(uint64_t msk){
+	return ffsll(msk);
+}
+int bitscanreverse(uint64_t msk){
+
+	return 64 - (__builtin_clzll(msk));
+
+}
+
 uint64_t highest_significant_bit_index(uint64_t word) {
 
 	uint64_t index = 0LL;

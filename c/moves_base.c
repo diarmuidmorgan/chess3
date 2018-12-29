@@ -132,8 +132,8 @@ void bishop_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares
 
 void rook_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
 		*move_squares = *move_squares | sliding_ray_lsb_masking(6, msks, gs,color,piece_incr);
-	*move_squares = *move_squares | sliding_ray_lsb_masking(8, msks, gs, color, piece_incr);
-	*move_squares = *move_squares | sliding_ray_hsb_masking(7, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_lsb_masking(7, msks, gs, color, piece_incr);
+	*move_squares = *move_squares | sliding_ray_hsb_masking(8, msks, gs, color, piece_incr);
 	*move_squares = *move_squares | sliding_ray_hsb_masking(9, msks, gs, color, piece_incr);
 	return;
 }

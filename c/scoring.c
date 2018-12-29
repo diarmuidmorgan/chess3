@@ -1,6 +1,7 @@
 #include "move_arithmetic.c"
 
-
+#define MAX_SCORE 100000
+#define MIN_SCORE -100000
 int count_pieces (uint64_t pieces) {
 	
 	int count = 0;
@@ -14,7 +15,9 @@ int count_pieces (uint64_t pieces) {
 *
 */
 int base_score( GS * gs ) {
-
+	//check for checkmate
+	if (gs->kings[0] == 0LL) return MAX_SCORE;
+	if (gs->kings[1] == 0LL) return MIN_SCORE;
 	int scores[2] = {0,0};
 	for (int color=0;color<2;color++) {
 	//pass by value here?

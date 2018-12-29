@@ -1,4 +1,4 @@
-#include "../move_generators.c"
+#include "../moves_legal.c"
 
 uint64_t move_squares_from_file(char *fname){
 
@@ -157,6 +157,30 @@ int rook_tester (char * position_file, char * correct_moves){
 	return move_squares == correct_word;
 
 }
+int test_pins (char * position_file, char * correct_moves) {
+	
+	printf("\nTesting pins\n\n");
+	
+	GS * gs = read_position_from_file(position_file);
+	
+	gs->color = 0;
+	uint64_t * msks = build_mask_object();
+	uint64_t correct_word = move_squares_from_file(correct_moves);
+	uint64_t pin_mask = build_pin_mask(gs, msks);
+	if (correct_word == pin_mask) 
+		{
+			printf("PASSED\n");
+			return 1;
+		}
+	else {
+		binary_print_board(correct_word);
+		printf("\n!=\n");
+		binary_print_board(pin_mask);
+		printf("\n\n :(  \n\n");
+		return 0;
+	}
+}
+
 int king_tester (char * position_file, char * correct_moves){
 	printf("\nTesting Kings---->\n");
 	GS * gs = read_position_from_file(position_file);
@@ -205,6 +229,7 @@ int main () {
 	pawn_tester("positions/pawns1.chess", "positions/pawns1correct.chess");
 	pawn_tester("positions/pawns2.chess", "positions/pawns2correct.chess");
 	rook_tester("positions/rooks.chess", "positions/rookscorrect.chess");
+	test_pins("positions/pins1.chess", "positions/pins1correct.chess");
 	
 	/*
 	printf("examine this...");
