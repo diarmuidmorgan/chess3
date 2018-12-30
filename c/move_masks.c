@@ -180,3 +180,34 @@ uint64_t * build_mask_object() {
 	return ob;
 }
 
+
+typedef struct {
+
+	uint64_t kingside_free[2];
+	uint64_t queenside_free[2];
+	uint64_t kingside_non_attack[2];
+	uint64_t queenside_non_attack[2];
+	uint64_t kingside_king_location[2];
+	
+
+} CS_mask;
+
+CS_mask * build_castle_masks () {
+
+	CS_mask * cs = malloc(sizeof (CS_mask));
+	for (int i=0; i<2; i++){
+		cs->kingside_free[i] = board_to_word(king_castling_empty(7*i));
+		cs->queenside_free[i] = board_to_word(queen_castling_empty(7*i));
+		cs->kingside_non_attack[i] = board_to_word(king_castling_non_attack(7*i));
+		cs->queenside_non_attack[i] = board_to_word(queen_castling_non_attack(7*i));
+		
+
+
+	}
+
+
+	return cs;
+
+}
+
+

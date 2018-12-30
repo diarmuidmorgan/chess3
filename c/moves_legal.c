@@ -1,34 +1,6 @@
 #include "move_generators.c"
 #define TESTING 1
-/* Functions that will, I guess, lead to proper evaluation.
-* Currently, move generation is pseudo legal, but missing enpassants and castling.
-* Castling is the worst, because we need to check for proper legality. The search engine won't just
-Find a king-capture to refute an incorrect castle operation
-    
-    And to do this, its not enough to just generate a list of all possible attack squares. 
-    We need (technically) to check for any pins as well. So this will involve reading both side's
-    pieces entirely?
 
-    Actually, I'm no longer sure about this
-
-    So far this is a nightmare and needs proper tests etc
-
-*
-*/
-
-/* Bitmap of squares that can't move
-*
-    This is all terrible
-*/
-
-/* Equally terrible function.
-*
-*/
-
-
-/* oh dear....
-*
-*/
 
 void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs, 
             int color, int (* bitsearchfunc)()){
@@ -139,12 +111,18 @@ void add_to_attack_mask(uint64_t * attack_squares, uint64_t * msks, uint64_t pin
     }
 }
 /* Ugly, ugly;
+    Lots of code repetition, really. Hideously expensive if we have to run this operation ,
+    multiple times. Would be better to just generate all node moves first.
 *
 */
+
+
 uint64_t build_attack_mask (GS * gs, uint64_t * msks){
     gs->color = (gs->color + 1) % 2;
     uint64_t attack_squares=0LL;
-    uint64_t pin_mask = build_pin_mask(gs, msks);    
+    //actually - do we need the pin mask? What a massive waste of time!
+    uint64_t pin_mask = 0LL;
+    // uint64_t pin_mask = build_pin_mask(gs, msks);   
     gs->color = (gs->color + 1 ) % 2;
     int color = gs->color;
     uint64_t pieces = gs->bishops[color];
@@ -164,6 +142,93 @@ uint64_t build_attack_mask (GS * gs, uint64_t * msks){
     return attack_squares;
 
 }
+
+/* When this function is run, attack mask will be declared, but we probably won't have
+    bothered to build it yet. At least I hope not!
+
+    I feel the four functions below could be reduced to half as much code? Way less anyway.
+*/
+
+int can_castle_kingside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
+
+    int color = gs->color;
+    //if castling rules have been previously violated
+    if (! gs->castle_king_side[color])
+        return 0;
+    //if there is nay the free squares to move
+    if (cs_msk->kingside_free[color] & gs->all_pieces != 0LL)
+        return 0;
+    //if we haven't built the attacked square mask, build it.        
+    if (attack_mask == NULL)
+        *attack_mask = build_attack_mask(gs, msks);
+
+    //if there are no squares conflicting with the attack mask, then give the go ahead.
+    if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL)
+        return 1;
+    //otherwise, return 0
+    return 0;
+
+
+}
+
+int can_castle_queenside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
+
+    int color = gs->color;
+    //if castling rules have been previously violated
+    if (! gs->castle_queen_side[color])
+        return 0;
+    //if there is nay the free squares to move
+    if (cs_msk->queenside_free[color] & gs->all_pieces != 0LL)
+        return 0;
+    //if we haven't built the attacked square mask, build it.        
+    if (attack_mask == NULL)
+        *attack_mask = build_attack_mask(gs, msks);
+
+    //if there are no squares conflicting with the attack mask, then give the go ahead.
+    if (cs_msk->queenside_non_attack[color] && *attack_mask == 0LL)
+        return 1;
+    //otherwise, return 0
+    return 0;
+
+
+}
+
+GS * kingside_castling_moves_generator (GS * gs, uint64_t * attack_mask, uint64_t msks, CS_mask * cs_msk){
+    int color = gs->color;
+    if (!can_castle_kingside(gs, attack_mask, msks, cs_msk)) return NULL;
+
+        uint64_t n_klocation =  1LL << (6 + (7*8*color));
+        uint64_t n_rlocation =   1LL << (5 + (7*8*color));
+        uint64_t o_klocation = 1LL << (4 + (7*8*color));
+        uint64_t o_rlocation = 1LL << (7 + (7*8*color));
+        GS * new_gs = copy_game_state(gs);
+        new_gs->all_pieces ^= (o_klocation | o_rlocation);
+        new_gs->all_pieces |= (n_klocation | n_rlocation);
+        new_gs->kings[color] &= new_gs->pieces[color];  
+        new_gs->rooks[color] &= new_gs->pieces[color];
+        return new_gs;
+}
+
+GS * queenside_castling_moves_generator (GS * gs, uint64_t * attack_mask, uint64_t msks, CS_mask * cs_msk){
+    int color = gs->color;
+    if (!can_castle_kingside(gs, attack_mask, msks, cs_msk)) return NULL;
+
+        uint64_t n_klocation =  1LL << (2 + (7*8*color));
+        uint64_t n_rlocation =   1LL << (3 + (7*8*color));
+        uint64_t o_klocation = 1LL << (0 + (7*8*color));
+        uint64_t o_rlocation = 1LL << (5 + (7*8*color));
+        GS * new_gs = copy_game_state(gs);
+        new_gs->all_pieces ^= (o_klocation | o_rlocation);
+        new_gs->all_pieces |= (n_klocation | n_rlocation);
+        new_gs->kings[color] &= new_gs->pieces[color];  
+        new_gs->rooks[color] &= new_gs->pieces[color];
+        return new_gs;
+
+
+
+
+
+
 
 
 

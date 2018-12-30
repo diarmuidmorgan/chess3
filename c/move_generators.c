@@ -134,6 +134,7 @@ GS * pawn_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * piece
 		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
 					selected_pieces, 0, pawn_masking_function);
 		//enpassant rule here
+		// actually this below rule won't work at all.
 		/*
 		int color = gs->color;
 		if ((color == 0 && (*move_incr < 48 && *move_incr > 40 ))
