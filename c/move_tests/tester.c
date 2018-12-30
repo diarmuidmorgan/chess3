@@ -218,6 +218,9 @@ int king_tester (char * position_file, char * correct_moves){
 }
 
 int main () {
+	int TEST_BASE_MOVES = 0;
+	int TEST_PINS = 1;
+	if (TEST_BASE_MOVES){
 	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
 	
 	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
@@ -229,9 +232,14 @@ int main () {
 	pawn_tester("positions/pawns1.chess", "positions/pawns1correct.chess");
 	pawn_tester("positions/pawns2.chess", "positions/pawns2correct.chess");
 	rook_tester("positions/rooks.chess", "positions/rookscorrect.chess");
+	}
+	if (TEST_PINS){
 	test_pins("positions/pins1.chess", "positions/pins1correct.chess");
 	test_pins("positions/pins2.chess", "positions/pins2correct.chess");	
 	test_pins("positions/pins3.chess", "positions/pins3correct.chess");
+	test_pins("positions/pins4.chess", "positions/pins4correct.chess");
+	test_pins("positions/pinbishop.chess", "positions/pinbishopcorrect.chess");
+	}
 	/*
 	printf("examine this...");
 	binary_print_board(gs->pieces[1]);

@@ -1,5 +1,5 @@
 #include "move_generators.c"
-#define TESTING 0
+#define TESTING 1
 /* Functions that will, I guess, lead to proper evaluation.
 * Currently, move generation is pseudo legal, but missing enpassants and castling.
 * Castling is the worst, because we need to check for proper legality. The search engine won't just
@@ -30,48 +30,46 @@ Find a king-capture to refute an incorrect castle operation
 *
 */
 
-void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs, int color, int (* bitsearchfunc)()){
+void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs, 
+            int color, int (* bitsearchfunc)(),
+            int DIR){
     //char s[1000];
     //scanf("%s",&s);
     int r_color = (color + 1) % 2;
     uint64_t king = gs->kings[r_color];
     
+    //if the king is, plain and simple, not in the ray, then we can skip and return
     if ((ray | king) != ray){
      
      return;
     }
-    
+    //pieces actually attacked/defended in the ray
     uint64_t pieces = gs->all_pieces & ray;
-    int index = bitsearchfunc(pieces);
-    uint64_t first_piece = 1LL << (index - 1);
-    if (TESTING){
-    binary_print_board(first_piece);
-    binary_print_board(king);
-    binary_print_board(ray);
-    }
-    if ((gs->pieces[r_color] | first_piece) != gs->pieces[r_color]){
-        
-        return;
-
-    }
-    else if ((king | first_piece) == king) {
-       
-        return;
+    int index_of_first_piece = bitsearchfunc(pieces);
+    uint64_t first_piece = 1LL << (index_of_first_piece - 1);
     
-    }
+    //if the king is the first piece, then we return here, 
+    //    or if the first piece belongs to the attacking color.
+    //printf("\nray\n");
+    //binary_print_board(ray);
+    //printf("first piece");
+    //binary_print_board(first_piece);
     
-    int count = 0;
-    pieces = pieces >> index;
-   
-    if (((first_piece << ( bitsearchfunc(pieces) +1)) | king) == king){
-        //binary_print_board(first_piece << ( bitsearchfunc(pieces) +1) | king);
-        printf("KING");
-        //binary_print_board(king);
+    if (((first_piece | king ) == king) 
+                || ((first_piece | gs->pieces[color])
+                        ==gs->pieces[color]))  return;
+    
+    //remove the first piece. This is agnostic to scan direction
+    pieces = pieces ^ first_piece;
+    int index_of_second_piece = bitsearchfunc(pieces);
+    uint64_t second_piece = 1ll << (index_of_second_piece - 1);
+    if ((second_piece | king)  == king   )
         *pin_mask |= first_piece;
-       
-    }
-   
+
     return;
+       
+
+    
 }
 
 /*
@@ -87,45 +85,45 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     uint64_t ray;
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 0);
          ray = msks[(piece_incr-1) * 14 + DIAGURINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 0);
          ray = msks[(piece_incr-1) * 14 + DIAGDLINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 1);
         ray = msks[(piece_incr-1) * 14 + DIAGDRINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 1);
     }
     piece_incr = 0;
     pieces = gs->rooks[color];
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + RANKUINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 0);
          ray = msks[(piece_incr-1) * 14 + COLLINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 0);
          ray = msks[(piece_incr-1) * 14 + RANKDINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 1);
         ray = msks[(piece_incr-1) * 14 + COLRINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 1);
     }
     piece_incr = 0;
     pieces = gs->queens[color];
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 1);
          ray = msks[(piece_incr-1) * 14 + DIAGURINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 1);
          ray = msks[(piece_incr-1) * 14 + DIAGDLINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 0);
         ray = msks[(piece_incr-1) * 14 + DIAGDRINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 0);
         ray = msks[(piece_incr-1) * 14 + RANKUINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 1);
          ray = msks[(piece_incr-1) * 14 + COLLINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse, 1);
          ray = msks[(piece_incr-1) * 14 + RANKDINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 0);
         ray = msks[(piece_incr-1) * 14 + COLRINDEX];
-        ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
+        ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward, 0);
 
     }
     return pin_mask;
