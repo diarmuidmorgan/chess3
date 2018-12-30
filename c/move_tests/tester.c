@@ -157,6 +157,43 @@ int rook_tester (char * position_file, char * correct_moves){
 	return move_squares == correct_word;
 
 }
+
+
+int queen_tester (char * position_file, char * correct_moves){
+	printf("\nTesting QUEENS---->\n");
+	GS * gs = read_position_from_file(position_file);
+	uint64_t correct_word = move_squares_from_file(correct_moves);
+	//print_game_state(gs);
+	gs->color = 1;
+	uint64_t * msks = build_mask_object();
+	int piece_incr = 0;
+	int move_incr = 0;
+	uint64_t pieces = 0LL;
+	uint64_t move_squares;
+	uint64_t * selected_pieces;
+	int msk_number;
+	int color = 1;
+	pieces = gs->queens[color];
+	
+	move_squares = 0LL;
+	GS * new = copy_game_state(gs);
+	selected_pieces = new->queens;
+	//binary_print_board(gs->knights[0]);
+	new = next_piece(gs, KNIGHTMINDEX, msks, &pieces, &move_squares, &piece_incr, &move_incr, queen_masking_function);
+	
+	if (move_squares == correct_word) printf("Passed");
+	else { printf("Failed");
+
+	binary_print_board(move_squares);
+	printf("\n!=\n");
+	binary_print_board(correct_word);
+
+
+
+	}
+	return move_squares == correct_word;
+
+}
 int test_pins (char * position_file, char * correct_moves) {
 	
 	printf("\nTesting pins\n\n");
@@ -216,10 +253,30 @@ int king_tester (char * position_file, char * correct_moves){
 	return move_squares == correct_word;
 
 }
+int attack_mask_tester( char * position_file, char * correct_moves) {
+	printf("\nTesting Checked squares---->\n");
+	GS * gs = read_position_from_file(position_file);
+	uint64_t correct_word = move_squares_from_file(correct_moves);
+	uint64_t * msks = build_mask_object();
+	gs->color = 0;
+	uint64_t attack_msk = build_attack_mask(gs, msks);
+	if (correct_word == attack_msk)
+		printf("PASSED\n");
+	else{
+		binary_print_board(attack_msk);
+		printf("\n!=\n");
+		binary_print_board(correct_word);
+
+
+
+	}
+
+}
 
 int main () {
-	int TEST_BASE_MOVES = 0;
+	int TEST_BASE_MOVES = 1;
 	int TEST_PINS = 1;
+	int TEST_CHECKED = 1;
 	if (TEST_BASE_MOVES){
 	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
 	
@@ -232,6 +289,8 @@ int main () {
 	pawn_tester("positions/pawns1.chess", "positions/pawns1correct.chess");
 	pawn_tester("positions/pawns2.chess", "positions/pawns2correct.chess");
 	rook_tester("positions/rooks.chess", "positions/rookscorrect.chess");
+	rook_tester("positions/rooks2.chess", "positions/rooks2correct.chess");
+	queen_tester("positions/queens.chess", "positions/queenscorrect.chess");
 	}
 	if (TEST_PINS){
 	test_pins("positions/pins1.chess", "positions/pins1correct.chess");
@@ -240,6 +299,13 @@ int main () {
 	test_pins("positions/pins4.chess", "positions/pins4correct.chess");
 	test_pins("positions/pinbishop.chess", "positions/pinbishopcorrect.chess");
 	}
+
+	if ( TEST_CHECKED){
+
+		attack_mask_tester("positions/attack1.chess","positions/attack1correct.chess");
+
+	}
+
 	/*
 	printf("examine this...");
 	binary_print_board(gs->pieces[1]);
