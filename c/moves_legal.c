@@ -130,10 +130,11 @@ void add_to_attack_mask(uint64_t * attack_squares, uint64_t * msks, uint64_t pin
     int move_incr = 0;
     uint64_t move_squares = 0LL;
     while (next_piece(gs, 0, msks, &pieces, &move_squares,
-        &piece_incr, &move_incr, bishop_masking_function)){
+        &piece_incr, &move_incr, masking_function)){
         
         if (! (( (1LL << (piece_incr - 1)) | pin_mask) == pin_mask))
             *attack_squares |= move_squares;
+            
 
     }
 }

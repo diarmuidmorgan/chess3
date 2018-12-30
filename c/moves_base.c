@@ -10,7 +10,9 @@ uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	//if there are no blocking pieces, just return the base msk
 	if(msk == 0LL) return base_msk;
 	//get the first set bit in the mask
-	int index = ffsll(msk);
+
+	//this was the wrong way around for two days and I only just fucking noticed :()
+	int index =  64 - (__builtin_clzll(msk));
 	// handles the case where the first piece is of the same color
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]){ 
 		//binary_print_board(base_msk ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1))));
@@ -30,7 +32,7 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	uint64_t msk = base_msk & gs->all_pieces;
 	if(msk == 0LL) return base_msk;
 	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
-	int index = 64 - (__builtin_clzll(msk));
+	int index = ffsll(msk);
 	// handles the case where the first piece is of the same color
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) {
 		//binary_print_board(base_msk ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1))));

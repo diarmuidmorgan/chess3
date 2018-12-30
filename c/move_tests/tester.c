@@ -256,9 +256,10 @@ int king_tester (char * position_file, char * correct_moves){
 int attack_mask_tester( char * position_file, char * correct_moves) {
 	printf("\nTesting Checked squares---->\n");
 	GS * gs = read_position_from_file(position_file);
+	//print_game_state(gs);
 	uint64_t correct_word = move_squares_from_file(correct_moves);
 	uint64_t * msks = build_mask_object();
-	gs->color = 0;
+	gs->color = 1;
 	uint64_t attack_msk = build_attack_mask(gs, msks);
 	if (correct_word == attack_msk)
 		printf("PASSED\n");
@@ -291,6 +292,8 @@ int main () {
 	rook_tester("positions/rooks.chess", "positions/rookscorrect.chess");
 	rook_tester("positions/rooks2.chess", "positions/rooks2correct.chess");
 	queen_tester("positions/queens.chess", "positions/queenscorrect.chess");
+	queen_tester("positions/queens2.chess", "positions/queens2correct.chess");
+	bishop_tester("positions/bishops7.chess", "positions/bishops7correct.chess");
 	}
 	if (TEST_PINS){
 	test_pins("positions/pins1.chess", "positions/pins1correct.chess");
