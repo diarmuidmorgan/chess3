@@ -21,6 +21,7 @@ typedef struct {
 	int castle_king_side[2];
 	int castle_queen_side[2];
 	int color;
+	int valid;
 
 } GS;
 /* Constructor prodcedure. Returns a game state * with starting position set.
@@ -51,6 +52,7 @@ GS * initial_game_state(){
 	gs->enpassants[0] = 0LL;
 	gs->enpassants[1] = 0LL;
 	gs->color = 0;
+	gs->valid = 1;
 	return gs;
 
 }
@@ -77,6 +79,7 @@ GS init_game_state(){
 	gs.enpassants[0] = 0LL;
 	gs.enpassants[1] = 0LL;
 	gs.color = 0;
+	gs.valid = 0;
 	return gs;
 
 
@@ -184,9 +187,10 @@ GS * copy_game_state (GS * gs){
 }
 /* Hand game state to the other player.
 */
-void flip_game_state (GS * gs, int color){
+void flip_game_state (GS * gs){
 
-	gs->color = (gs->color + 1) % 2;
+	int color = (gs->color + 1) %2;
+	gs->color = color;
 	gs->pawns[color] &= gs->pieces[color];
 	gs->rooks[color] &= gs->pieces[color];
 	gs->knights[color] &= gs->pieces[color];

@@ -71,7 +71,7 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	selected_pieces[color] = (selected_pieces[color] ^ old_pos) | new_pos;
 
 	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
-	flip_game_state(new_gs, r_color);
+	flip_game_state(new_gs);
 	 
 }
 

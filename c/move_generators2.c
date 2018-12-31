@@ -119,7 +119,12 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
 
 
 
-void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals) {
+void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int print_state) {
+    if (print_state){
+        char s[1000];
+         scanf("%s", &s);
+         print_game_state(gs);
+    }
     if (depth == 0) return;
     *position_evals = *position_evals + 1;
     uint64_t pieces = 0LL;
@@ -136,9 +141,9 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals) {
         //do something with the move;
 
         //copy gs to new_gs again
-        
+        game_loop(&new_gs, msks, depth-1, position_evals, print_state);
         new_gs = *gs;
-        game_loop(&new_gs, msks, depth-1, position_evals);
+        
 
     }
 
@@ -150,7 +155,7 @@ int main () {
     GS gs = init_game_state();
     int depth = 6;
     int position_evals = 0;
-    game_loop(&gs, msks, depth, &position_evals );
+    game_loop(&gs, msks, depth, &position_evals, 1 );
     printf("%d\n", position_evals);
 
 
