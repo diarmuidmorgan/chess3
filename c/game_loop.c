@@ -10,6 +10,8 @@ It should rightly be about 100 lines shorter.
 
 /* Damn this still isn't good.
 *
+
+* Redundant.
 */
 
 void game_loop (GS * gs, int depth, int * positions_considered, uint64_t * msks){

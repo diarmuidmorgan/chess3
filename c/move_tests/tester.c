@@ -279,8 +279,9 @@ int main () {
 	int TEST_PINS = 1;
 	int TEST_CHECKED = 1;
 	if (TEST_BASE_MOVES){
-	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
 	
+	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
+	pawn_tester("positions/pawns.chess", "positions/pawnscorrect.chess");
 	bishop_tester("positions/bishop2.chess","positions/bishop2correct.chess");
 	bishop_tester("positions/bishops3.chess","positions/bishops3correct.chess");
 	bishop_tester("positions/bishops4.chess","positions/bishops4correct.chess");

@@ -31,6 +31,7 @@ int next_piece(GS * gs, int msk_number,
 	*move_squares = 0LL;
 	
 	masking_function(gs, piece_incr,move_squares, msks, msk_number,(uint64_t) gs->color);
+	//binary_print_board(*move_squares);
 	*pieces = *pieces >> index_p;
 	*move_incr = 0;
 	return 1;
@@ -61,17 +62,30 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 						int move_incr, int piece_incr) {
 	
 	int color = new_gs->color;
+	
 	int r_color = (color + 1) % 2;
 	uint64_t new_pos = 1LL << (move_incr - 1);
 	
 	uint64_t old_pos = 1LL  << (piece_incr -1);
-	
-	new_gs->pieces[color] = (new_gs->pieces[color] ^ old_pos) | new_pos;
-	
-	selected_pieces[color] = (selected_pieces[color] ^ old_pos) | new_pos;
-
+	//printf("OLD POS\n");
+	//binary_print_board(old_pos);
+	//printf("NEW POS\n");
+	//binary_print_board(new_pos);
+	//printf("PIECES\n");
+	//binary_print_board(new_gs->pieces[color]);
+	new_gs->pieces[color] = (new_gs->pieces[color] | new_pos) & (~old_pos);
+	//printf("AFTER FIX");
+	//binary_print_board((new_gs->pieces[color] | new_pos) & (~old_pos));
+	//printf("THE SELECTED PIECES\n");
+	//binary_print_board(*selected_pieces);
+	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
+	//binary_print_board(*selected_pieces);
 	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
+	
 	flip_game_state(new_gs);
+	//print_game_state(new_gs);
+	//binary_print_board(new_gs->pawns[color]);
+	
 	 
 }
 

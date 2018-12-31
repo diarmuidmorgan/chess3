@@ -85,6 +85,8 @@ void pawn_attack_masking_function (GS * gs, int * piece_incr,
 /* Masking function for pawn forward moves.
 * Slightly more complicated. Inefficient. 
 * Does not handle pawn promotion.
+
+* I think this is fundamentally broken.
 */
 void pawn_forward_masking_function (GS * gs, int * piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color){

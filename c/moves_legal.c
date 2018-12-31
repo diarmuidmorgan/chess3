@@ -224,7 +224,7 @@ GS * queenside_castling_moves_generator (GS * gs, uint64_t * attack_mask, uint64
         new_gs->rooks[color] &= new_gs->pieces[color];
         return new_gs;
 
-
+}
 
 
 
