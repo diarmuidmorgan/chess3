@@ -1,4 +1,4 @@
-#include "../game_state.c"
+#include "../printer.c"
 
 int main () {
 

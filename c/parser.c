@@ -13,6 +13,12 @@ char * ambiguouspiecemoverow = "^[A-Z]\d[a-z]\d[\n|\+]";
 char * promotion = "[a-z]\d\=[A-Z]";
 char * kingsidecastle = "0-0";
 char * queensidecastle = "0-0-0";
+int reti;
+regex_t pforwards;
+reti = recomp(&pforwards, pawnforwards, 0);
+regex_t pcapturess
+reti = recomp(&pcaputress, pawncapturesimple, 0);
+
 
 
 int string_length (char * s){
@@ -41,13 +47,7 @@ int is_character(char c){
 //maybe its time to learn regx?
 GS * parse_line(char * line, GS * gs) {
 
-    if (string_length(line) == 2){
-
-
-
-
-
-    }
+ 
 
     if (string_length(line) == 3){
 
