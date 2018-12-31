@@ -1,4 +1,4 @@
-#include "move_arithmetic.c"
+#include "moves_legal.c"
 
 #define MAX_SCORE 100000
 #define MIN_SCORE -100000

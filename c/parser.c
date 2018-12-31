@@ -1,5 +1,9 @@
 #include "everything.c"
 #include <regex.h>
+/* There are seemingly so many cases and so much code repettition to get through here.
+    Just feels like a massive head ache and I would rather do this in python :(
+*
+*/
 
 char * pawnforwards = "^[a-z]\d(\n|\+)";
 char * pawncapturesimple = "^[a-z]x[a-z]\d(\n|\+)";
@@ -44,26 +48,54 @@ int is_character(char c){
     return 0;
 }
 
+
+
+
 //maybe its time to learn regx?
-GS * parse_line(char * line, GS * gs) {
+GS * parse_line(char * line, GS * gs, uint64_t * msks) {
 
- 
+    int result;
 
-    if (string_length(line) == 3){
+    //try to match with a pawn forwards move.
+    result = regexec(&pforwards, line, 0, NULL, 0)
+    if (!result){
+
+        int position = ((int) (line[1] - 48)) * 8 + ((int) (line[0]-97)); 
+        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pices, &move_squares, msks)){
+            if ( (move_incr - 1) == position ){
+                return gs;
+            }
+
+        }
+
+
 
 
 
     }
+    //try to match with pawn captures
+    result = regexec(&pforwards, line, 0, NULL, 0)
+    if (!result){
+        int position = ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
+        int rank = ((int) (line[0]-97));
+        int position = ((int) (line[1] - 48)) * 8 + ((int) (line[0]-97)); 
+        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pices, &move_squares, msks)){
+            if ( (move_incr - 1) == position && (piece_incr-1) / 8 = rank ){
+                return gs;
+            }
+
+        }
 
 
-    if (string_length(line)== 4){
 
-
-
-
-
+        
     }
 
 
+    
+
+    return NULL;
 
 }
+
+
