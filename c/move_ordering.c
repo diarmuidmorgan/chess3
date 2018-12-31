@@ -14,6 +14,7 @@
     Maybe its just faster to pass pointers? Oh god.
 */
 
+
 typedef struct {
 
     int valid;

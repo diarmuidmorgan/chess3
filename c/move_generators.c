@@ -12,6 +12,7 @@ int cycle_pieces (GS * gs, uint64_t * pieces, int * piece_incr){
 }
 
 /* Serializes piece bitboards, and sets the move square mask.
+	Also shifts the piece_incr which is used for I dunno what anymore.
 *
 */
 int next_piece(GS * gs, int msk_number, 
@@ -56,17 +57,18 @@ int next_move (GS * gs, int msk_number,
 	return 1;
 }
 
-/*simple move - should work for knights, kings and some pawn moves?
+/*simple MAKE move - should work for knights, kings and some pawn moves?
+  NEED TO LEARN HOW TO USE A DEBUGGER.
  */
 void make_simple_move (GS * new_gs, uint64_t * selected_pieces, 
-						int move_incr, int piece_incr) {
+						int * move_incr, int * piece_incr) {
 	
 	int color = new_gs->color;
 	
 	int r_color = (color + 1) % 2;
-	uint64_t new_pos = 1LL << (move_incr - 1);
+	uint64_t new_pos = 1LL << (*move_incr - 1);
 	
-	uint64_t old_pos = 1LL  << (piece_incr -1);
+	uint64_t old_pos = 1LL  << (*piece_incr -1);
 	//printf("OLD POS\n");
 	//binary_print_board(old_pos);
 	//printf("NEW POS\n");
@@ -81,8 +83,9 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
 	//binary_print_board(*selected_pieces);
 	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
-	
-	flip_game_state(new_gs);
+	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
+	flip_game_state(new_gs, gs);
+
 	//print_game_state(new_gs);
 	//binary_print_board(new_gs->pawns[color]);
 	
@@ -122,13 +125,16 @@ void game_state_generator_next (GS * gs, GS * new, int * piece_incr,
 						uint64_t * selected_pieces, int msk_number){
 	
 		make_simple_move (new, selected_pieces, 
-						*move_incr, *piece_incr);
+						move_incr, piece_incr);
 		
 
 						}
 
-int game_state_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-									uint64_t * move_squares, uint64_t *msks, void (* masking_function)()){
+
+
+int game_state_generator_has_next (GS * gs, int * piece_incr, int * move_incr, 
+									uint64_t * pieces, uint64_t * move_squares, 
+									uint64_t *msks, void (* masking_function)()){
 	if (next_move(gs, 0, msks, pieces, move_squares, piece_incr, move_incr)){
 		return 1;
 		}
@@ -144,7 +150,17 @@ int game_state_generator_has_next (GS * gs, int * piece_incr, int * move_incr, u
 	}
 }
 
-int rook_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
+
+/* Piece specific move generators. Lot of reppetion, 
+* But rooks, kings, and pawns can be adjusted to add different cases.
+	Also I guess, eventually, this will help with move ordering/evaluation?
+* 
+*
+*/
+
+
+int rook_generator_has_next (GS * gs, int * piece_incr, 
+					int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
 
 	if (game_state_generator_has_next(gs, piece_incr, move_incr, pieces, 
@@ -153,8 +169,10 @@ int rook_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_
 	return 0;
 }
 
-void rook_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks) {
+void rook_generator_next (GS * gs, GS * new_gs, 
+					int * piece_incr, int * move_incr, 
+					uint64_t * pieces, uint64_t * move_squares, 
+												uint64_t * msks) {
 
 	uint64_t * selected_pieces = &new_gs->rooks[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
@@ -245,7 +263,13 @@ void king_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 
 
 
-//OLD
+/*
+	Redundant in the main game loop, and only currently used for the move_testing suite
+	 and probably, the masking functions. 
+	Have to update that to use these instead.
+
+
+*/
 
 GS * rook_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
@@ -284,7 +308,8 @@ GS * pawn_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * piece
 		*/
 		return new;
 	}
-GS * knight_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
+GS * knight_generator(GS * gs, int * piece_incr, 
+						int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
 		
 		
@@ -294,8 +319,9 @@ GS * knight_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pie
 					selected_pieces, 0, knight_masking_function);
 		return new;
 	}
-GS * king_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
+GS * king_generator(GS * gs, int * piece_incr, int * move_incr, 
+						uint64_t * pieces, uint64_t * move_squares, 
+												uint64_t * msks){
 		
 		
 		GS * new = copy_game_state(gs);
@@ -310,8 +336,8 @@ GS * king_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * piece
 		}
 		return new;
 	}
-GS * queen_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
+GS * queen_generator(GS * gs, int * piece_incr, int * move_incr, 
+					uint64_t * pieces, int64_t * move_squares, uint64_t * msks){
 		
 		
 		GS * new = copy_game_state(gs);

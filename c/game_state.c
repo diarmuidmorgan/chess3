@@ -21,7 +21,8 @@ typedef struct {
 	int castle_king_side[2];
 	int castle_queen_side[2];
 	int color;
-	int valid;
+
+	int score;
 
 } GS;
 /* Constructor prodcedure. Returns a game state * with starting position set.
@@ -52,7 +53,8 @@ GS * initial_game_state(){
 	gs->enpassants[0] = 0LL;
 	gs->enpassants[1] = 0LL;
 	gs->color = 0;
-	gs->valid = 1;
+	
+	gs->score = 0
 	return gs;
 
 }
@@ -79,7 +81,8 @@ GS init_game_state(){
 	gs.enpassants[0] = 0LL;
 	gs.enpassants[1] = 0LL;
 	gs.color = 0;
-	gs.valid = 0;
+	
+	gs.score=0;
 	return gs;
 
 
@@ -185,12 +188,47 @@ GS * copy_game_state (GS * gs){
 	memcpy(new, gs, sizeof(GS));
 	return new;
 }
+
+
+/* Update the score of the game state. Do we want to do this?
+* Would help with move ordering, but might be totally unnecessary otherwise.
+*
+*/
+int node_score_change (GS * new_gs, GS * old_gs){
+    int color = new_gs->color;
+    //if pieces are the same, then know change has occurred.
+    if (new_gs->pieces[color] == old_gs->pieces[color])
+        return 0;
+    if (new_gs->pawns[color] != old_gs->pawns[color])
+        return 1 * color;
+    else if (new_gs->knights[color] != old_gs->knights[color])
+        return 3 * color;
+    else if (new_gs->bishops[color] != old_gs->bishops[color])
+        return 3 * color;
+    else if (new_gs->rooks[color] != old_gs->rooks[color])
+        return 5 * color;
+     else if (new_gs->queens[color] != old_gs->queens[color])
+        return 9 * color;
+     else if (new_gs->kings[color] != old_gs->kings[color])
+        //king got killed! Previous node was illegal.
+        return 100000;
+    
+
+
+}
+
+
+
 /* Hand game state to the other player.
 */
-void flip_game_state (GS * gs){
+void flip_game_state (GS * gs, GS * prev_gs){
 
 	int color = (gs->color + 1) %2;
 	gs->color = color;
+	if (gs->pieces[color] == prev_gs->pieces[color])
+		return;
+	//only update if the overall pieces have changed
+	gs->score += node_score_change(gs, prev_gs);
 	gs->pawns[color] &= gs->pieces[color];
 	gs->rooks[color] &= gs->pieces[color];
 	gs->knights[color] &= gs->pieces[color];

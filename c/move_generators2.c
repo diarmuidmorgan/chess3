@@ -9,27 +9,17 @@ I reckon
 
 */
 
-
-
 int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index, 
                 int * piece_incr, int * move_incr, uint64_t * pieces, uint64_t * move_squares ) {
 
-    static char characters[] = {'z','p','r','h','b','q','k'};
-   
-    
-    //printf("%d\n", *index);
-    char s[1000];
-  
-  //  scanf("%s", &s);
-  //  printf("%c\n", characters[*index]);
-    switch (characters[*index]){
+    switch (*index){
 
-        case('z') :
+        case(0) :
             *pieces = gs->pawns[gs->color];
             *index = *index + 1;
             
 
-        case('p'):
+        case(1):
             
             if (pawn_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                 pawn_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
@@ -43,7 +33,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *index = *index+1;
 
             }
-        case('r'):
+        case(2):
        
             if (rook_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                 rook_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
@@ -58,7 +48,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             }
 
         
-        case('h'):
+        case(3):
             if (knight_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                  knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
@@ -70,7 +60,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *move_incr=0;
                 *index = *index + 1;
             }
-        case('b'):
+        case(4):
             if (bishop_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                  knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
@@ -83,7 +73,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *move_incr=0;
                 *index = *index + 1;
             }
-        case('q'):
+        case(5):
             if (queen_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                  queen_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
@@ -96,7 +86,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *move_incr=0;
                 *index = *index + 1;
             }
-        case ('k') :
+        case (6) :
             if (king_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                 king_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
@@ -109,14 +99,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 return 0;
             }
     }
-
-
 }
-
-
-
-
-
 
 
 void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int print_state) {
@@ -143,10 +126,7 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
         //copy gs to new_gs again
         game_loop(&new_gs, msks, depth-1, position_evals, print_state);
         new_gs = *gs;
-        
-
-    }
-
+     }
 }
 
 int main () {
