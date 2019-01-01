@@ -17,6 +17,9 @@ uint64_t move_squares_from_file(char *fname){
 	}
 	return board_to_word(b);
 }
+
+//ALL OF THESE FUNCTIONS ARE BASICALLY THE SAME
+
 int bishop_tester (char * position_file, char * correct_moves){
 	printf("\nTesting bishops---->\n");
 	GS * gs = read_position_from_file(position_file);
@@ -194,29 +197,6 @@ int queen_tester (char * position_file, char * correct_moves){
 	return move_squares == correct_word;
 
 }
-int test_pins (char * position_file, char * correct_moves) {
-	
-	printf("\nTesting pins\n\n");
-	
-	GS * gs = read_position_from_file(position_file);
-	
-	gs->color = 0;
-	uint64_t * msks = build_mask_object();
-	uint64_t correct_word = move_squares_from_file(correct_moves);
-	uint64_t pin_mask = build_pin_mask(gs, msks);
-	if (correct_word == pin_mask) 
-		{
-			printf("PASSED\n");
-			return 1;
-		}
-	else {
-		binary_print_board(correct_word);
-		printf("\n!=\n");
-		binary_print_board(pin_mask);
-		printf("\n\n :(  \n\n");
-		return 0;
-	}
-}
 
 int king_tester (char * position_file, char * correct_moves){
 	printf("\nTesting Kings---->\n");
@@ -253,6 +233,31 @@ int king_tester (char * position_file, char * correct_moves){
 	return move_squares == correct_word;
 
 }
+
+int test_pins (char * position_file, char * correct_moves) {
+	
+	printf("\nTesting pins\n\n");
+	
+	GS * gs = read_position_from_file(position_file);
+	
+	gs->color = 0;
+	uint64_t * msks = build_mask_object();
+	uint64_t correct_word = move_squares_from_file(correct_moves);
+	uint64_t pin_mask = build_pin_mask(gs, msks);
+	if (correct_word == pin_mask) 
+		{
+			printf("PASSED\n");
+			return 1;
+		}
+	else {
+		binary_print_board(correct_word);
+		printf("\n!=\n");
+		binary_print_board(pin_mask);
+		printf("\n\n :(  \n\n");
+		return 0;
+	}
+}
+
 int attack_mask_tester( char * position_file, char * correct_moves) {
 	printf("\nTesting Checked squares---->\n");
 	GS * gs = read_position_from_file(position_file);

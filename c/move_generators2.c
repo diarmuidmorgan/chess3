@@ -66,7 +66,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             }
         case(4):
             if (bishop_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                 knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                 bishop_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
                 
                 break;
@@ -160,8 +160,9 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
     int move_incr = 0;
     uint64_t move_squares = 0LL;
     GS new_gs = *gs;
-    new_gs->enpassants[color] = 0LL;
-	new_gs->enpassants[r_color] = 0LL;
+    int r_color = (gs->color + 1) % 2;
+    //new_gs->enpassants[color] = 0LL;
+	new_gs.enpassants[r_color] = 0LL;
     
     /// would place an opening book look up here
 

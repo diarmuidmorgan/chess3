@@ -136,7 +136,9 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int move_square = ((int) (line[1]-48)) * 8 + ((int) line[0] -97);
         while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
 
-            if (index == 1 && move_square == (move_incr - 1)
+            if (index == 1 && move_square == (move_incr - 1 && COLUMNCONDITION //add condition to check this
+                                                    //isn't a pawn attack instead
+                                                    )
                 && pin_mask_safe(&pin_mask, piece_incr) )
                 return new_gs
         }
@@ -162,7 +164,7 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int move_square= ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
        int position =((int) (line[0] - 48)) * 8 + ((int) (line[1]-97)); 
         
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
              if (index == 1 && move_square == (move_incr - 1) && (piece_incr -1) == position &&
                 pin_mask_safe(&pin_mask, piece_incr) )
                 return new_gs
