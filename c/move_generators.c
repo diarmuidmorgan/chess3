@@ -60,7 +60,7 @@ int next_move (GS * gs, int msk_number,
 /*simple MAKE move - should work for knights, kings and some pawn moves?
   NEED TO LEARN HOW TO USE A DEBUGGER.
  */
-void make_simple_move (GS * new_gs, uint64_t * selected_pieces, 
+void make_simple_move (GS * new_gs, GS * gs, uint64_t * selected_pieces, 
 						int * move_incr, int * piece_incr) {
 	
 	int color = new_gs->color;
@@ -85,7 +85,7 @@ void make_simple_move (GS * new_gs, uint64_t * selected_pieces,
 	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
 	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
 	flip_game_state(new_gs, gs);
-
+	
 	//print_game_state(new_gs);
 	//binary_print_board(new_gs->pawns[color]);
 	
@@ -124,7 +124,7 @@ void game_state_generator_next (GS * gs, GS * new, int * piece_incr,
 						uint64_t * move_squares, uint64_t * msks,
 						uint64_t * selected_pieces, int msk_number){
 	
-		make_simple_move (new, selected_pieces, 
+		make_simple_move (new, gs, selected_pieces, 
 						move_incr, piece_incr);
 		
 
@@ -182,8 +182,10 @@ int pawn_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_
 					uint64_t * move_squares, uint64_t * msks){
 
 	if (game_state_generator_has_next(gs, piece_incr, move_incr, pieces, 
-							move_squares, msks, pawn_masking_function )  )
+							move_squares, msks, pawn_masking_function )  ){
+		
 		return 1;
+							}
 	return 0;
 }
 
@@ -193,6 +195,32 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	uint64_t * selected_pieces = &new_gs->pawns[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+
+	//handle enpassant setting here.
+
+	// if the move rank difference is two
+	if ((abs(((*piece_incr -1 ) / 8) - ((*move_incr -1 ) / 8)) == 2)){
+		int color = gs->color;
+		int r_color = (color + 1) % 2;
+		uint64_t RIGHT = 1LL << (*move_incr);
+		uint64_t LEFT = 1LL << (*move_incr - 2);
+		int col = (*move_incr-1) & 8;
+		if ( col > 0
+				&&
+			((gs->pawns[r_color] | LEFT) == gs->pawns[r_color]))
+			
+				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
+			
+		else if ( col < 7
+				&&
+			((gs->pawns[r_color] | RIGHT) == gs->pawns[r_color]))
+
+				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
+				
+
+
+	} 
+
 }
 
 int knight_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,

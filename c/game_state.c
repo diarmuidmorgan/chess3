@@ -54,7 +54,7 @@ GS * initial_game_state(){
 	gs->enpassants[1] = 0LL;
 	gs->color = 0;
 	
-	gs->score = 0
+	gs->score = 0;
 	return gs;
 
 }
@@ -216,8 +216,6 @@ int node_score_change (GS * new_gs, GS * old_gs){
 
 
 }
-
-
 
 /* Hand game state to the other player.
 */

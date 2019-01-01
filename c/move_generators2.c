@@ -1,4 +1,4 @@
-#include "move_generators.c"
+#include "moves_legal.c"
 
 /*
 Want to rewrite everything with static variables. And have gamestate in stack memory rather than
@@ -10,10 +10,11 @@ I reckon
 */
 
 int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index, 
-                int * piece_incr, int * move_incr, uint64_t * pieces, uint64_t * move_squares ) {
+                int * piece_incr, int * move_incr, uint64_t * pieces, uint64_t * move_squares,
+                uint64_t * attack_squares, CS_mask * cs_mask) {
 
     switch (*index){
-
+        //generator init
         case(0) :
             *pieces = gs->pawns[gs->color];
             *index = *index + 1;
@@ -23,6 +24,9 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             
             if (pawn_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                 pawn_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+
+                
+
                 return 1;
                 break;
             }
@@ -96,9 +100,49 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
+                
+            }
+        //kingside castling
+        case (7) :
+            if (kingside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
+                kingside_castling_generator_next(new_gs);
+                return 1;
+                break;
+            }
+            else {
+                *piece_incr=0;
+                *move_incr=0;
+                *index= *index + 1;
+                }
+        //queenside castling
+        case (8) :
+            if (queenside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
+                queenside_castling_generator_next(new_gs);
+                return 1;
+                break;
+            }
+            
+            else {
+                *piece_incr=0;
+                *move_incr=0;
+                *index= *index + 1;
+                }
+        
+        //enpassants
+        case (9) :
+            if (gs->enpassants[gs->color] != 0LL){
+                    return 1;
+            }
+            else {
+                *piece_incr=0;
+                *move_incr=0;
+                *index= *index + 1;
                 return 0;
             }
+            break
     }
+
+
 }
 
 
@@ -116,7 +160,11 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
     int move_incr = 0;
     uint64_t move_squares = 0LL;
     GS new_gs = *gs;
+    new_gs->enpassants[color] = 0LL;
+	new_gs->enpassants[r_color] = 0LL;
     
+    /// would place an opening book look up here
+
     //move generator should change all the fields that it points to, and we only have to check, that
     //it's true.
     while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
@@ -124,19 +172,12 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
         //do something with the move;
 
         //copy gs to new_gs again
+
+        //it would now be fairly trivial to just pop the returned game states into some kind of list
+        //though that might involve mallocing, I dunno.
         game_loop(&new_gs, msks, depth-1, position_evals, print_state);
         new_gs = *gs;
      }
 }
 
-int main () {
 
-    uint64_t * msks = build_mask_object();
-    GS gs = init_game_state();
-    int depth = 6;
-    int position_evals = 0;
-    game_loop(&gs, msks, depth, &position_evals, 0 );
-    printf("%d\n", position_evals);
-
-
-}

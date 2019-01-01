@@ -149,7 +149,7 @@ uint64_t build_attack_mask (GS * gs, uint64_t * msks){
     I feel the four functions below could be reduced to half as much code? Way less anyway.
 */
 
-int can_castle_kingside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
+int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
 
     int color = gs->color;
     //if castling rules have been previously violated
@@ -171,7 +171,7 @@ int can_castle_kingside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_ma
 
 }
 
-int can_castle_queenside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
+int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
 
     int color = gs->color;
     //if castling rules have been previously violated
@@ -193,31 +193,32 @@ int can_castle_queenside (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_m
 
 }
 
-GS * kingside_castling_moves_generator (GS * gs, uint64_t * attack_mask, uint64_t msks, CS_mask * cs_msk){
-    int color = gs->color;
-    if (!can_castle_kingside(gs, attack_mask, msks, cs_msk)) return NULL;
 
+
+GS * kingside_castling_generator_next (GS * new_gs){
+        
+        int color = new_gs->color;
+    
         uint64_t n_klocation =  1LL << (6 + (7*8*color));
         uint64_t n_rlocation =   1LL << (5 + (7*8*color));
         uint64_t o_klocation = 1LL << (4 + (7*8*color));
         uint64_t o_rlocation = 1LL << (7 + (7*8*color));
-        GS * new_gs = copy_game_state(gs);
         new_gs->all_pieces ^= (o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
         new_gs->kings[color] &= new_gs->pieces[color];  
         new_gs->rooks[color] &= new_gs->pieces[color];
-        return new_gs;
+        
 }
 
-GS * queenside_castling_moves_generator (GS * gs, uint64_t * attack_mask, uint64_t msks, CS_mask * cs_msk){
-    int color = gs->color;
-    if (!can_castle_kingside(gs, attack_mask, msks, cs_msk)) return NULL;
+GS * queenside_castling_generator_next (GS * new_gs){
+    
+        int color = new_gs->color;
+    
 
         uint64_t n_klocation =  1LL << (2 + (7*8*color));
         uint64_t n_rlocation =   1LL << (3 + (7*8*color));
         uint64_t o_klocation = 1LL << (0 + (7*8*color));
         uint64_t o_rlocation = 1LL << (5 + (7*8*color));
-        GS * new_gs = copy_game_state(gs);
         new_gs->all_pieces ^= (o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
         new_gs->kings[color] &= new_gs->pieces[color];  
