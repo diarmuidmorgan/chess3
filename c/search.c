@@ -1,4 +1,4 @@
-#include <everything>
+#include "gamestate_generator.c"
 #include <math.h>
 
 /* FROM THE WIKIPEDIA PAGE
@@ -30,15 +30,27 @@ function alphabeta(node, depth, α, β, maximizingPlayer) is
     likely cause a considerable slow down :(
 
 */
+int max(int a, int b){
+
+    return (a > b) ? a : b;
+
+}
+int min (int a, int b){
+
+    return (a<b) ? a : b;
+
+}
+
 int search (GS *gs, int depth, int alpha, 
             int beta, int maximizingPlayer, 
-            uint64_t * msks, CS_Mask * cs_msk, 
+            uint64_t * msks, CS_mask * cs_msk, 
                             int * position_evals) {
 
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
     if (depth == 0 || gs->kings[gs->color] == 0LL)
-        return simple_evaluate_game_state(&gs);
+        
+        return gs->score;
 
     //set all of the values that are manipulated by the move generator.
     *position_evals = *position_evals + 1;
@@ -48,20 +60,21 @@ int search (GS *gs, int depth, int alpha,
     int move_incr = 0;
     int value;
     int search_return;
+    uint64_t attack_squares = 0LL;
     uint64_t move_squares = 0LL;
     GS new_gs = *gs;
     int r_color = (gs->color + 1) % 2;
     //new_gs->enpassants[color] = 0LL;
-	new_gs->enpassants[r_color] = 0LL;
+	new_gs.enpassants[r_color] = 0LL;
 
      
      if (maximizingPlayer){
            value = -100000;
         //c doesn't implement the max and min functions?
-        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
 
           
-        search_return = search(new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
         value = max(value, search_return);
         alpha = max(alpha, value);
         if (alpha >= beta)
@@ -78,10 +91,11 @@ int search (GS *gs, int depth, int alpha,
     else {
 
         value = 100000;
-        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, 
+                        &pieces, &move_squares, &attack_squares, cs_msk )){
 
           
-        search_return = search(new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
         value = min(value, search_return);
         beta = min(beta, value);
         if (alpha >= beta)
@@ -102,9 +116,10 @@ int search (GS *gs, int depth, int alpha,
 
 }
 
-GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask msk, int * position_evals){
+GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask * cs_msk, int * position_evals){
 
-
+    int alpha = -100000;
+    int beta = 100000;
     *position_evals = *position_evals + 1;
     uint64_t pieces = 0LL;
     int index = 0;
@@ -113,22 +128,33 @@ GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask msk, int * positio
     int value;
     int search_return;
     uint64_t move_squares = 0LL;
-    GS new_gs = *gs;
+    uint64_t attack_squares = 0LL;
+    GS new_gs = gs;
     GS best_gs;
-    int best = -10000
-     while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+    int best = -10000;
+     while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
 
           
-        search_return = search(new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals);
         if (search_return > best){
 
             best = search_return;
             best_gs = new_gs;
         }
-        new_gs = *gs;
+        new_gs = gs;
      }
 
 
     return best_gs;
 
+}
+int main () {
+    uint64_t * msks = build_mask_object();
+    CS_mask * cs_msk = build_castle_masks();
+    int position_evals = 0;
+    GS gs = init_game_state();
+    gs = find_best_move(gs, 5, msks, cs_msk, &position_evals);
+    print_game_state(&gs);
+
+    printf("\n%d\n", position_evals);
 }

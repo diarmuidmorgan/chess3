@@ -20,6 +20,9 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
     
     //nasty hack so we don't have to pass this in
     static int pawn_incr = 0;
+    uint64_t pawn_square;
+    uint64_t enpassant_square;
+    uint64_t target_square;
 
     switch (*index){
         //generator init
@@ -139,10 +142,8 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         
         //enpassants - doesnt work
         case (9) :
-            uint64_t pawn_square;
-            uint64_t enpassant_square;
-            uint64_t target_square;
-            if (enpassant_generator_has_next(gs, &pawn_incr, &pieces, &pawn_square, &enpassant_square, &target_square)){
+            
+            if (enpassant_generator_has_next(gs, &pawn_incr, pieces, &pawn_square, &enpassant_square, &target_square)){
                     enpassant_generator_next(new_gs, &pawn_square, &target_square, &enpassant_square);
                     pawn_incr += 1;
                     return 1;
@@ -154,7 +155,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 pawn_incr = 0;
                 return 0;
             }
-            break
+            break;
     }
 
 
@@ -166,7 +167,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
 void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int print_state) {
     if (print_state){
         char s[1000];
-         scanf("%s", &s);
+        // scanf("%s", &s);
          print_game_state(gs);
     }
     if (depth == 0) return;
@@ -180,12 +181,14 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
     int r_color = (gs->color + 1) % 2;
     //new_gs->enpassants[color] = 0LL;
 	new_gs.enpassants[r_color] = 0LL;
+    CS_mask * cs_msk = build_castle_masks();
+    uint64_t attack_squares = 0LL;
     
     /// would place an opening book look up here
 
     //move generator should change all the fields that it points to, and we only have to check, that
     //it's true.
-    while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+    while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
 
         //do something with the move;
 

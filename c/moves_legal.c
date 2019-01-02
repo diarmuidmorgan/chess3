@@ -246,13 +246,13 @@ void queenside_castling_generator_next (GS * new_gs){
         new_gs->all_pieces |= (n_klocation | n_rlocation);
         new_gs->kings[color] &= new_gs->pieces[color];  
         new_gs->rooks[color] &= new_gs->pieces[color];
-        return new_gs;
+      
 
 }
 
 //if there is a valid enpassant, sets the three target squares.
 // returns 1 if valid, false otherwise
-int enpassant_generator_has_next (GS * gs, uint64_t * pawn_incr, 
+int enpassant_generator_has_next (GS * gs, int * pawn_incr, 
                             uint64_t * pawns, uint64_t * pawn_square,
                             uint64_t * enpassant_square, uint64_t * target_square){
 

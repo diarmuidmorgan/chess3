@@ -1,4 +1,4 @@
-#include "../moves_legal.c"
+#include "../gamestate_generator.c"
 
 uint64_t move_squares_from_file(char *fname){
 

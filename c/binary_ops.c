@@ -25,7 +25,7 @@ uint64_t board_to_word(int * a){
 		
 	}
 	// oh wait - those arrays do get freed afterall
-	free(a);
+	//free(a);
 	
 	return number;
 }
