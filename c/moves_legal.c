@@ -231,6 +231,11 @@ void kingside_castling_generator_next (GS * new_gs){
         new_gs->rooks[color] &= new_gs->pieces[color];
         new_gs->castle_king_side[color] = 0;
         new_gs->castle_queen_side[color] = 0;
+        char K = (color) ? 'K' : 'k';
+        char R = (color) ? 'R' : 'r';
+        int increment = color * 56;      
+        new_gs->board_rep[2 + increment] = K;
+        new_gs->board_rep[3 + increment] = R;
 }
 
 void queenside_castling_generator_next (GS * new_gs){
@@ -246,8 +251,11 @@ void queenside_castling_generator_next (GS * new_gs){
         new_gs->all_pieces |= (n_klocation | n_rlocation);
         new_gs->kings[color] &= new_gs->pieces[color];  
         new_gs->rooks[color] &= new_gs->pieces[color];
-      
-
+        char K = (color) ? 'K' : 'k';
+        char R = (color) ? 'R' : 'r';
+        int increment = color * 56;      
+        new_gs->board_rep[5 + increment] = K;
+        new_gs->board_rep[4 + increment] = R;
 }
 
 //if there is a valid enpassant, sets the three target squares.
@@ -321,7 +329,18 @@ void enpassant_generator_next(GS * new_gs, uint64_t * pawn_square,
     else
         new_gs->score-=1;
     new_gs->color = r_color; 
+
+	char p = (color) ? 'P' : 'p';
+    //damn
+    int tsq = ffsll(*target_square) -1;
+    int epsq = ffsll(*enpassant_square) -1;
+    int psq = ffsll(*pawn_square) - 1; 
+	new_gs->board_rep[tsq] = p;
+	new_gs->board_rep[epsq] = '_';
+    new_gs->board_rep[psq] = '_';
 }
+
+
 
 
 

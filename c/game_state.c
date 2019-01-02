@@ -20,6 +20,8 @@ typedef struct {
 	uint64_t pieces[2];
 	uint64_t all_pieces;
 	uint64_t enpassants[2];
+	//is this really a good idea like?
+	char board_rep[64];
 	int castle_king_side[2];
 	int castle_queen_side[2];
 	int color;
@@ -59,6 +61,7 @@ GS * initial_game_state(){
 	gs->castle_queen_side[0] = 0;
 	gs->castle_queen_side[1] = 0;
 	gs->score = 0;
+	
 	return gs;
 
 }
@@ -97,6 +100,13 @@ GS init_game_state(){
 	gs.castle_king_side[1] = 0;
 	gs.castle_queen_side[0] = 0;
 	gs.castle_queen_side[1] = 0;
+	//is this really a good idea? Do we want a transposition table?
+	char s [] = "rhbqkbhrpppppppp________________________________pppppppprhbqkbhr";
+	int i=0;
+	while (s[i]){
+		gs.board_rep[i] = s[i]; 
+		i++;
+	}
 	return gs;
 
 

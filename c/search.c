@@ -1,4 +1,4 @@
-#include "gamestate_generator.c"
+#include "transpose_table.c"
 #include <math.h>
 
 /* FROM THE WIKIPEDIA PAGE
@@ -24,12 +24,6 @@ function alphabeta(node, depth, α, β, maximizingPlayer) is
         return value
 */
 
-/* alpha beta done as per wikipedia. Reckons you should get to the same depth while only looking at
-    a square root of the total positions. But I doubt that will work here to be honest. 
-    Also we actually have to evaluate the nodes now, rather than just generate them, so that will
-    likely cause a considerable slow down :(
-
-*/
 int max(int a, int b){
 
     return (a > b) ? a : b;
@@ -41,19 +35,27 @@ int min (int a, int b){
 
 }
 
+/* alpha beta done as per wikipedia. Reckons you should get to the same depth while only looking at
+    a square root of the total positions. But I doubt that will work here to be honest. 
+    Also we actually have to evaluate the nodes now, rather than just generate them, so that will
+    likely cause a considerable slow down :(
+
+*/
 int search (GS *gs, int depth, int alpha, 
             int beta, int maximizingPlayer, 
             uint64_t * msks, CS_mask * cs_msk, 
-                            int * position_evals) {
+            int * position_evals, int * zob_vals,
+             int * zob_dict, table_entry * transpose_table,
+            int size_of_table) {
 
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
-    if (depth == 0 || gs->kings[gs->color] == 0LL)
-        
+    if (depth == 0 || gs->kings[gs->color] == 0LL){
+        *position_evals = *position_evals + 1;
         return gs->score;
-
+    }
     //set all of the values that are manipulated by the move generator.
-    *position_evals = *position_evals + 1;
+    
     uint64_t pieces = 0LL;
     int index = 0;
     int piece_incr = 0;
@@ -66,7 +68,14 @@ int search (GS *gs, int depth, int alpha,
     int r_color = (gs->color + 1) % 2;
     //new_gs->enpassants[color] = 0LL;
 	new_gs.enpassants[r_color] = 0LL;
-
+    //printf("\nGOT THIS FAR\n");
+    // char s[1000];
+    // scanf("%s", &s);
+    //look up this piece.
+    if ( find_in_table(gs, transpose_table, &value, size_of_table, zob_vals, zob_dict) )
+        return value;
+    //printf("\nGOT FURTHER\n"); 
+    // scanf("%s", &s);
      
      if (maximizingPlayer){
            value = -100000;
@@ -74,9 +83,11 @@ int search (GS *gs, int depth, int alpha,
         while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk,
+                                 position_evals, zob_vals, zob_dict, transpose_table, size_of_table);
         value = max(value, search_return);
         alpha = max(alpha, value);
+
         if (alpha >= beta)
             break;
 
@@ -95,7 +106,8 @@ int search (GS *gs, int depth, int alpha,
                         &pieces, &move_squares, &attack_squares, cs_msk )){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals,
+                                zob_vals, zob_dict, transpose_table, size_of_table);
         value = min(value, search_return);
         beta = min(beta, value);
         if (alpha >= beta)
@@ -116,11 +128,14 @@ int search (GS *gs, int depth, int alpha,
 
 }
 
-GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask * cs_msk, int * position_evals){
+GS find_best_move (GS gs, int depth, uint64_t * msks,
+                 CS_mask * cs_msk, int * position_evals,
+                 int * zob_vals, int * zob_dict, 
+                 table_entry * transpose_table, int size_of_table ){
 
     int alpha = -100000;
     int beta = 100000;
-    *position_evals = *position_evals + 1;
+    //*position_evals = *position_evals + 1;
     uint64_t pieces = 0LL;
     int index = 0;
     int piece_incr = 0;
@@ -135,7 +150,8 @@ GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask * cs_msk, int * po
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals);
+        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, 
+                        cs_msk, position_evals, zob_vals, zob_dict, transpose_table, size_of_table);
         if (search_return > best){
 
             best = search_return;
@@ -151,10 +167,28 @@ GS find_best_move (GS gs, int depth, uint64_t * msks, CS_mask * cs_msk, int * po
 int main () {
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
+    printf("\nbuild base table\n");
+    int size_of_table = 10000000;
+    table_entry * transpose_table = make_hash_table(size_of_table);
+    int * zob_dict = malloc(128 * sizeof(int));
+    printf("\ntable memory allocated\n");
+    
+    make_zobrist_dict(zob_dict);
+    int * zob_vals = malloc(64*12 * sizeof(int));
+    printf("\nMADE ZOBRIST DICT\n");
+    zobrist_values(zob_vals);
+    printf("table built\n");
     int position_evals = 0;
+    char s[1000];
+   
+    
     GS gs = init_game_state();
-    gs = find_best_move(gs, 5, msks, cs_msk, &position_evals);
+     scanf("%s", &s);
+    printf("\ninitializing game state");
+    printf("\nlooking for best move...");
+    gs = find_best_move(gs, 8, msks, cs_msk, &position_evals, 
+                    zob_vals, zob_dict, transpose_table, size_of_table);
     print_game_state(&gs);
 
-    printf("\n%d\n", position_evals);
+    printf("\n REACHED %d TERMINAL NODES\n", position_evals);
 }

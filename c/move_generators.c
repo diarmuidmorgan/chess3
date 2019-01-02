@@ -1,5 +1,5 @@
 #include "moves_base.c"
-
+#include <math.h>
 /* Simple bitboard serilaizer, used by pin generation.
 *
 */
@@ -169,12 +169,15 @@ void rook_generator_next (GS * gs, GS * new_gs,
 								msks, selected_pieces, 0);
 	//flip castling bits
 	int position = *move_incr - 1;
-	if (position = 0 + gs->color * 54)
+	int old_position = *piece_incr - 1;
+	if (position = 0 + gs->color * 56)
 		new_gs->castle_queen_side[gs->color] = 0;
-	else if (position = 7 + gs->color * 54)
+	else if (position = 7 + gs->color * 56)
 		new_gs->castle_king_side[gs->color] = 0;
-			
-
+	
+	char p = (gs->color) ? 'R' : 'r'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
 }
 int pawn_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
@@ -195,16 +198,24 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
 
+	int position = *move_incr - 1;
+	int old_position = *piece_incr - 1;
+	char p = (gs->color) ? 'P' : 'p'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
+
 	//routine for setting ENPASSANT bits;
 	//basically if a pawn moves two squares we just set that as an enpassant square.
 	//code commented out would check for legal enpassants, but this is so frustrating
 	//that right now we just check at the move generation stage.
-	if ((abs(((*piece_incr -1 ) / 8) - ((*move_incr -1 ) / 8)) == 2)){
+	if (abs(old_position - position) == 16){
 		
-		new_gs->enpassants[new_gs->color] |= (1<<(*move_incr-1));
+		new_gs->enpassants[new_gs->color] |= (1<<position);
+		
 		
 		//the below code MIGHT be able to check for legal enpassants,
 		//but right now we just do this at the move generation stage
+		//which is slow, I guess.
 
 		/*
 		int color = gs->color;
@@ -230,14 +241,14 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 
 	//also check for PROMOTION.
 	// at this stage we will only ever award queens.
-	else if ( (*move_incr / 8) == 7 * new_gs->color){
+	else if ( (position / 8) == 7 * new_gs->color){
 
 		//destroy this pawn
-		new_gs->pawns[gs->color] &= ~ (1LL << (*move_incr - 1));
+		new_gs->pawns[gs->color] &= ~ (1LL << (position));
 		int multiplier = (gs->color) ? -1 : 1;
 		// always award a queen. Only give 8 because we lose a pawn in the process.
 		new_gs->score += multiplier * 8;
-		new_gs->queens[gs->color] |= (1LL << (*move_incr -1));
+		new_gs->queens[gs->color] |= (1LL << position);
 	}
 
 
@@ -249,6 +260,8 @@ int knight_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint6
 	if (game_state_generator_has_next(gs, piece_incr, move_incr, pieces, 
 							move_squares, msks, knight_masking_function ) )
 		return 1;
+
+
 	return 0;
 }
 
@@ -258,7 +271,13 @@ void knight_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_i
 	uint64_t * selected_pieces = &new_gs->knights[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+	int position = *move_incr - 1;
+	int old_position = *piece_incr - 1;
+	char p = (gs->color) ? 'H' : 'h'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
 }
+
 
 int bishop_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
@@ -275,7 +294,13 @@ void bishop_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_i
 	uint64_t * selected_pieces = &new_gs->bishops[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+	int position = *move_incr - 1;
+	int old_position = *piece_incr - 1;
+	char p = (gs->color) ? 'B' : 'b'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
 }
+
 int queen_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
 
@@ -291,7 +316,13 @@ void queen_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_in
 	uint64_t * selected_pieces = &new_gs->queens[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+	int position = *move_incr - 1;
+	int old_position = *piece_incr - 1;
+	char p = (gs->color) ? 'Q' : 'q'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
 }
+
 int king_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
 
@@ -310,7 +341,13 @@ void king_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	//flip castling bits
 	new_gs->castle_king_side[gs->color] = 0;
 	new_gs->castle_queen_side[gs->color] = 0;
+	int position = *move_incr - 1;
+	int old_position = *piece_incr - 1;
+	char p = (gs->color) ? 'K' : 'k'; 
+	new_gs->board_rep[position] = p;
+	new_gs->board_rep[old_position] = '_';
 }
+
 
 
 

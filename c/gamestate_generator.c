@@ -112,11 +112,16 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *move_incr=0;
                 *index= *index + 1;
                 
+                //hack
+                //return 0;
             }
+
+        // theres a nasty bug in one of these, so for now we will just skip them
         //kingside castling
         case (7) :
             if (kingside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
                 kingside_castling_generator_next(new_gs);
+                *index = *index + 1;
                 return 1;
                 break;
             }
@@ -129,6 +134,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         case (8) :
             if (queenside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
                 queenside_castling_generator_next(new_gs);
+                *index = *index + 1;
                 return 1;
                 break;
             }
@@ -152,7 +158,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
-                pawn_incr = 0;
+                
                 return 0;
             }
             break;
