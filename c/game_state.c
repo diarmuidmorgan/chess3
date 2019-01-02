@@ -4,7 +4,9 @@
 #include <string.h>
 #include "start_positions.c"
 #include "binary_ops.c"
-/* Basic struct for holding position data
+/* Basic struct for holding position data. Could maybe look into packing bits on
+  the last four values. Each field is an array of two uint64_t words where the first word is white
+  and the second word is black.
 *
 */
 typedef struct {
@@ -21,7 +23,6 @@ typedef struct {
 	int castle_king_side[2];
 	int castle_queen_side[2];
 	int color;
-
 	int score;
 
 } GS;
@@ -53,12 +54,22 @@ GS * initial_game_state(){
 	gs->enpassants[0] = 0LL;
 	gs->enpassants[1] = 0LL;
 	gs->color = 0;
-	
+	gs->castle_king_side[0] = 0;
+	gs->castle_king_side[1] = 0;
+	gs->castle_queen_side[0] = 0;
+	gs->castle_queen_side[1] = 0;
 	gs->score = 0;
 	return gs;
 
 }
 
+/* Turns out it would probably be better if GS is allocated on the stack, and THEN passed as a pointer,
+	to any function that wants to use it.
+	So this just returns the struct, not a pointer.
+	 (Though it possibly makes sense to pass it as a value to the
+	next level of the game loop stack? )
+
+*/
 GS init_game_state(){
 	GS gs;
 	gs.pawns[0] = board_to_word(starting_pawns_white());
@@ -81,8 +92,11 @@ GS init_game_state(){
 	gs.enpassants[0] = 0LL;
 	gs.enpassants[1] = 0LL;
 	gs.color = 0;
-	
 	gs.score=0;
+	gs.castle_king_side[0] = 0;
+	gs.castle_king_side[1] = 0;
+	gs.castle_queen_side[0] = 0;
+	gs.castle_queen_side[1] = 0;
 	return gs;
 
 
@@ -106,7 +120,7 @@ GS * blank_game_state() {
 }
 /* Helper method. Constructs a game state from a 64 character string
 e.g ___________________________Q___________________________
-*
+* Yes, unfortunately this is how we're planning to save parsed data!
 */
 
 GS * game_state_from_position_string(char * s, int c) {
@@ -181,7 +195,10 @@ GS * read_position_from_file (char * fname) {
 	return game_state_from_position_string(s,0);
 
 }
-/* Hopefully a deep copy of the game state
+/* Hopefully a deep copy of the game state.
+
+   Actually we don't even need to do this as struct doesn't contain pointers. 
+   We can just copy with *new_gs = *gs.
 */
 GS * copy_game_state (GS * gs){
 	GS * new = malloc(sizeof(GS));
@@ -223,9 +240,10 @@ void flip_game_state (GS * gs, GS * prev_gs){
 
 	int color = (gs->color + 1) %2;
 	gs->color = color;
+	//only update the new player's pieces if they have changed
 	if (gs->pieces[color] == prev_gs->pieces[color])
 		return;
-	//only update if the overall pieces have changed
+	
 	gs->score += node_score_change(gs, prev_gs);
 	gs->pawns[color] &= gs->pieces[color];
 	gs->rooks[color] &= gs->pieces[color];

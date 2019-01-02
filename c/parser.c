@@ -1,5 +1,6 @@
 #include "move_generators2.c"
 #include <regex.h>
+
 /* There are seemingly so many cases and so much code repettition to get through here.
     Just feels like a massive head ache and I would rather do this in python :(
 *
@@ -285,7 +286,7 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
                     new_gs.knights[color] |= (1LL << (move_incr -1));
                 if (line[4] == 'B')
                     new_gs.bishops[color] |= (1LL << (move_incr -1));  
-                return new_gs
+                return new_gs;
 
                 }
         }

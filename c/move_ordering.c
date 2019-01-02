@@ -12,6 +12,8 @@
     C is a headfuck already.
 
     Maybe its just faster to pass pointers? Oh god.
+
+    Thinking of abandoning this for the time being :(
 */
 
 

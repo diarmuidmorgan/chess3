@@ -1,3 +1,4 @@
+#just sheer hubris.
 import os
 files = os.listdir()
 count = 0

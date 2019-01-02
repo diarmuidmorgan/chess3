@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// functions to build the starting board. 
+// None of the mallocd memory every gets freed.
+// Should have just loaded arrays from .txt files but I didn't know how to open a file at this point.
+
 int * blank_bit_array() {
 	
 	int * b = malloc(64*sizeof(int));

@@ -1,28 +1,36 @@
 #include <stdint.h>
 #include <strings.h>
 #include <inttypes.h>
+
+//This is all up for deletion. Though the binary_print_board function is good for printdebugging.
+
 /* Base method, converts a 64 word binary array to a uint64_t number
 * Destroys the provided pointer 'a'.
 **/
 
+//used when building the inital game state and move masks. Not for much else.
 uint64_t board_to_word(int * a){
 	
 	uint64_t number = 0LL;
 	uint64_t base = 1LL;
 	uint64_t expo = 2LL;
+	
 	for(int i = 0; i < 64; i++){	
+		
 		if ( a[i]) {
 			number += base;
-			
-			
 		}
+		
 		base = base * expo;
 		
 	}
+	// oh wait - those arrays do get freed afterall
 	free(a);
 	
 	return number;
 }
+// eh useful because you can't seem to pass the ffsll() function as a int (* func) () parameter,
+// for some reason?
 
 int bitscanforward(uint64_t msk){
 	return ffsll(msk);

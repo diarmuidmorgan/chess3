@@ -1,8 +1,17 @@
+/*
+ "Pretty" prints the game state to the command line
+*/
+
 #include "game_state.c"
 #include <strings.h>
 #include <stdint.h>
 #include <stdio.h>
 //#include "binary_ops.c"
+
+/* Takes a word full of a single piece, the character to add to the char, and places that char
+*  in all valid positions
+*
+*/
 void set_string_cell(char * s, char symbol, uint64_t board){
 	uint64_t i;
 	uint64_t incr = 0;
@@ -19,6 +28,8 @@ void set_string_cell(char * s, char symbol, uint64_t board){
 	}
 
 }	
+//Builds the string and then pretty prints it.
+
 void print_game_state(GS * gs) {
 
 	int index;

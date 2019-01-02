@@ -151,10 +151,15 @@ int game_state_generator_has_next (GS * gs, int * piece_incr, int * move_incr,
 }
 
 
-/* Piece specific move generators. Lot of reppetion, 
-* But rooks, kings, and pawns can be adjusted to add different cases.
-	Also I guess, eventually, this will help with move ordering/evaluation?
+/* Piece specific move generators. Lots of reppetion,
+// The has_next generators handle generating move squares and shifting move incr.
+	They return 0/1 depnding on whether a move is available
+// The "next" generators actually update the new game state.
+They are all the same except:
+
+* The rook and king generators also have to change the can_castle bits
 * 
+* The pawn generator_next has to update the enpassant squares
 *
 */
 
@@ -189,6 +194,7 @@ int pawn_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_
 	return 0;
 }
 
+//also sets enpsassant squares. The squares are set in gs.enpassants[r_color]
 void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks) {
 
@@ -196,7 +202,7 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
 
-	//handle enpassant setting here.
+	//handle enpassant setting here. I haven't tested this yet and I don't really think it works.
 
 	// if the move rank difference is two
 	if ((abs(((*piece_incr -1 ) / 8) - ((*move_incr -1 ) / 8)) == 2)){
@@ -208,7 +214,7 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 		if ( col > 0
 				&&
 			((gs->pawns[r_color] | LEFT) == gs->pawns[r_color]))
-			
+
 				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
 			
 		else if ( col < 7

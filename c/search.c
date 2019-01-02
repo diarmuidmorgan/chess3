@@ -32,13 +32,15 @@ function alphabeta(node, depth, α, β, maximizingPlayer) is
 */
 int search (GS *gs, int depth, int alpha, 
             int beta, int maximizingPlayer, 
-            uint64_t * msks, CS_Mask * cs_msk, int * position_evals){
+            uint64_t * msks, CS_Mask * cs_msk, 
+                            int * position_evals) {
 
     //we'll interpret terminal node as the king has been captured.
-    //don't actually evaluate for checkmate
+    //don't actually evaluate for checkmate, at least not at this stage.
     if (depth == 0 || gs->kings[gs->color] == 0LL)
         return simple_evaluate_game_state(&gs);
 
+    //set all of the values that are manipulated by the move generator.
     *position_evals = *position_evals + 1;
     uint64_t pieces = 0LL;
     int index = 0;
@@ -52,9 +54,10 @@ int search (GS *gs, int depth, int alpha,
     //new_gs->enpassants[color] = 0LL;
 	new_gs->enpassants[r_color] = 0LL;
 
+     
      if (maximizingPlayer){
            value = -100000;
-        //c doesn't implement the max and fin functions?
+        //c doesn't implement the max and min functions?
         while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
 
           
@@ -64,8 +67,11 @@ int search (GS *gs, int depth, int alpha,
         if (alpha >= beta)
             break;
 
-        }  
         new_gs = *gs;
+        } 
+     
+
+        
         return value;
 
     }
@@ -81,8 +87,10 @@ int search (GS *gs, int depth, int alpha,
         if (alpha >= beta)
             break;
 
+        
+        new_gs=*gs;
         }  
-        new_gs = *gs;
+        
         return value;
 
 

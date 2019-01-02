@@ -1,11 +1,16 @@
 #include "moves_legal.c"
 
 /*
-Want to rewrite everything with static variables. And have gamestate in stack memory rather than
-On the heap.
+Generator function that encloses pretty much everything in the moves and gamestate files. 
 
-Actually - using statics is going to be a terrible idea. Pass in a base set of pointers instead,
-I reckon
+It is passed a new game state (copy of the current one)
+
+Updates all values passed it it.
+
+Returns 1 (and updates the new game state) if a new playable move is found.
+
+Otherwise returns 0.
+
 
 */
 
@@ -128,7 +133,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *index= *index + 1;
                 }
         
-        //enpassants
+        //enpassants - doesnt work
         case (9) :
             if (gs->enpassants[gs->color] != 0LL){
                     return 1;
@@ -145,6 +150,8 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
 
 }
 
+//prototype game loop with no evaluation. 
+// Basically just tests how long it takes to play to given depth (again - no evaluation!)
 
 void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int print_state) {
     if (print_state){

@@ -1,3 +1,8 @@
+/*
+Probably don't even need this, as we can just keep track of any changes in gs score instead?
+
+*/
+
 #include "moves_legal.c"
 
 #define MAX_SCORE 100000

@@ -1,3 +1,11 @@
+/*
+ The basic masks used to show valid moves for each piece form each square of the board.
+ We generate these all at the start, save them in a big array, and just pass a pointer to this 
+ Array through the game loop.
+*/
+
+
+
 #include <stdlib.h>
 #include <stdint.h>
 #include "printer.c"
@@ -15,6 +23,11 @@
 #define DIAGDLINDEX 12
 #define DIAGDRINDEX 13
  
+
+
+
+
+
 int valid_coords(int x, int y){
 	
 	if (x>=0 && x <=7 && y>=0 && y <= 7){
@@ -180,6 +193,8 @@ uint64_t * build_mask_object() {
 	return ob;
 }
 
+
+// laziness. Really these should be packaged into the move_mask. Which should really be a struct :(
 
 typedef struct {
 
