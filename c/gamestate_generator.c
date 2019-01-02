@@ -17,6 +17,9 @@ Otherwise returns 0.
 int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index, 
                 int * piece_incr, int * move_incr, uint64_t * pieces, uint64_t * move_squares,
                 uint64_t * attack_squares, CS_mask * cs_mask) {
+    
+    //nasty hack so we don't have to pass this in
+    static int pawn_incr = 0;
 
     switch (*index){
         //generator init
@@ -131,17 +134,24 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
+                *pieces = gs->pawns[gs->color];
                 }
         
         //enpassants - doesnt work
         case (9) :
-            if (gs->enpassants[gs->color] != 0LL){
+            uint64_t pawn_square;
+            uint64_t enpassant_square;
+            uint64_t target_square;
+            if (enpassant_generator_has_next(gs, &pawn_incr, &pieces, &pawn_square, &enpassant_square, &target_square)){
+                    enpassant_generator_next(new_gs, &pawn_square, &target_square, &enpassant_square);
+                    pawn_incr += 1;
                     return 1;
             }
             else {
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
+                pawn_incr = 0;
                 return 0;
             }
             break

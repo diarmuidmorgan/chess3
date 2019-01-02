@@ -69,22 +69,7 @@ void make_simple_move (GS * new_gs, GS * gs, uint64_t * selected_pieces,
 	uint64_t new_pos = 1LL << (*move_incr - 1);
 	
 	uint64_t old_pos = 1LL  << (*piece_incr -1);
-	//printf("OLD POS\n");
-	//binary_print_board(old_pos);
-	//printf("NEW POS\n");
-	//binary_print_board(new_pos);
-	//printf("PIECES\n");
-	//binary_print_board(new_gs->pieces[color]);
-	new_gs->pieces[color] = (new_gs->pieces[color] | new_pos) & (~old_pos);
-	//printf("AFTER FIX");
-	//binary_print_board((new_gs->pieces[color] | new_pos) & (~old_pos));
-	//printf("THE SELECTED PIECES\n");
-	//binary_print_board(*selected_pieces);
-	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
-	//binary_print_board(*selected_pieces);
-	new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
-	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
-	flip_game_state(new_gs, gs);
+	normal_game_state_update(new_gs, new_pos, old_pos, selected_pieces);
 	
 	//print_game_state(new_gs);
 	//binary_print_board(new_gs->pawns[color]);
@@ -182,6 +167,14 @@ void rook_generator_next (GS * gs, GS * new_gs,
 	uint64_t * selected_pieces = &new_gs->rooks[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+	//flip castling bits
+	int position = *move_incr - 1;
+	if (position = 0 + gs->color * 54)
+		new_gs->castle_queen_side[gs->color] = 0;
+	else if (position = 7 + gs->color * 54)
+		new_gs->castle_king_side[gs->color] = 0;
+			
+
 }
 int pawn_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
@@ -202,10 +195,18 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
 
-	//handle enpassant setting here. I haven't tested this yet and I don't really think it works.
-
-	// if the move rank difference is two
+	//routine for setting ENPASSANT bits;
+	//basically if a pawn moves two squares we just set that as an enpassant square.
+	//code commented out would check for legal enpassants, but this is so frustrating
+	//that right now we just check at the move generation stage.
 	if ((abs(((*piece_incr -1 ) / 8) - ((*move_incr -1 ) / 8)) == 2)){
+		
+		new_gs->enpassants[new_gs->color] |= (1<<(*move_incr-1));
+		
+		//the below code MIGHT be able to check for legal enpassants,
+		//but right now we just do this at the move generation stage
+
+		/*
 		int color = gs->color;
 		int r_color = (color + 1) % 2;
 		uint64_t RIGHT = 1LL << (*move_incr);
@@ -213,19 +214,32 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 		int col = (*move_incr-1) & 8;
 		if ( col > 0
 				&&
-			((gs->pawns[r_color] | LEFT) == gs->pawns[r_color]))
+			((new_gs->pawns[r_color] | LEFT) == new_gs->pawns[r_color]))
 
 				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
 			
 		else if ( col < 7
 				&&
-			((gs->pawns[r_color] | RIGHT) == gs->pawns[r_color]))
+			((new_gs->pawns[r_color] | RIGHT) == new_gs->pawns[r_color]))
 
 				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
-				
+		*/		
 
 
 	} 
+
+	//also check for PROMOTION.
+	// at this stage we will only ever award queens.
+	else if ( (*move_incr / 8) == 7 * new_gs->color){
+
+		//destroy this pawn
+		new_gs->pawns[gs->color] &= ~ (1LL << (*move_incr - 1));
+		int multiplier = (gs->color) ? -1 : 1;
+		// always award a queen. Only give 8 because we lose a pawn in the process.
+		new_gs->score += multiplier * 8;
+		new_gs->queens[gs->color] |= (1LL << (*move_incr -1));
+	}
+
 
 }
 
@@ -293,17 +307,27 @@ void king_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	uint64_t * selected_pieces = &new_gs->kings[gs->color];
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
+	//flip castling bits
+	new_gs->castle_king_side[gs->color] = 0;
+	new_gs->castle_queen_side[gs->color] = 0;
 }
 
 
 
 /*
 	Redundant in the main game loop, and only currently used for the move_testing suite
-	 and probably, the masking functions. 
-	Have to update that to use these instead.
+	 and probably, possibly, the masking functions. 
+	Have to update that to use the ones above instead.
 
 
 */
+
+
+
+
+
+
+
 
 GS * rook_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
 					uint64_t * move_squares, uint64_t * msks){
@@ -312,6 +336,7 @@ GS * rook_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * piece
 		uint64_t * selected_pieces = &new->rooks[gs->color];
 		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
 					selected_pieces, 0, rook_masking_function);
+		
 		//set castling bits
 		/*
 		int color = gs->color;

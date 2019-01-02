@@ -206,53 +206,90 @@ GS * copy_game_state (GS * gs){
 	return new;
 }
 
-
-/* Update the score of the game state. Do we want to do this?
-* Would help with move ordering, but might be totally unnecessary otherwise.
-*
+/* This basically just combines the flip game state functions and node score change functions
+*  Into one function
 */
-int node_score_change (GS * new_gs, GS * old_gs){
-    int color = new_gs->color;
-    //if pieces are the same, then know change has occurred.
-    if (new_gs->pieces[color] == old_gs->pieces[color])
-        return 0;
-    if (new_gs->pawns[color] != old_gs->pawns[color])
-        return 1 * color;
-    else if (new_gs->knights[color] != old_gs->knights[color])
-        return 3 * color;
-    else if (new_gs->bishops[color] != old_gs->bishops[color])
-        return 3 * color;
-    else if (new_gs->rooks[color] != old_gs->rooks[color])
-        return 5 * color;
-     else if (new_gs->queens[color] != old_gs->queens[color])
-        return 9 * color;
-     else if (new_gs->kings[color] != old_gs->kings[color])
-        //king got killed! Previous node was illegal.
-        return 100000;
-    
-
-
-}
-
-/* Hand game state to the other player.
-*/
-void flip_game_state (GS * gs, GS * prev_gs){
-
-	int color = (gs->color + 1) %2;
-	gs->color = color;
-	//only update the new player's pieces if they have changed
-	if (gs->pieces[color] == prev_gs->pieces[color])
-		return;
+void normal_game_state_update(GS * new_gs, uint64_t new_pos, 
+					uint64_t old_pos, uint64_t * selected_pieces){
+					
+	int color = (new_gs->color + 1);
+	int r_color = (color + 1) % 2;
 	
-	gs->score += node_score_change(gs, prev_gs);
-	gs->pawns[color] &= gs->pieces[color];
-	gs->rooks[color] &= gs->pieces[color];
-	gs->knights[color] &= gs->pieces[color];
-	gs->bishops[color] &= gs->pieces[color];
-	gs->queens[color] &= gs->pieces[color];
-	gs->knights[color] &= gs->pieces[color];
+	//update the pieces for the player who just moved.
+	
+	//'selected pieces' is a pointer to the filed in the game state (e.g pawns, rooks)
+	//that needs to be updated. 
+	//despite the game state itself being passed as a pointer.
+	
+	new_gs->pieces[color] = (new_gs->pieces[color] | new_pos) & (~old_pos);
+	
+	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
+	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
+
+	//change the game state color;
+	new_gs->color = r_color;
+	
+	//handle captures.
+	//if this update changes the other sides piece's, we need to update every piece array,
+	// and check for a base score change.
+	// I think this is kind of inefficient, so many if statements.
+	// At least, we should exit on the first condition for the majority of moves.
+	// And hopefully exit on the pawns condition for most of the rest, right?
+
+	//TBH it might not even be worth it keeping a running score count, 
+	//easier to just check for it on the terminal nodes?
+	
+	// though it MIGHT be good if we implement move_ordering and quiesence search.
+
+	if ((new_gs->pieces[r_color] & (~new_pos)) != new_gs->pieces[r_color]){
+		int multiplier;
+		if (color == 1) multiplier = 1;
+		else multiplier = -1;
+		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
+		new_gs->all_pieces |= new_gs->pieces[r_color];
+		
+		uint64_t new_pieces = new_gs->pawns[r_color] & new_gs->pieces[color];
+		
+		if (new_pieces != new_gs->pawns[r_color]){
+			new_gs->score += 1 * multiplier;
+			new_gs->pawns[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->bishops[r_color] & new_gs->bishops[color];
+		if (new_pieces != new_gs->bishops[r_color]){
+			new_gs->score += 3 * multiplier;
+			new_gs->bishops[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->knights[r_color] & new_gs->pieces[color];
+		if (new_pieces != new_gs->knights[r_color]){
+			new_gs->score += 3 * multiplier;
+			new_gs->knights[r_color] = new_pieces;
+			return;
+		}
+		
+		new_pieces = new_gs->rooks[r_color] & new_gs->pieces[color];
+		if (new_pieces != new_gs->rooks[r_color]){
+			new_gs->score += 5 * multiplier;
+			new_gs->rooks[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->queens[r_color] & new_gs->pieces[color];
+		if (new_pieces != new_gs->queens[r_color]){
+			new_gs->score += 9 * multiplier;
+			new_gs->queens[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->kings[r_color] & new_gs->pieces[color];
+		if (new_pieces != new_gs->kings[r_color]){
+			new_gs->score += 1000 * multiplier;
+			new_gs->kings[r_color] = new_pieces;
+			return;
+		}
+		
 
 
+	}
 }
 
 

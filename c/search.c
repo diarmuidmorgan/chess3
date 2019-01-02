@@ -83,7 +83,7 @@ int search (GS *gs, int depth, int alpha,
           
         search_return = search(new_gs, depth-1, alpha, beta, 0, msks, cs_msk, position_evals);
         value = min(value, search_return);
-        beta = min(alpha, value);
+        beta = min(beta, value);
         if (alpha >= beta)
             break;
 

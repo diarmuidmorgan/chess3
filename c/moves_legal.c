@@ -1,6 +1,17 @@
 #include "move_generators.c"
 #define TESTING 1
 
+/* Determines legality of moves e.g pins, and moving into check.
+* The pin code isn't really important for anything other than the move parser,
+  The checking/attacked squares code is techinally necessary to see if castling is possible.
+  Ideally it should be run a bare minimum of times because its ridiculously expensive.
+  But it is... possible, that it could get run tens of thousands of times.... in a single loop
+
+
+  Also includes the generator functions for castling.
+*/
+
+// Determines if an attacking ray causes a piece to be pinned.
 
 void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs, 
             int color, int (* bitsearchfunc)()){
@@ -41,8 +52,12 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
 }
 
 /*
-Horrendously expensive. Doesn't actually work :(
+Horrendously expensive. Builds a mask of all pinned squares by calling the ray pins piece function
+For every ray attack/sliding attack piece.
+This can probably be replaced by a better solution -> only checking the rays that the king is in.
+All the bit searching is really expensive.
 */
+
 uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
 
     int color = gs->color;
@@ -96,6 +111,9 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     }
     return pin_mask;
 }
+
+// cycles through a piece type and adds all of its squares to the attack mask
+
 void add_to_attack_mask(uint64_t * attack_squares, uint64_t * msks, uint64_t pin_mask,
              GS * gs, uint64_t pieces, void (* masking_function)()){
     int piece_incr = 0;
@@ -116,6 +134,7 @@ void add_to_attack_mask(uint64_t * attack_squares, uint64_t * msks, uint64_t pin
 *
 */
 
+//builds the entire attack mask from all of the pieces.
 
 uint64_t build_attack_mask (GS * gs, uint64_t * msks){
     gs->color = (gs->color + 1) % 2;
@@ -171,6 +190,9 @@ int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint6
 
 }
 
+
+//does the same but for the queen side.
+
 int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
 
     int color = gs->color;
@@ -193,9 +215,9 @@ int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint
 
 }
 
+//functions to perform the actual castling procedure.
 
-
-GS * kingside_castling_generator_next (GS * new_gs){
+void kingside_castling_generator_next (GS * new_gs){
         
         int color = new_gs->color;
     
@@ -207,10 +229,11 @@ GS * kingside_castling_generator_next (GS * new_gs){
         new_gs->all_pieces |= (n_klocation | n_rlocation);
         new_gs->kings[color] &= new_gs->pieces[color];  
         new_gs->rooks[color] &= new_gs->pieces[color];
-        
+        new_gs->castle_king_side[color] = 0;
+        new_gs->castle_queen_side[color] = 0;
 }
 
-GS * queenside_castling_generator_next (GS * new_gs){
+void queenside_castling_generator_next (GS * new_gs){
     
         int color = new_gs->color;
     
@@ -225,6 +248,79 @@ GS * queenside_castling_generator_next (GS * new_gs){
         new_gs->rooks[color] &= new_gs->pieces[color];
         return new_gs;
 
+}
+
+//if there is a valid enpassant, sets the three target squares.
+// returns 1 if valid, false otherwise
+int enpassant_generator_has_next (GS * gs, uint64_t * pawn_incr, 
+                            uint64_t * pawns, uint64_t * pawn_square,
+                            uint64_t * enpassant_square, uint64_t * target_square){
+
+    int color = gs->color;
+    //no enpassant squares to play. This is the majority case.
+    if (gs->enpassants[color] == 0LL) return 0;
+    else{
+        int enpassant_index = ffsll(gs->enpassants[color]) - 1;
+        *enpassant_square = 1LL << enpassant_index;
+        //test for left pawn
+        //not sure if I have the directions right here.
+        if (*pawn_incr == 0 && (enpassant_index % 8 > 0)){
+            *pawn_incr = *pawn_incr + 1;
+            *pawn_square = *enpassant_square << 1;
+            if ((gs->pawns[color] | *pawn_square) == gs->pawns[color]){
+
+                //target square will be either 8 squares ahead or behind of enpassant square.
+                if (color == 0){
+                    *target_square = *enpassant_square >> 8;
+
+                }
+                
+                else {
+                    *target_square = *enpassant_square << 8;
+                }
+
+                return 1;
+            }
+                
+        }
+        
+        if (*pawn_incr == 1 && (enpassant_index % 8 < 7)){
+            *pawn_incr = *pawn_incr + 1;
+            *pawn_square = *enpassant_square >> 1;
+            if ((gs->pawns[color] | *pawn_square) == gs->pawns[color]){
+                
+                 if (color == 0){
+                    *target_square = *enpassant_square >> 8;
+
+                }
+                
+                else {
+                    *target_square = *enpassant_square << 8;
+                }
+                
+                return 1;
+            }
+        }
+        return 0;
+    }
+}
+
+//perform the enpassant move and update the new game state (no need for a game_state.c function)
+void enpassant_generator_next(GS * new_gs, uint64_t * pawn_square, 
+                                uint64_t * target_square, uint64_t * enpassant_square){
+    int color = new_gs->color;
+    int r_color = (color + 1) % 2;
+    new_gs -> pieces[color] &=  ( ~ *pawn_square );
+    new_gs -> pieces[r_color] &= (~ *enpassant_square);
+    new_gs -> pieces[color] |= *target_square;
+    new_gs -> pawns[color] &= new_gs->pieces[color];
+    new_gs ->pawns[r_color] &= new_gs->pieces[r_color];
+    new_gs->all_pieces = new_gs->pieces[color] | new_gs->pieces[r_color];
+    if (color == 0)
+        new_gs->score += 1;
+    else
+        new_gs->score-=1;
+    new_gs->color = r_color; 
 }
 
 
