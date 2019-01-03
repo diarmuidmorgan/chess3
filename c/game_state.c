@@ -258,39 +258,39 @@ void normal_game_state_update(GS * new_gs, uint64_t new_pos,
 		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
 		new_gs->all_pieces |= new_gs->pieces[r_color];
 		
-		uint64_t new_pieces = new_gs->pawns[r_color] & new_gs->pieces[color];
+		uint64_t new_pieces = new_gs->pawns[r_color] & new_gs->pieces[r_color];
 		
 		if (new_pieces != new_gs->pawns[r_color]){
 			new_gs->score += 1 * multiplier;
 			new_gs->pawns[r_color] = new_pieces;
 			return;
 		}
-		new_pieces = new_gs->bishops[r_color] & new_gs->bishops[color];
+		new_pieces = new_gs->bishops[r_color] & new_gs->bishops[r_color];
 		if (new_pieces != new_gs->bishops[r_color]){
 			new_gs->score += 3 * multiplier;
 			new_gs->bishops[r_color] = new_pieces;
 			return;
 		}
-		new_pieces = new_gs->knights[r_color] & new_gs->pieces[color];
+		new_pieces = new_gs->knights[r_color] & new_gs->pieces[r_color];
 		if (new_pieces != new_gs->knights[r_color]){
 			new_gs->score += 3 * multiplier;
 			new_gs->knights[r_color] = new_pieces;
 			return;
 		}
 		
-		new_pieces = new_gs->rooks[r_color] & new_gs->pieces[color];
+		new_pieces = new_gs->rooks[r_color] & new_gs->pieces[r_color];
 		if (new_pieces != new_gs->rooks[r_color]){
 			new_gs->score += 5 * multiplier;
 			new_gs->rooks[r_color] = new_pieces;
 			return;
 		}
-		new_pieces = new_gs->queens[r_color] & new_gs->pieces[color];
+		new_pieces = new_gs->queens[r_color] & new_gs->pieces[r_color];
 		if (new_pieces != new_gs->queens[r_color]){
 			new_gs->score += 9 * multiplier;
 			new_gs->queens[r_color] = new_pieces;
 			return;
 		}
-		new_pieces = new_gs->kings[r_color] & new_gs->pieces[color];
+		new_pieces = new_gs->kings[r_color] & new_gs->pieces[r_color];
 		if (new_pieces != new_gs->kings[r_color]){
 			new_gs->score += 1000 * multiplier;
 			new_gs->kings[r_color] = new_pieces;

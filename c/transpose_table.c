@@ -1,6 +1,8 @@
 //#include <everything.h>
 #include "gamestate_generator.c"
 #include <time.h>
+#define RANDDEV "/dev/urandom"
+#include <assert.h>
 
 /* I guess it would be easiest if we started with an ordered map
 * E.g have some kind of hash function that reduces positions to 32bit or maybe just 16 bit integers
@@ -42,6 +44,26 @@ constant indices
 
 
 */
+
+//from stack overflow
+uint64_t rndull(){
+
+    FILE *rdp;
+    uint64_t num;
+
+    rdp = fopen(RANDDEV, "rb");
+    assert(rdp);
+
+    assert(fread(&num, sizeof(num), 1, rdp) == 1);
+
+    fclose(rdp);
+
+    return num;
+
+
+}
+
+
 int game_state_equals(GS * gs1, GS * gs2) {
 	
 	
@@ -79,14 +101,15 @@ int game_state_equals(GS * gs1, GS * gs2) {
 // need an extra bit for color
 void zobrist_values (uint64_t * return_arr){
     
-    //srand(time(NULL));
+    srand(time(NULL));
     
     // for every piece value at every square, we create a random integer value.
     for (int i=0; i<64; i++){
 
         for (int j=0; j<12; j++){
 
-            return_arr[i*12 + j] = random(); 
+            return_arr[i*12 + j] =  rndull(); 
+	    printf("%" PRIu64 "\n", return_arr[i*12 + j]);
         }
 
     }
@@ -118,7 +141,8 @@ uint64_t zob_hash(char * board, int color, uint64_t * zobrist_vals, int * zobris
 
 
     }
-    h ^= (zobrist_vals[768] * color);
+    h ^= (zobrist_vals[768] *  color);
+    //printf("%" PRIu64 "\n", h);
     return h;
 
 }
@@ -137,13 +161,13 @@ typedef struct {
 
 table_entry * make_hash_table(int * size_of_table){
     
-    table_entry * transposition_table = malloc(sizeof(table_entry) * *size_of_table );
+    table_entry * transposition_table = malloc(sizeof(table_entry) * (*size_of_table ) );
     //see how much memory we can get
     //*size_of_table = *size_of_table * 2;
     while(! transposition_table ){
         printf("Shrinking table\n");
         *size_of_table /=2;
-        transposition_table = malloc(sizeof(table_entry) * *size_of_table );
+        transposition_table = malloc(sizeof(table_entry) * (*size_of_table ) );
     }
     table_entry t;
     t.valid = 0;
@@ -160,7 +184,7 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
                         uint64_t * zob_vals, int * zob_dict, int * collisions){
     //printf("ADDED TO TABLE\n");
     uint64_t hashcode = zob_hash(gs->board_rep, gs->color, zob_vals, zob_dict);
-    int h = ((int) (hashcode >> 32) ) % size_of_table;
+    int h = ((int) (hashcode >> 33) ) % size_of_table;
     int begin = h -1;
     if (table[h].valid){
         *collisions = *collisions + 1;
@@ -184,13 +208,12 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
         table[h] = t;
         return 1;
     //table is full
-    return 0;
-
-}
+   }
+   return 0;
 }
 //actually the null values probably won't work? Maybe we need an array of invalid/bogus table entries?
 
-// a 'value' pointer gets passed in, and is updated if we find a gamestate.
+// a 'value' pointer gets passed i:wq:n, and is updated if we find a gamestate.
 //function returns 1/0 depending on whether the entry is found or not.
 
 int find_in_table(GS * gs, table_entry * table, int * value,
@@ -200,7 +223,7 @@ int find_in_table(GS * gs, table_entry * table, int * value,
     //printf("\nhasing\n");
     //scanf("%s", &s);
     uint64_t hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
-    int h = ( (int) ( hashcode >> 32  ) ) % size_of_table;
+    int h = ( (int) ( hashcode >> 33  ) ) % size_of_table;
     //printf("\nhashed\n");
     //scanf("%s", &s);
     //i guess the worst case here is the table is completely full and we have to 
@@ -209,7 +232,7 @@ int find_in_table(GS * gs, table_entry * table, int * value,
     //we could end up reading the entire table every time, if there are enough collisions!!
     while(table[h].valid && h != begin){
         
-        table_entry t = table[h];
+        //table_entry t = table[h];
         //will comparison op work here?
         //printf("\n%d\n", hashcode);
         //printf("GS 1 color %d GS 2 color %d\n", gs->color, t.gs.color);
@@ -218,8 +241,8 @@ int find_in_table(GS * gs, table_entry * table, int * value,
         //char s[1000];
         //printf("\n%d\n", game_state_equals(&t.gs, gs));
         //scanf("%s",&s);
-        if (t.hash = hashcode  ) { // && game_state_equals(&t.gs, gs)){
-            *value = t.value;
+        if (table[h].hash == hashcode  ) { // && game_state_equals(&t.gs, gs)){
+            *value = table[h].value;
             //printf("\n\n FOUND \n\n");
             return 1;
         }
