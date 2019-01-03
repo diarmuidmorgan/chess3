@@ -205,7 +205,7 @@ int main () {
     
     printf("\ninitializing game state");
     printf("\nlooking for best move...");
-    gs = find_best_move(gs, 6, msks, cs_msk, &position_evals, 
+    gs = find_best_move(gs, 7, msks, cs_msk, &position_evals, 
                     zob_vals, zob_dict, transpose_table, size_of_table, 
                     &collisions, &lookup_success);
     print_game_state(&gs);

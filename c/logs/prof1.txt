@@ -1,0 +1,690 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+  0.00      0.00     0.00  6171486     0.00     0.00  min
+  0.00      0.00     0.00  5867179     0.00     0.00  next_move
+  0.00      0.00     0.00  3964790     0.00     0.00  game_state_generator_has_next
+  0.00      0.00     0.00  3426805     0.00     0.00  moves_generator
+  0.00      0.00     0.00  3374460     0.00     0.00  game_state_generator_next
+  0.00      0.00     0.00  3374460     0.00     0.00  make_simple_move
+  0.00      0.00     0.00  3374460     0.00     0.00  normal_game_state_update
+  0.00      0.00     0.00  2185180     0.00     0.00  next_piece
+  0.00      0.00     0.00  1951662     0.00     0.00  pawn_generator_has_next
+  0.00      0.00     0.00  1804204     0.00     0.00  pawn_generator_next
+  0.00      0.00     0.00  1147443     0.00     0.00  pawn_attack_masking_function
+  0.00      0.00     0.00  1147443     0.00     0.00  pawn_forward_masking_function
+  0.00      0.00     0.00  1147443     0.00     0.00  pawn_masking_function
+  0.00      0.00     0.00  1056600     0.00     0.00  sliding_ray_hsb_masking
+  0.00      0.00     0.00  1056600     0.00     0.00  sliding_ray_lsb_masking
+  0.00      0.00     0.00   758484     0.00     0.00  knight_generator_has_next
+  0.00      0.00     0.00   655069     0.00     0.00  zob_hash
+  0.00      0.00     0.00   647336     0.00     0.00  knight_generator_next
+  0.00      0.00     0.00   577394     0.00     0.00  max
+  0.00      0.00     0.00   538989     0.00     0.00  queen_generator_has_next
+  0.00      0.00     0.00   486351     0.00     0.00  queen_generator_next
+  0.00      0.00     0.00   393621     0.00     0.00  bishop_generator_has_next
+  0.00      0.00     0.00   367162     0.00     0.00  find_in_table
+  0.00      0.00     0.00   315135     0.00     0.00  knight_king_masking_function
+  0.00      0.00     0.00   304965     0.00     0.00  bishop_generator_next
+  0.00      0.00     0.00   287907     0.00     0.00  add_to_table
+  0.00      0.00     0.00   284159     0.00     0.00  rook_masking_function
+  0.00      0.00     0.00   262497     0.00     0.00  knight_masking_function
+  0.00      0.00     0.00   244141     0.00     0.00  bishop_masking_function
+  0.00      0.00     0.00   226425     0.00     0.00  rook_generator_has_next
+  0.00      0.00     0.00   145812     0.00     0.00  bitscanreverse
+  0.00      0.00     0.00    95609     0.00     0.00  king_generator_has_next
+  0.00      0.00     0.00    88489     0.00     0.00  queen_masking_function
+  0.00      0.00     0.00    88340     0.00     0.00  rook_generator_next
+  0.00      0.00     0.00    52638     0.00     0.00  king_masking_function
+  0.00      0.00     0.00    43264     0.00     0.00  king_generator_next
+  0.00      0.00     0.00     1424     0.00     0.00  valid_coords
+  0.00      0.00     0.00      916     0.00     0.00  blank_bit_array
+  0.00      0.00     0.00      916     0.00     0.00  board_to_word
+  0.00      0.00     0.00      768     0.00     0.00  rndull
+  0.00      0.00     0.00      256     0.00     0.00  diagonal
+  0.00      0.00     0.00      128     0.00     0.00  column
+  0.00      0.00     0.00      128     0.00     0.00  pawn_attacks
+  0.00      0.00     0.00      128     0.00     0.00  pawn_moves
+  0.00      0.00     0.00      128     0.00     0.00  rank
+  0.00      0.00     0.00       64     0.00     0.00  col_left
+  0.00      0.00     0.00       64     0.00     0.00  col_right
+  0.00      0.00     0.00       64     0.00     0.00  diagonal_down_left
+  0.00      0.00     0.00       64     0.00     0.00  diagonal_down_right
+  0.00      0.00     0.00       64     0.00     0.00  diagonal_up_left
+  0.00      0.00     0.00       64     0.00     0.00  diagonal_up_right
+  0.00      0.00     0.00       64     0.00     0.00  king_moves
+  0.00      0.00     0.00       64     0.00     0.00  knight_moves
+  0.00      0.00     0.00       64     0.00     0.00  rank_down
+  0.00      0.00     0.00       64     0.00     0.00  rank_up
+  0.00      0.00     0.00       20     0.00     0.00  search
+  0.00      0.00     0.00       12     0.00     0.00  set_string_cell
+  0.00      0.00     0.00        6     0.00     0.00  starting_pieces
+  0.00      0.00     0.00        4     0.00     0.00  starting_royalty
+  0.00      0.00     0.00        2     0.00     0.00  king_castling_empty
+  0.00      0.00     0.00        2     0.00     0.00  king_castling_non_attack
+  0.00      0.00     0.00        2     0.00     0.00  queen_castling_empty
+  0.00      0.00     0.00        2     0.00     0.00  queen_castling_non_attack
+  0.00      0.00     0.00        2     0.00     0.00  starting_pawns
+  0.00      0.00     0.00        1     0.00     0.00  build_castle_masks
+  0.00      0.00     0.00        1     0.00     0.00  build_mask_object
+  0.00      0.00     0.00        1     0.00     0.00  find_best_move
+  0.00      0.00     0.00        1     0.00     0.00  init_game_state
+  0.00      0.00     0.00        1     0.00     0.00  make_hash_table
+  0.00      0.00     0.00        1     0.00     0.00  make_zobrist_dict
+  0.00      0.00     0.00        1     0.00     0.00  print_game_state
+  0.00      0.00     0.00        1     0.00     0.00  starting_bishops_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_bishops_white
+  0.00      0.00     0.00        1     0.00     0.00  starting_king_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_king_white
+  0.00      0.00     0.00        1     0.00     0.00  starting_knights_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_knights_white
+  0.00      0.00     0.00        1     0.00     0.00  starting_pawns_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_pawns_white
+  0.00      0.00     0.00        1     0.00     0.00  starting_queen_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_queen_white
+  0.00      0.00     0.00        1     0.00     0.00  starting_rooks_black
+  0.00      0.00     0.00        1     0.00     0.00  starting_rooks_white
+  0.00      0.00     0.00        1     0.00     0.00  zobrist_values
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) no time propagated
+
+index % time    self  children    called     name
+                0.00    0.00 6171486/6171486     search [56]
+[1]      0.0    0.00    0.00 6171486         min [1]
+-----------------------------------------------
+                0.00    0.00 5867179/5867179     game_state_generator_has_next [3]
+[2]      0.0    0.00    0.00 5867179         next_move [2]
+-----------------------------------------------
+                0.00    0.00   95609/3964790     king_generator_has_next [32]
+                0.00    0.00  226425/3964790     rook_generator_has_next [30]
+                0.00    0.00  393621/3964790     bishop_generator_has_next [22]
+                0.00    0.00  538989/3964790     queen_generator_has_next [20]
+                0.00    0.00  758484/3964790     knight_generator_has_next [16]
+                0.00    0.00 1951662/3964790     pawn_generator_has_next [9]
+[3]      0.0    0.00    0.00 3964790         game_state_generator_has_next [3]
+                0.00    0.00 5867179/5867179     next_move [2]
+                0.00    0.00 2185180/2185180     next_piece [8]
+-----------------------------------------------
+                0.00    0.00      21/3426805     find_best_move [67]
+                0.00    0.00 3426784/3426805     search [56]
+[4]      0.0    0.00    0.00 3426805         moves_generator [4]
+                0.00    0.00 1951662/1951662     pawn_generator_has_next [9]
+                0.00    0.00 1804204/1804204     pawn_generator_next [10]
+                0.00    0.00  758484/758484      knight_generator_has_next [16]
+                0.00    0.00  647336/647336      knight_generator_next [18]
+                0.00    0.00  538989/538989      queen_generator_has_next [20]
+                0.00    0.00  486351/486351      queen_generator_next [21]
+                0.00    0.00  393621/393621      bishop_generator_has_next [22]
+                0.00    0.00  304965/304965      bishop_generator_next [25]
+                0.00    0.00  226425/226425      rook_generator_has_next [30]
+                0.00    0.00   95609/95609       king_generator_has_next [32]
+                0.00    0.00   88340/88340       rook_generator_next [34]
+                0.00    0.00   43264/43264       king_generator_next [36]
+-----------------------------------------------
+                0.00    0.00   43264/3374460     king_generator_next [36]
+                0.00    0.00   88340/3374460     rook_generator_next [34]
+                0.00    0.00  304965/3374460     bishop_generator_next [25]
+                0.00    0.00  486351/3374460     queen_generator_next [21]
+                0.00    0.00  647336/3374460     knight_generator_next [18]
+                0.00    0.00 1804204/3374460     pawn_generator_next [10]
+[5]      0.0    0.00    0.00 3374460         game_state_generator_next [5]
+                0.00    0.00 3374460/3374460     make_simple_move [6]
+-----------------------------------------------
+                0.00    0.00 3374460/3374460     game_state_generator_next [5]
+[6]      0.0    0.00    0.00 3374460         make_simple_move [6]
+                0.00    0.00 3374460/3374460     normal_game_state_update [7]
+-----------------------------------------------
+                0.00    0.00 3374460/3374460     make_simple_move [6]
+[7]      0.0    0.00    0.00 3374460         normal_game_state_update [7]
+-----------------------------------------------
+                0.00    0.00 2185180/2185180     game_state_generator_has_next [3]
+[8]      0.0    0.00    0.00 2185180         next_piece [8]
+                0.00    0.00 1147443/1147443     pawn_masking_function [13]
+                0.00    0.00  262497/262497      knight_masking_function [28]
+                0.00    0.00  195670/284159      rook_masking_function [27]
+                0.00    0.00  155652/244141      bishop_masking_function [29]
+                0.00    0.00   88489/88489       queen_masking_function [33]
+                0.00    0.00   52638/52638       king_masking_function [35]
+-----------------------------------------------
+                0.00    0.00 1951662/1951662     moves_generator [4]
+[9]      0.0    0.00    0.00 1951662         pawn_generator_has_next [9]
+                0.00    0.00 1951662/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00 1804204/1804204     moves_generator [4]
+[10]     0.0    0.00    0.00 1804204         pawn_generator_next [10]
+                0.00    0.00 1804204/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00 1147443/1147443     pawn_masking_function [13]
+[11]     0.0    0.00    0.00 1147443         pawn_attack_masking_function [11]
+-----------------------------------------------
+                0.00    0.00 1147443/1147443     pawn_masking_function [13]
+[12]     0.0    0.00    0.00 1147443         pawn_forward_masking_function [12]
+                0.00    0.00  145812/145812      bitscanreverse [31]
+-----------------------------------------------
+                0.00    0.00 1147443/1147443     next_piece [8]
+[13]     0.0    0.00    0.00 1147443         pawn_masking_function [13]
+                0.00    0.00 1147443/1147443     pawn_attack_masking_function [11]
+                0.00    0.00 1147443/1147443     pawn_forward_masking_function [12]
+-----------------------------------------------
+                0.00    0.00  488282/1056600     bishop_masking_function [29]
+                0.00    0.00  568318/1056600     rook_masking_function [27]
+[14]     0.0    0.00    0.00 1056600         sliding_ray_hsb_masking [14]
+-----------------------------------------------
+                0.00    0.00  488282/1056600     bishop_masking_function [29]
+                0.00    0.00  568318/1056600     rook_masking_function [27]
+[15]     0.0    0.00    0.00 1056600         sliding_ray_lsb_masking [15]
+-----------------------------------------------
+                0.00    0.00  758484/758484      moves_generator [4]
+[16]     0.0    0.00    0.00  758484         knight_generator_has_next [16]
+                0.00    0.00  758484/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00  287907/655069      add_to_table [26]
+                0.00    0.00  367162/655069      find_in_table [23]
+[17]     0.0    0.00    0.00  655069         zob_hash [17]
+-----------------------------------------------
+                0.00    0.00  647336/647336      moves_generator [4]
+[18]     0.0    0.00    0.00  647336         knight_generator_next [18]
+                0.00    0.00  647336/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00  577394/577394      search [56]
+[19]     0.0    0.00    0.00  577394         max [19]
+-----------------------------------------------
+                0.00    0.00  538989/538989      moves_generator [4]
+[20]     0.0    0.00    0.00  538989         queen_generator_has_next [20]
+                0.00    0.00  538989/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00  486351/486351      moves_generator [4]
+[21]     0.0    0.00    0.00  486351         queen_generator_next [21]
+                0.00    0.00  486351/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00  393621/393621      moves_generator [4]
+[22]     0.0    0.00    0.00  393621         bishop_generator_has_next [22]
+                0.00    0.00  393621/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00  367162/367162      search [56]
+[23]     0.0    0.00    0.00  367162         find_in_table [23]
+                0.00    0.00  367162/655069      zob_hash [17]
+-----------------------------------------------
+                0.00    0.00   52638/315135      king_masking_function [35]
+                0.00    0.00  262497/315135      knight_masking_function [28]
+[24]     0.0    0.00    0.00  315135         knight_king_masking_function [24]
+-----------------------------------------------
+                0.00    0.00  304965/304965      moves_generator [4]
+[25]     0.0    0.00    0.00  304965         bishop_generator_next [25]
+                0.00    0.00  304965/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00  287907/287907      search [56]
+[26]     0.0    0.00    0.00  287907         add_to_table [26]
+                0.00    0.00  287907/655069      zob_hash [17]
+-----------------------------------------------
+                0.00    0.00   88489/284159      queen_masking_function [33]
+                0.00    0.00  195670/284159      next_piece [8]
+[27]     0.0    0.00    0.00  284159         rook_masking_function [27]
+                0.00    0.00  568318/1056600     sliding_ray_lsb_masking [15]
+                0.00    0.00  568318/1056600     sliding_ray_hsb_masking [14]
+-----------------------------------------------
+                0.00    0.00  262497/262497      next_piece [8]
+[28]     0.0    0.00    0.00  262497         knight_masking_function [28]
+                0.00    0.00  262497/315135      knight_king_masking_function [24]
+-----------------------------------------------
+                0.00    0.00   88489/244141      queen_masking_function [33]
+                0.00    0.00  155652/244141      next_piece [8]
+[29]     0.0    0.00    0.00  244141         bishop_masking_function [29]
+                0.00    0.00  488282/1056600     sliding_ray_lsb_masking [15]
+                0.00    0.00  488282/1056600     sliding_ray_hsb_masking [14]
+-----------------------------------------------
+                0.00    0.00  226425/226425      moves_generator [4]
+[30]     0.0    0.00    0.00  226425         rook_generator_has_next [30]
+                0.00    0.00  226425/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00  145812/145812      pawn_forward_masking_function [12]
+[31]     0.0    0.00    0.00  145812         bitscanreverse [31]
+-----------------------------------------------
+                0.00    0.00   95609/95609       moves_generator [4]
+[32]     0.0    0.00    0.00   95609         king_generator_has_next [32]
+                0.00    0.00   95609/3964790     game_state_generator_has_next [3]
+-----------------------------------------------
+                0.00    0.00   88489/88489       next_piece [8]
+[33]     0.0    0.00    0.00   88489         queen_masking_function [33]
+                0.00    0.00   88489/244141      bishop_masking_function [29]
+                0.00    0.00   88489/284159      rook_masking_function [27]
+-----------------------------------------------
+                0.00    0.00   88340/88340       moves_generator [4]
+[34]     0.0    0.00    0.00   88340         rook_generator_next [34]
+                0.00    0.00   88340/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00   52638/52638       next_piece [8]
+[35]     0.0    0.00    0.00   52638         king_masking_function [35]
+                0.00    0.00   52638/315135      knight_king_masking_function [24]
+-----------------------------------------------
+                0.00    0.00   43264/43264       moves_generator [4]
+[36]     0.0    0.00    0.00   43264         king_generator_next [36]
+                0.00    0.00   43264/3374460     game_state_generator_next [5]
+-----------------------------------------------
+                0.00    0.00     144/1424        pawn_moves [44]
+                0.00    0.00     256/1424        pawn_attacks [43]
+                0.00    0.00     512/1424        king_moves [52]
+                0.00    0.00     512/1424        knight_moves [53]
+[37]     0.0    0.00    0.00    1424         valid_coords [37]
+-----------------------------------------------
+                0.00    0.00       2/916         king_castling_empty [60]
+                0.00    0.00       2/916         queen_castling_empty [62]
+                0.00    0.00       2/916         king_castling_non_attack [61]
+                0.00    0.00       2/916         queen_castling_non_attack [63]
+                0.00    0.00       2/916         starting_pawns [64]
+                0.00    0.00       4/916         starting_royalty [59]
+                0.00    0.00       6/916         starting_pieces [58]
+                0.00    0.00      64/916         king_moves [52]
+                0.00    0.00      64/916         knight_moves [53]
+                0.00    0.00     128/916         pawn_attacks [43]
+                0.00    0.00     128/916         pawn_moves [44]
+                0.00    0.00     128/916         rank [45]
+                0.00    0.00     128/916         column [42]
+                0.00    0.00     256/916         diagonal [41]
+[38]     0.0    0.00    0.00     916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       8/916         build_castle_masks [65]
+                0.00    0.00      12/916         init_game_state [68]
+                0.00    0.00      64/916         king_moves [52]
+                0.00    0.00      64/916         knight_moves [53]
+                0.00    0.00     128/916         pawn_attacks [43]
+                0.00    0.00     128/916         pawn_moves [44]
+                0.00    0.00     128/916         rank [45]
+                0.00    0.00     128/916         column [42]
+                0.00    0.00     256/916         diagonal [41]
+[39]     0.0    0.00    0.00     916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00     768/768         zobrist_values [84]
+[40]     0.0    0.00    0.00     768         rndull [40]
+-----------------------------------------------
+                0.00    0.00      64/256         diagonal_up_left [50]
+                0.00    0.00      64/256         diagonal_up_right [51]
+                0.00    0.00      64/256         diagonal_down_left [48]
+                0.00    0.00      64/256         diagonal_down_right [49]
+[41]     0.0    0.00    0.00     256         diagonal [41]
+                0.00    0.00     256/916         blank_bit_array [38]
+                0.00    0.00     256/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00      64/128         col_left [46]
+                0.00    0.00      64/128         col_right [47]
+[42]     0.0    0.00    0.00     128         column [42]
+                0.00    0.00     128/916         blank_bit_array [38]
+                0.00    0.00     128/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00     128/128         build_mask_object [66]
+[43]     0.0    0.00    0.00     128         pawn_attacks [43]
+                0.00    0.00     256/1424        valid_coords [37]
+                0.00    0.00     128/916         blank_bit_array [38]
+                0.00    0.00     128/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00     128/128         build_mask_object [66]
+[44]     0.0    0.00    0.00     128         pawn_moves [44]
+                0.00    0.00     144/1424        valid_coords [37]
+                0.00    0.00     128/916         blank_bit_array [38]
+                0.00    0.00     128/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00      64/128         rank_up [55]
+                0.00    0.00      64/128         rank_down [54]
+[45]     0.0    0.00    0.00     128         rank [45]
+                0.00    0.00     128/916         blank_bit_array [38]
+                0.00    0.00     128/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[46]     0.0    0.00    0.00      64         col_left [46]
+                0.00    0.00      64/128         column [42]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[47]     0.0    0.00    0.00      64         col_right [47]
+                0.00    0.00      64/128         column [42]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[48]     0.0    0.00    0.00      64         diagonal_down_left [48]
+                0.00    0.00      64/256         diagonal [41]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[49]     0.0    0.00    0.00      64         diagonal_down_right [49]
+                0.00    0.00      64/256         diagonal [41]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[50]     0.0    0.00    0.00      64         diagonal_up_left [50]
+                0.00    0.00      64/256         diagonal [41]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[51]     0.0    0.00    0.00      64         diagonal_up_right [51]
+                0.00    0.00      64/256         diagonal [41]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[52]     0.0    0.00    0.00      64         king_moves [52]
+                0.00    0.00     512/1424        valid_coords [37]
+                0.00    0.00      64/916         blank_bit_array [38]
+                0.00    0.00      64/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[53]     0.0    0.00    0.00      64         knight_moves [53]
+                0.00    0.00     512/1424        valid_coords [37]
+                0.00    0.00      64/916         blank_bit_array [38]
+                0.00    0.00      64/916         board_to_word [39]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[54]     0.0    0.00    0.00      64         rank_down [54]
+                0.00    0.00      64/128         rank [45]
+-----------------------------------------------
+                0.00    0.00      64/64          build_mask_object [66]
+[55]     0.0    0.00    0.00      64         rank_up [55]
+                0.00    0.00      64/128         rank [45]
+-----------------------------------------------
+                             3374440             search [56]
+                0.00    0.00      20/20          find_best_move [67]
+[56]     0.0    0.00    0.00      20+3374440 search [56]
+                0.00    0.00 6171486/6171486     min [1]
+                0.00    0.00 3426784/3426805     moves_generator [4]
+                0.00    0.00  577394/577394      max [19]
+                0.00    0.00  367162/367162      find_in_table [23]
+                0.00    0.00  287907/287907      add_to_table [26]
+                             3374440             search [56]
+-----------------------------------------------
+                0.00    0.00      12/12          print_game_state [71]
+[57]     0.0    0.00    0.00      12         set_string_cell [57]
+-----------------------------------------------
+                0.00    0.00       1/6           starting_rooks_white [83]
+                0.00    0.00       1/6           starting_rooks_black [82]
+                0.00    0.00       1/6           starting_knights_white [77]
+                0.00    0.00       1/6           starting_knights_black [76]
+                0.00    0.00       1/6           starting_bishops_white [73]
+                0.00    0.00       1/6           starting_bishops_black [72]
+[58]     0.0    0.00    0.00       6         starting_pieces [58]
+                0.00    0.00       6/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       1/4           starting_king_white [75]
+                0.00    0.00       1/4           starting_king_black [74]
+                0.00    0.00       1/4           starting_queen_white [81]
+                0.00    0.00       1/4           starting_queen_black [80]
+[59]     0.0    0.00    0.00       4         starting_royalty [59]
+                0.00    0.00       4/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       2/2           build_castle_masks [65]
+[60]     0.0    0.00    0.00       2         king_castling_empty [60]
+                0.00    0.00       2/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       2/2           build_castle_masks [65]
+[61]     0.0    0.00    0.00       2         king_castling_non_attack [61]
+                0.00    0.00       2/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       2/2           build_castle_masks [65]
+[62]     0.0    0.00    0.00       2         queen_castling_empty [62]
+                0.00    0.00       2/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       2/2           build_castle_masks [65]
+[63]     0.0    0.00    0.00       2         queen_castling_non_attack [63]
+                0.00    0.00       2/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       1/2           starting_pawns_white [79]
+                0.00    0.00       1/2           starting_pawns_black [78]
+[64]     0.0    0.00    0.00       2         starting_pawns [64]
+                0.00    0.00       2/916         blank_bit_array [38]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[65]     0.0    0.00    0.00       1         build_castle_masks [65]
+                0.00    0.00       8/916         board_to_word [39]
+                0.00    0.00       2/2           king_castling_empty [60]
+                0.00    0.00       2/2           queen_castling_empty [62]
+                0.00    0.00       2/2           king_castling_non_attack [61]
+                0.00    0.00       2/2           queen_castling_non_attack [63]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[66]     0.0    0.00    0.00       1         build_mask_object [66]
+                0.00    0.00     128/128         pawn_moves [44]
+                0.00    0.00     128/128         pawn_attacks [43]
+                0.00    0.00      64/64          knight_moves [53]
+                0.00    0.00      64/64          king_moves [52]
+                0.00    0.00      64/64          rank_up [55]
+                0.00    0.00      64/64          col_left [46]
+                0.00    0.00      64/64          rank_down [54]
+                0.00    0.00      64/64          col_right [47]
+                0.00    0.00      64/64          diagonal_up_left [50]
+                0.00    0.00      64/64          diagonal_up_right [51]
+                0.00    0.00      64/64          diagonal_down_left [48]
+                0.00    0.00      64/64          diagonal_down_right [49]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[67]     0.0    0.00    0.00       1         find_best_move [67]
+                0.00    0.00      21/3426805     moves_generator [4]
+                0.00    0.00      20/20          search [56]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[68]     0.0    0.00    0.00       1         init_game_state [68]
+                0.00    0.00      12/916         board_to_word [39]
+                0.00    0.00       1/1           starting_pawns_white [79]
+                0.00    0.00       1/1           starting_pawns_black [78]
+                0.00    0.00       1/1           starting_rooks_white [83]
+                0.00    0.00       1/1           starting_rooks_black [82]
+                0.00    0.00       1/1           starting_knights_white [77]
+                0.00    0.00       1/1           starting_knights_black [76]
+                0.00    0.00       1/1           starting_bishops_white [73]
+                0.00    0.00       1/1           starting_bishops_black [72]
+                0.00    0.00       1/1           starting_king_white [75]
+                0.00    0.00       1/1           starting_king_black [74]
+                0.00    0.00       1/1           starting_queen_white [81]
+                0.00    0.00       1/1           starting_queen_black [80]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[69]     0.0    0.00    0.00       1         make_hash_table [69]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[70]     0.0    0.00    0.00       1         make_zobrist_dict [70]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[71]     0.0    0.00    0.00       1         print_game_state [71]
+                0.00    0.00      12/12          set_string_cell [57]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[72]     0.0    0.00    0.00       1         starting_bishops_black [72]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[73]     0.0    0.00    0.00       1         starting_bishops_white [73]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[74]     0.0    0.00    0.00       1         starting_king_black [74]
+                0.00    0.00       1/4           starting_royalty [59]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[75]     0.0    0.00    0.00       1         starting_king_white [75]
+                0.00    0.00       1/4           starting_royalty [59]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[76]     0.0    0.00    0.00       1         starting_knights_black [76]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[77]     0.0    0.00    0.00       1         starting_knights_white [77]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[78]     0.0    0.00    0.00       1         starting_pawns_black [78]
+                0.00    0.00       1/2           starting_pawns [64]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[79]     0.0    0.00    0.00       1         starting_pawns_white [79]
+                0.00    0.00       1/2           starting_pawns [64]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[80]     0.0    0.00    0.00       1         starting_queen_black [80]
+                0.00    0.00       1/4           starting_royalty [59]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[81]     0.0    0.00    0.00       1         starting_queen_white [81]
+                0.00    0.00       1/4           starting_royalty [59]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[82]     0.0    0.00    0.00       1         starting_rooks_black [82]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game_state [68]
+[83]     0.0    0.00    0.00       1         starting_rooks_white [83]
+                0.00    0.00       1/6           starting_pieces [58]
+-----------------------------------------------
+                0.00    0.00       1/1           main [110]
+[84]     0.0    0.00    0.00       1         zobrist_values [84]
+                0.00    0.00     768/768         rndull [40]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [26] add_to_table           [16] knight_generator_has_next [54] rank_down
+  [22] bishop_generator_has_next [18] knight_generator_next [55] rank_up
+  [25] bishop_generator_next  [24] knight_king_masking_function [40] rndull
+  [29] bishop_masking_function [28] knight_masking_function [30] rook_generator_has_next
+  [31] bitscanreverse         [53] knight_moves           [34] rook_generator_next
+  [38] blank_bit_array        [69] make_hash_table        [27] rook_masking_function
+  [39] board_to_word           [6] make_simple_move       [56] search
+  [65] build_castle_masks     [70] make_zobrist_dict      [57] set_string_cell
+  [66] build_mask_object      [19] max                    [14] sliding_ray_hsb_masking
+  [46] col_left                [1] min                    [15] sliding_ray_lsb_masking
+  [47] col_right               [4] moves_generator        [72] starting_bishops_black
+  [42] column                  [2] next_move              [73] starting_bishops_white
+  [41] diagonal                [8] next_piece             [74] starting_king_black
+  [48] diagonal_down_left      [7] normal_game_state_update [75] starting_king_white
+  [49] diagonal_down_right    [11] pawn_attack_masking_function [76] starting_knights_black
+  [50] diagonal_up_left       [43] pawn_attacks           [77] starting_knights_white
+  [51] diagonal_up_right      [12] pawn_forward_masking_function [64] starting_pawns
+  [67] find_best_move          [9] pawn_generator_has_next [78] starting_pawns_black
+  [23] find_in_table          [10] pawn_generator_next    [79] starting_pawns_white
+   [3] game_state_generator_has_next [13] pawn_masking_function [58] starting_pieces
+   [5] game_state_generator_next [44] pawn_moves          [80] starting_queen_black
+  [68] init_game_state        [71] print_game_state       [81] starting_queen_white
+  [60] king_castling_empty    [62] queen_castling_empty   [82] starting_rooks_black
+  [61] king_castling_non_attack [63] queen_castling_non_attack [83] starting_rooks_white
+  [32] king_generator_has_next [20] queen_generator_has_next [59] starting_royalty
+  [36] king_generator_next    [21] queen_generator_next   [37] valid_coords
+  [35] king_masking_function  [33] queen_masking_function [17] zob_hash
+  [52] king_moves             [45] rank                   [84] zobrist_values

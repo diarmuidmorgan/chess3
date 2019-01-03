@@ -1,21 +1,23 @@
 #include "move_generators2.c"
 #include <regex.h>
 
+
+//write the parser of death :(
 /* There are seemingly so many cases and so much code repettition to get through here.
     Just feels like a massive head ache and I would rather do this in python :(
 *
 */
 
-char * pawnforwards = "^[a-z]\d(\n|\+)";
-char * pawncapturesimple = "^[a-z]x[a-z]\d(\n|\+)";
-char * pawncapturescomplex = "^[a-z]\dx[a-z]\d(\n|\+)";
-char * piecemovesimple = "^[A-Z][a-z]\d[\n|\+]";
-char * piececapturesimple = "^[A-Z]x[a-z]\d[\n|\+]";
-char * ambiguouspiececapturecol= "^[A-Z][a-z]x[a-z]\d[\n|\+]";
-char * ambiguouspiececapturerow = "^[A-Z]\dx[a-z]\d[\n|\+]";
-char * ambiguouspiecemovecol= "^[A-Z][a-z][a-z]\d[\n|\+]";
-char * ambiguouspiecemoverow = "^[A-Z]\d[a-z]\d[\n|\+]";
-char * promotion = "[a-z]\d\=[A-Z]";
+char * pawnforwards = "^[a-z][1-7](\n|\+)";
+char * pawncapturesimple = "^[a-z]x[a-z][1-9](\_|\+)";
+char * pawncapturescomplex = "^[a-z][1-7]x[a-z]\d(\n|\+)";
+char * piecemovesimple = "^[A-Z][a-z][1-7][\n|\+]";
+char * piececapturesimple = "^[A-Z]x[a-z][1-7][\n|\+]";
+char * ambiguouspiececapturecol= "^[A-Z][a-z]x[a-z][1-7][\n|\+]";
+char * ambiguouspiececapturerow = "^[A-Z][1-7]x[a-z][1-7][\n|\+]";
+char * ambiguouspiecemovecol= "^[A-Z][a-z][a-z][1-7][\n|\+]";
+char * ambiguouspiecemoverow = "^[A-Z][1-7][a-z][1-7][\n|\+]";
+char * promotion = "[a-z][1-7]\=[A-Z]";
 char * kingsidecastle = "0-0";
 char * queensidecastle = "0-0-0";
 int reti;
@@ -97,7 +99,7 @@ void play_game_string (char * game_str){
 }
 
 
-GS parse_line(char * line, GS * gs, uint64_t * msks) {
+int parse_line(char * line, GS * gs, gs * new_gs, uint64_t * msks) {
 
     regex_t pforwards;
     reti = recomp(&pforwards, pawnforwards, 0);
@@ -135,13 +137,17 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
     result = regexec(&pforwards, line, 0, NULL, 0);
     if (!result){
         int move_square = ((int) (line[1]-48)) * 8 + ((int) line[0] -97);
-        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+        index = 1;
+        while ( moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && *index < 2){
 
-            if (index == 1 && move_square == (move_incr - 1 && COLUMNCONDITION //add condition to check this
-                                                    //isn't a pawn attack instead
-                                                    )
-                && pin_mask_safe(&pin_mask, piece_incr) )
-                return new_gs
+            if (index == 1 && 
+                        move_square == (move_incr - 1)
+                             && ( (piece_incr-1) % 8 == ((int) line[0] -97) 
+                     && pin_mask_safe(&pin_mask, piece_incr) )
+                return 1;
+
+            *new_gs = *gs;
         }
     }
     
@@ -151,11 +157,16 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
     if (!result){
         int move_square = ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
         int col = ((int) (line[0]-97));
+        index = 1;
         
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    &&
+                      index < 2  ){
              if (index == 1 && move_square == (move_incr - 1) && (piece_incr -1) % 8 == col &&
                 pin_mask_safe(&pin_mask, piece_incr) )
-                return new_gs
+                return 1;
+
+            *new_gs = *gs;
         }
     }
     
@@ -164,11 +175,15 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
     if (!result){
         int move_square= ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
        int position =((int) (line[0] - 48)) * 8 + ((int) (line[1]-97)); 
+       index = 1;
         
-        while (moves_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && index < 2    ){
              if (index == 1 && move_square == (move_incr - 1) && (piece_incr -1) == position &&
                 pin_mask_safe(&pin_mask, piece_incr) )
-                return new_gs
+                return 1;
+            
+            *new_gs = *gs;
         }
     }
     //e.g Ne4
@@ -179,10 +194,13 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && index < check_index + 1  ){
              if (index == check_index && move_square == (move_incr - 1) && 
                 pin_mask_safe(&pin_mask, piece_incr) )
-                return new_gs
+                return 1;
+            
+            *new_gs = *gs;
         }
     }
     // e.g Nxe4
@@ -193,10 +211,13 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                        && index < check_index + 1 ){
              if (index == check_index && move_square == (move_incr - 1) && 
                         pin_mask_safe(&pin_mask, piece_incr) )
-                return new_gs
+                return 1;
+            
+            *new_gs = *gs;
         }
     }
     //e.g N4xd3
@@ -208,11 +229,13 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                        && index < check_index + 1){
              if (index == check_index && move_square == (move_incr - 1) && 
                         pin_mask_safe(&pin_mask, piece_incr)
                         && ((piece_incr -1) / 8) == rank )
-                return new_gs
+                return 1;
+            *new_gs = *gs;
         }
     }
     //e.g Nexd5
@@ -224,11 +247,16 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                        && index < check_index + 1  ){
+             
              if (index == check_index && move_square == (move_incr - 1) && 
                         pin_mask_safe(&pin_mask, piece_incr)
-                        && ((piece_incr -1) % 8) == col )
-                return new_gs
+                        && ((piece_incr -1) % 8) == col  
+                        &&index < check_index + 1  )
+                return 1;
+
+            *new_gs = *gs;
         }
     }
 
@@ -241,15 +269,18 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
              if (index == check_index && move_square == (move_incr - 1) && 
                         pin_mask_safe(&pin_mask, piece_incr)
                         && ((piece_incr -1) % 8) == col )
-                return new_gs
+                return 1;
+            
+            *new_gs = *gs;
         }
+        
     }
     //e.g N4e4
-      result = regexec(&ampcemoverw, line, 0, NULL, 0);
+    result = regexec(&ampcemoverw, line, 0, NULL, 0);
     if (!result){
         int move_square= ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
         char piece = line[0];
@@ -257,12 +288,15 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
         int check_index = set_index(piece);
         index = check_index;
 
-        while (gs= pawn_generator(gs, &piece_incr, &move_incr, &pieces, &move_squares, msks)){
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && index < check_index + 1){
              if (index == check_index && move_square == (move_incr - 1) && 
                         pin_mask_safe(&pin_mask, piece_incr)
                         && ((piece_incr -1) / 8) == rank )
-                return new_gs
+                return 1;
+            *new_gs = *gs;
         }
+        
     }
 
     // Promotion
@@ -271,7 +305,9 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
     result = regexec(&promo, line, 0, NULL, 0);
     if (!result){
         int move_square = ((int) (line[1]-48)) * 8 + ((int) line[0] -97);
-        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)){
+        index = 1;
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                        && index < 2){
 
             if (index == 1 && move_square == (move_incr - 1)
                 && pin_mask_safe(pin_mask, piece_incr) ){
@@ -286,13 +322,45 @@ GS parse_line(char * line, GS * gs, uint64_t * msks) {
                     new_gs.knights[color] |= (1LL << (move_incr -1));
                 if (line[4] == 'B')
                     new_gs.bishops[color] |= (1LL << (move_incr -1));  
-                return new_gs;
+                return 1;
 
                 }
+            *new_gs = *gs;
         }
     }
 
     //add castling here
+    result = regexec(&kingsidecastle, line, 0, NULL, 0);
+    if (!result){
+        int move_square= ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
+        char piece = line[0];
+        int rank = ((int) (line[1]-48));
+        int check_index = 7;
+        index = check_index;
+
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && index < check_index + 1){
+             
+                return 1;
+        }
+        *new_gs = *gs;
+    }
+    
+    result = regexec(&queensidecastle, line, 0, NULL, 0);
+    if (!result){
+        int move_square= ((int) (line[3] - 48)) * 8 + ((int) (line[2]-97)); 
+        char piece = line[0];
+        int rank = ((int) (line[1]-48));
+        int check_index = 7;
+        index = check_index;
+
+        while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares)
+                    && index < check_index + 1){
+             
+                return 1;
+        }
+        *new_gs = *gs;
+    }
 
 
     //add enpassants here...

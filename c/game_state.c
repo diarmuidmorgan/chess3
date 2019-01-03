@@ -11,6 +11,8 @@
 */
 typedef struct {
 
+	//the first thing we do should be hash the position?
+	uint64_t hash;
 	uint64_t pawns[2];
 	uint64_t rooks[2];
 	uint64_t knights[2];
@@ -21,6 +23,10 @@ typedef struct {
 	uint64_t all_pieces;
 	uint64_t enpassants[2];
 	//is this really a good idea like?
+	// actually we don't need this board_rep thing, or if we do,
+	// not if we can use incremental hashing instead. That's 64 bytes that don't have 
+	// to be copied?? And updating replaces the process of updating this.
+	// thank fuck!
 	char board_rep[64];
 	int castle_king_side[2];
 	int castle_queen_side[2];

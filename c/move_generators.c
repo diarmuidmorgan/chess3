@@ -206,6 +206,7 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	//basically if a pawn moves two squares we just set that as an enpassant square.
 	//code commented out would check for legal enpassants, but this is so frustrating
 	//that right now we just check at the move generation stage.
+	
 	if (abs(old_position - position) == 16){
 		
 		new_gs->enpassants[new_gs->color] |= (1<<position);

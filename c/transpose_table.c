@@ -46,6 +46,11 @@ constant indices
 */
 
 //from stack overflow
+// I don't think we actually need the asserts.
+// reading dev/rand gives bigger and better hashes I think. 
+// or does it make a difference?
+//seemed to work better when it was 32 bit :(
+
 uint64_t rndull(){
 
     FILE *rdp;
@@ -64,39 +69,6 @@ uint64_t rndull(){
 }
 
 
-int game_state_equals(GS * gs1, GS * gs2) {
-	
-	
-	if (  gs1->all_pieces != gs2->all_pieces ) return 0;
-
-	int total; 
-    
-    for (int color = 0; color<2; color++){ 
-		
-		if ( ! ( (gs1->pawns[color] == gs2->pawns[color])
-                &&
-		    (gs1->rooks[color] == gs2->rooks[color])
-                &&
-		(gs1->knights[color] == gs2->knights[color])
-                &&
-		(gs1->bishops[color] == gs2->bishops[color])
-                &&
-		(gs1->queens[color] == gs2->queens[color])
-                &&
-		    (gs1->kings[color] == gs2->kings[color])  ) )
-    
-		return 0;
-		//(gs1->enpassants[color] == gs2->enpassants[color]);
-		//total += (gs1->castle_king_side[color] == gs2->castle_king_side[color]);
-		//total += (gs1->castle_queen_side[color] == gs2->castle_queen_side[color]);
-	}
-	
-	if (gs1->color == gs2->color)
-        return 1;
-    else
-        return 0;
-	
-}
 //implementing the wikipedia code above.
 // need an extra bit for color
 void zobrist_values (uint64_t * return_arr){
@@ -127,6 +99,22 @@ void make_zobrist_dict(int * return_arr){
 }
 //implementing the wikipedia code above
 // change to 64 bit
+
+//should also add incremental hashing
+// will have to be broken into two parts if we don't want to rewrite all of the game loop
+// like a bit for updating white, and then optional for updating black
+// can also look into packing bits rather than using that awful char array.
+uint64_t incremental_hash (uint64_t hashcode, int new_position, 
+                            int old_position, char p, uint64_t * zob_values, uint64_t * zob_dict){
+
+    ///code goes here.
+    int pc = zob_dict[p];
+    hashcode |= zob_values[old_position * 12 + pc];
+    hashcode |= zob_values[new_position * 12 + pc];
+    //etc, too tired right now
+    return 0ULL;
+}
+//as per the wikipedia code above
 uint64_t zob_hash(char * board, int color, uint64_t * zobrist_vals, int * zobrist_dict){
 
     uint64_t h = 0;
@@ -165,7 +153,7 @@ table_entry * make_hash_table(int * size_of_table){
     //see how much memory we can get
     //*size_of_table = *size_of_table * 2;
     while(! transposition_table ){
-        printf("Shrinking table\n");
+        printf("\nShrinking table\n");
         *size_of_table /=2;
         transposition_table = malloc(sizeof(table_entry) * (*size_of_table ) );
     }
@@ -192,9 +180,8 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
     while (table[h].valid && h != begin){
        
         //move is already hashed.
-        //maybe we really should use 64bit hashcodes as our basis, then just not bother
-        // actually comparing the game state
-        // just don't compare the game state? Allow some crappy evaluation to take place?
+        // now we only compare the hashcode. Figure that a real collision should
+        // be rare enough that we don't have to worry about it.
         if (table[h].hash == hashcode ) // && game_state_equals(&table[h].gs, gs))
             return 1;
          h = (h + 1) % size_of_table;
@@ -219,31 +206,16 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
 int find_in_table(GS * gs, table_entry * table, int * value,
                  int size_of_table, uint64_t * zob_vals, int * zob_dict){
 
-	//char s[1000];
-    //printf("\nhasing\n");
-    //scanf("%s", &s);
     uint64_t hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
     int h = ( (int) ( hashcode & 0xfffffffULL  ) ) % size_of_table;
-    //printf("\nhashed\n");
-    //scanf("%s", &s);
-    //i guess the worst case here is the table is completely full and we have to 
-    // iterate the real thing while finding nothing?
+    
     int begin = h-1;
     //we could end up reading the entire table every time, if there are enough collisions!!
     while(table[h].valid && h != begin){
-        
-        //table_entry t = table[h];
-        //will comparison op work here?
-        //printf("\n%d\n", hashcode);
-        //printf("GS 1 color %d GS 2 color %d\n", gs->color, t.gs.color);
-        //print_game_state(gs);
-        //print_game_state(&t.gs);
-        //char s[1000];
-        //printf("\n%d\n", game_state_equals(&t.gs, gs));
-        //scanf("%s",&s);
-        if (table[h].hash == hashcode  ) { // && game_state_equals(&t.gs, gs)){
+     
+        if (table[h].hash == hashcode  ) { 
             *value = table[h].value;
-            //printf("\n\n FOUND \n\n");
+          
             return 1;
         }
           h = (h + 1) % size_of_table;
