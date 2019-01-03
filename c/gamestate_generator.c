@@ -42,10 +42,13 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 break;
             }
             else {
-                *pieces = gs->rooks[gs->color]; 
+               
+                
+                 *pieces = gs->rooks[gs->color]; 
                 *piece_incr = 0;
                 *move_incr = 0;
                 *index = *index+1;
+                
 
             }
         case(2):
@@ -64,6 +67,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
 
         
         case(3):
+            
             if (knight_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                  knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;

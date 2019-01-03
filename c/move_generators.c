@@ -21,20 +21,28 @@ int next_piece(GS * gs, int msk_number,
 		int * move_incr, void (*masking_function)()) {
 	
 	//return false if pieces have been consumed.
-	if (*pieces == 0LL){ 
-		piece_incr = 0;
+	
+	if (*pieces == 0ULL){ 
+		
+		//piece_incr = 0;
 		return 0;
 	}
 	
+	
+	
 	int index_p = ffsll(*pieces);  
-	*piece_incr += index_p;
+	
+	*piece_incr = *piece_incr + index_p;
 	
 	*move_squares = 0LL;
 	
-	masking_function(gs, piece_incr,move_squares, msks, msk_number,(uint64_t) gs->color);
-	//binary_print_board(*move_squares);
+	
+	masking_function(gs, *piece_incr,move_squares, msks, msk_number, gs->color);
+	
 	*pieces = *pieces >> index_p;
+	
 	*move_incr = 0;
+	
 	return 1;
 }
 
@@ -44,15 +52,16 @@ int next_piece(GS * gs, int msk_number,
  */
 int next_move (GS * gs, int msk_number, 
 		uint64_t * msks, uint64_t * pieces, 
-		uint64_t * move_squares, int * piece_incr, 
+		uint64_t * move_squares, 
 		int * move_incr) {
 	
 	if (*move_squares == 0LL){
+		
 		 *move_incr = 0;
 		 return 0;
 	}
 	int index_m = ffsll(*move_squares);
-	*move_incr += index_m;
+	*move_incr = *move_incr + index_m;
 	*move_squares = *move_squares >> index_m;
 	return 1;
 }
@@ -82,20 +91,20 @@ GS * game_state_generator(GS * gs, GS * new, int * piece_incr,
 						uint64_t * selected_pieces, int msk_number, void (* masking_function)){
 
 	int CAN_MOVE = 0;
-	if (next_move(gs, msk_number, msks, pieces, move_squares, piece_incr, move_incr)){
+	if (next_move(gs, msk_number, msks, pieces, move_squares, move_incr)){
 		CAN_MOVE = 1;
 		
 	}
 	else if (next_piece(gs, msk_number, msks, pieces,
 		 move_squares, piece_incr, move_incr, 
 			masking_function) && 
-			next_move(gs, msk_number, msks, pieces, move_squares, piece_incr, move_incr)){
+			next_move(gs, msk_number, msks, pieces, move_squares,  move_incr)){
 			CAN_MOVE = 1;
 			
 	}
 	else {
 		
-		free(new);
+		//free(new);
 		return NULL;
 	}
 
@@ -118,19 +127,23 @@ void game_state_generator_next (GS * gs, GS * new, int * piece_incr,
 int game_state_generator_has_next (GS * gs, int * piece_incr, int * move_incr, 
 									uint64_t * pieces, uint64_t * move_squares, 
 									uint64_t *msks, void (* masking_function)()){
-	if (next_move(gs, 0, msks, pieces, move_squares, piece_incr, move_incr)){
+	if (next_move(gs, 0, msks, pieces, move_squares,  move_incr)){
 		return 1;
-		}
-	else if (next_piece(gs, 0, msks, pieces,
-		 move_squares, piece_incr, move_incr, 
-			masking_function) && 
-			next_move(gs, 0, msks, pieces, move_squares, piece_incr, move_incr)){
-				return 1;
-			}
-	else{
-		return 0;
-
 	}
+	else { while (next_piece(gs, 0, msks, pieces,
+		 move_squares, piece_incr, move_incr, 
+			masking_function)) {
+			
+			if (next_move(gs, 0, msks, pieces, move_squares, move_incr))
+				return 1;
+
+		}
+		
+		return 0;
+	}
+
+
+	
 }
 
 
@@ -206,7 +219,7 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	//basically if a pawn moves two squares we just set that as an enpassant square.
 	//code commented out would check for legal enpassants, but this is so frustrating
 	//that right now we just check at the move generation stage.
-	
+
 	if (abs(old_position - position) == 16){
 		
 		new_gs->enpassants[new_gs->color] |= (1<<position);
@@ -241,13 +254,13 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	//also check for PROMOTION.
 	// at this stage we will only ever award queens.
 	else if ( (position / 8) == 7 * new_gs->color){
-
+		printf("Shiiiiiiit\n");
 		//destroy this pawn
-		new_gs->pawns[gs->color] &= ~ (1LL << (position));
-		int multiplier = (gs->color) ? -1 : 1;
-		// always award a queen. Only give 8 because we lose a pawn in the process.
-		new_gs->score += multiplier * 8;
-		new_gs->queens[gs->color] |= (1LL << position);
+	//	new_gs->pawns[gs->color] &= ~ (1LL << (position));
+	//	int multiplier = (gs->color) ? -1 : 1;
+	//	// always award a queen. Only give 8 because we lose a pawn in the process.
+	//	new_gs->score += multiplier * 8;
+	//	new_gs->queens[gs->color] |= (1LL << position);
 	}
 
 
@@ -291,6 +304,7 @@ void bishop_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_i
 					uint64_t * move_squares, uint64_t * msks) {
 
 	uint64_t * selected_pieces = &new_gs->bishops[gs->color];
+
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
 	int position = *move_incr - 1;
@@ -359,98 +373,6 @@ void king_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 */
 
 
-
-
-
-
-
-
-GS * rook_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->rooks[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, rook_masking_function);
-		
-		//set castling bits
-		/*
-		int color = gs->color;
-		if (new->castle_queen_side[color] && *piece_incr == 7 + (56 * color) )
-			new->castle_queen_side[color] = 0;
-		else if (new->castle_king_side[color] && *piece_incr == 7 + (56 * color) )
-			new->castle_king_side[color] = 0;
-		*/
-		return new;
-}
-
-GS * pawn_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->pawns[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, pawn_masking_function);
-		//enpassant rule here
-		// actually this below rule won't work at all.
-		/*
-		int color = gs->color;
-		if ((color == 0 && (*move_incr < 48 && *move_incr > 40 ))
-			|| color == 1 && (*move_incr > 8 && *move_incr < 16))){
-			new->enpassants[color] = 1LL << (*move_incr - 1);
-
-		}
-		*/
-		return new;
-	}
-GS * knight_generator(GS * gs, int * piece_incr, 
-						int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
-		
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->knights[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, knight_masking_function);
-		return new;
-	}
-GS * king_generator(GS * gs, int * piece_incr, int * move_incr, 
-						uint64_t * pieces, uint64_t * move_squares, 
-												uint64_t * msks){
-		
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->kings[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, king_masking_function);
-		if (new){
-		int color = gs->color;
-		//handle castling
-		new->castle_king_side[color] = 0;
-		new->castle_king_side[color] = 0;
-		}
-		return new;
-	}
-GS * queen_generator(GS * gs, int * piece_incr, int * move_incr, 
-					uint64_t * pieces, int64_t * move_squares, uint64_t * msks){
-		
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->queens[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, queen_masking_function);
-		return new;
-	}
-GS * bishop_generator(GS * gs, int * piece_incr, int * move_incr, uint64_t * pieces,
-					uint64_t * move_squares, uint64_t * msks){
-		
-		
-		GS * new = copy_game_state(gs);
-		uint64_t * selected_pieces = &new->bishops[gs->color];
-		new = game_state_generator(gs, new, piece_incr, move_incr, pieces, move_squares, msks,
-					selected_pieces, 0, bishop_masking_function);
-		return new;
-	}
 
 
 

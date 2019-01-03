@@ -22,8 +22,8 @@
   built in instructions for both of these.
 
 */
-uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, int * piece_incr) {
-	uint64_t base_msk = msks[(*piece_incr -1) * 14 + INDEX];
+uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, int piece_incr) {
+	uint64_t base_msk = msks[(piece_incr -1) * 14 + INDEX];
 	uint64_t msk = base_msk  & gs->all_pieces;
 	
 	//if there are no blocking pieces, just return the base msk
@@ -46,8 +46,8 @@ uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 /*Same as above, Only the bitsearch function differs.
  *
  */
-uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, int * piece_incr) {
-	uint64_t base_msk = msks[(*piece_incr -1) * 14 + INDEX];
+uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color, int piece_incr) {
+	uint64_t base_msk = msks[(piece_incr -1) * 14 + INDEX];
 	uint64_t msk = base_msk & gs->all_pieces;
 	if(msk == 0LL) return base_msk;
 	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
@@ -62,29 +62,33 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	return base_msk ^ (msks[(index -1) * 14 + INDEX]);
 	
 
+
+
+	
+
 }
 /* Simplest masking function. 
 Simply ands the base move mask with the inverse of the player's pieces.
  Works for both knights and kings
 
 */
-void knight_king_masking_function (GS * gs, int * piece_incr,
+void knight_king_masking_function (GS * gs, int  piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color) {
 
-	*move_squares = msks[(*piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
+	*move_squares = msks[(piece_incr - 1) * 14 + msk_number] & ( ~ gs->pieces[gs->color]);
 	
 
 }
 //implementations of the above function, passing in the right mask INDEX
 
-void knight_masking_function (GS * gs, int * piece_incr,
+void knight_masking_function (GS * gs, int piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color) {
 
 		knight_king_masking_function (gs, piece_incr, move_squares, msks, KNIGHTMINDEX, color);
 		
 
 	}
-void king_masking_function(GS * gs, int * piece_incr,
+void king_masking_function(GS * gs, int  piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color){
 
 		knight_king_masking_function (gs, piece_incr, move_squares, msks, KINGMINDEX, color);
@@ -97,10 +101,14 @@ Same as above, but ands the base mask with pieces of the other color.
 */
 
 
-void pawn_attack_masking_function (GS * gs, int * piece_incr,
+void pawn_attack_masking_function (GS * gs, int piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color) {
 	int r_color = (color + 1) % 2;
-	*move_squares |= msks[(*piece_incr - 1) * 14 + PAWNATINDEX + color] & gs->pieces[r_color];
+	//printf("OPPOSITE PIECES\n");
+	//binary_print_board(gs->pieces[r_color]);
+	//binary_print_board( 1LL << (*piece_incr -1));
+	//binary_print_board(msks[(*piece_incr - 1) * 14 + PAWNATINDEX + color]);
+	*move_squares |= (msks[(piece_incr - 1) * 14 + PAWNATINDEX + color] & gs->pieces[r_color]);
 	
 
 }
@@ -111,10 +119,10 @@ void pawn_attack_masking_function (GS * gs, int * piece_incr,
 
 * I think this is fundamentally broken.
 */
-void pawn_forward_masking_function (GS * gs, int * piece_incr,
+void pawn_forward_masking_function (GS * gs, int piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color){
 	
-	uint64_t msk = msks[(*piece_incr-1)*14 + PAWNMVINDEX + color];
+	uint64_t msk = msks[(piece_incr-1)*14 + PAWNMVINDEX + color];
 	//binary_print_board(msk);
 	//determine which squares can be moved to in the mask.
 	uint64_t temp_move_squares = msk & ~gs->all_pieces;
@@ -124,15 +132,15 @@ void pawn_forward_masking_function (GS * gs, int * piece_incr,
 	else index = bitscanreverse(temp_move_squares);
 	//check that the first free square is directly in front. If it isn't, we set moves squares
 	// to 0, as the possible double pawn move won't be valid either.
-	if (index!= 0 && abs(*piece_incr - index) != 8)
-		return ;
+	if (index!= 0 && abs(piece_incr - index) != 8)
+		return;
 	else 
 		*move_squares |= temp_move_squares;
-		return;
+		
 	
 //just calls both of the above masking functions.
 									}
-void pawn_masking_function (GS * gs, int * piece_incr,
+void pawn_masking_function (GS * gs, int piece_incr,
 	uint64_t* move_squares, uint64_t * msks, int msk_number, int color){
 		
 	pawn_attack_masking_function(gs, piece_incr, move_squares, msks, msk_number, color);
@@ -142,7 +150,7 @@ void pawn_masking_function (GS * gs, int * piece_incr,
 
 //implements the sliding ray functions for bishops, rooks and queens.
 
-void bishop_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
+void bishop_masking_function (GS * gs, int piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
 	
 
 	*move_squares |= sliding_ray_lsb_masking(DIAGULINDEX, msks, gs, color, piece_incr);
@@ -152,7 +160,7 @@ void bishop_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares
 	
 }
 
-void rook_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
+void rook_masking_function (GS * gs, int piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
 	
 	*move_squares |= sliding_ray_lsb_masking(6, msks, gs,color,piece_incr);
 	*move_squares |= sliding_ray_lsb_masking(7, msks, gs, color, piece_incr);
@@ -161,7 +169,7 @@ void rook_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares, 
 	
 }
 
-void queen_masking_function (GS * gs, int * piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
+void queen_masking_function (GS * gs, int  piece_incr, uint64_t * move_squares, uint64_t * msks, int msk_number, int color){
 	
 	
 	bishop_masking_function(gs, piece_incr,
