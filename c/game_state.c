@@ -4,7 +4,8 @@
 #include <string.h>
 #include "start_positions.c"
 #include "binary_ops.c"
-/* Basic struct for holding position data. Could maybe look into packing bits on
+
+/* GS gamestate structure. Basic struct for holding position data. Could maybe look into packing bits on
   the last four values. Each field is an array of two uint64_t words where the first word is white
   and the second word is black.
 *
@@ -13,6 +14,10 @@ typedef struct {
 
 	//the first thing we do should be hash the position?
 	uint64_t hash;
+
+	//single word holds the squares that the king moved through if it castled on the last turn.
+	uint64_t castle_ghost_squares[2];
+
 	uint64_t pawns[2];
 	uint64_t rooks[2];
 	uint64_t knights[2];
@@ -25,7 +30,8 @@ typedef struct {
 	//is this really a good idea like?
 	// actually we don't need this board_rep thing, or if we do,
 	// not if we can use incremental hashing instead. That's 64 bytes that don't have 
-	// to be copied?? And updating replaces the process of updating this.
+	// to be copied?? And updating that, replaces the process of updating this. And makes
+	// hash function computation fairly trivial.
 	// thank fuck!
 	char board_rep[64];
 	int castle_king_side[2];
@@ -67,7 +73,8 @@ GS * initial_game_state(){
 	gs->castle_queen_side[0] = 0;
 	gs->castle_queen_side[1] = 0;
 	gs->score = 0;
-	
+	gs->castle_ghost_squares[0] = 0ULL;
+	gs->castle_ghost_squares[1] = 0ULL;
 	return gs;
 
 }
@@ -106,7 +113,11 @@ GS init_game_state(){
 	gs.castle_king_side[1] = 0;
 	gs.castle_queen_side[0] = 0;
 	gs.castle_queen_side[1] = 0;
+	gs.castle_ghost_squares[0]= 0ULL;
+	gs.castle_ghost_squares[1]= 0ULL;
+	
 	//is this really a good idea? Do we want a transposition table?
+	// want to get rid of this at the first opportunity.
 	char s [] = "rhbqkbhrpppppppp________________________________pppppppprhbqkbhr";
 	int i=0;
 	while (s[i]){
@@ -223,7 +234,9 @@ GS * copy_game_state (GS * gs){
 }
 
 /* This basically just combines the flip game state functions and node score change functions
-*  Into one function
+*  Into one function. Set the right bits, check whether the opposite players pieces have changed
+	Update them, and update the score
+	Also check for illegal castling using the castling ghost squares.
 */
 void normal_game_state_update(GS * new_gs, uint64_t new_pos, 
 					uint64_t old_pos, uint64_t * selected_pieces){

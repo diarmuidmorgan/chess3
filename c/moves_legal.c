@@ -6,9 +6,17 @@
   The checking/attacked squares code is techinally necessary to see if castling is possible.
   Ideally it should be run a bare minimum of times because its ridiculously expensive.
   But it is... possible, that it could get run tens of thousands of times.... in a single loop
+Also includes the generator functions for castling.
 
+Really handling castling is a massive pain and will no doubt slow everything right the way down.
+As it is, it seems to lead to infinite loops. 
 
-  Also includes the generator functions for castling.
+Could it be done pseudo legally -> e.g pass a bitboard of squares the king passed through up to 
+the next layer of the stack? This would be way better right? Then introduce a huge penalty// set king squares
+to 0LL if one of those 'ghost' squares is taken?
+
+then we can just use these functions here for parsing and maybe evaluation.
+
 */
 
 // Determines if an attacking ray causes a piece to be pinned.
@@ -46,9 +54,6 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
         *pin_mask |= first_piece;
 
     return;
-       
-
-    
 }
 
 /*
@@ -66,6 +71,10 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     uint64_t pieces =gs->bishops[color];
     int piece_incr = 0;
     uint64_t ray;
+
+    //we cycle through the pieces, selecting each ray, and calling the ray_pins_piece 
+    // function to add any pinned pieces to the pin mask.
+
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
@@ -113,6 +122,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
 }
 
 // cycles through a piece type and adds all of its squares to the attack mask
+// takes a masking function as a parameter - e.g pawn/bishop masking function
 
 void add_to_attack_mask(uint64_t * attack_squares, uint64_t * msks, uint64_t pin_mask,
              GS * gs, uint64_t pieces, void (* masking_function)()){
@@ -331,7 +341,7 @@ void enpassant_generator_next(GS * new_gs, uint64_t * pawn_square,
     new_gs->color = r_color; 
 
 	char p = (color) ? 'P' : 'p';
-    //damn
+    //damn should have just saved these somewhere...
     int tsq = ffsll(*target_square) -1;
     int epsq = ffsll(*enpassant_square) -1;
     int psq = ffsll(*pawn_square) - 1; 

@@ -85,6 +85,7 @@ void zobrist_values (uint64_t * return_arr){
         }
 
     }
+    //bit for color
     return_arr[64*12 + 1] = rand();
 }
 void make_zobrist_dict(int * return_arr){
