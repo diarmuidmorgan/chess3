@@ -72,8 +72,10 @@ int search (GS *gs, int depth, int alpha,
     // char s[1000];
     // scanf("%s", &s);
     //look up this piece.
-    if ( find_in_table(gs, transpose_table, &value, size_of_table, zob_vals, zob_dict) )
+    if ( find_in_table(gs, transpose_table, &value, size_of_table, zob_vals, zob_dict) ){
+        printf("FOUND ENTRY\n");
         return value;
+    }
     //printf("\nGOT FURTHER\n"); 
     // scanf("%s", &s);
      
@@ -95,7 +97,7 @@ int search (GS *gs, int depth, int alpha,
         } 
      
 
-        
+        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict);
         return value;
 
     }
@@ -116,7 +118,7 @@ int search (GS *gs, int depth, int alpha,
         
         new_gs=*gs;
         }  
-        
+        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict);
         return value;
 
 
@@ -169,7 +171,7 @@ int main () {
     CS_mask * cs_msk = build_castle_masks();
     printf("\nbuild base table\n");
     int size_of_table = 10000000;
-    table_entry * transpose_table = make_hash_table(size_of_table);
+    table_entry * transpose_table = make_hash_table( &size_of_table);
     int * zob_dict = malloc(128 * sizeof(int));
     printf("\ntable memory allocated\n");
     
@@ -183,7 +185,7 @@ int main () {
    
     
     GS gs = init_game_state();
-     scanf("%s", &s);
+    
     printf("\ninitializing game state");
     printf("\nlooking for best move...");
     gs = find_best_move(gs, 8, msks, cs_msk, &position_evals, 

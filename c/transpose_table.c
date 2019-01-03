@@ -17,7 +17,7 @@
 * What I gleaned from chessprogramming wiki is that we only want to store those nodes that
 * cause alpha beta cut offs. 
 
-from wikipedia--
+from wikipedia Zobrist hash codes--
 
 constant indices
        white_pawn := 1
@@ -68,7 +68,7 @@ int game_state_equals(GS * gs1, GS * gs2) {
 
 	return total == 19;
 }
-
+//implementing the wikipedia code above.
 void zobrist_values (int * return_arr){
     srand(time(NULL));
     
@@ -92,7 +92,7 @@ void make_zobrist_dict(int * return_arr){
 
     }
 }
-
+//implementing the wikipedia code above
 int zob_hash(char * board, int size_of_table, int * zobrist_vals, int * zobrist_dict){
 
     int h = 0;
@@ -122,44 +122,23 @@ typedef struct {
 } table_entry;
 
 
-table_entry * make_hash_table(int size_of_table){
-
-    table_entry * transposition_table = malloc(sizeof(table_entry) * size_of_table );
+table_entry * make_hash_table(int * size_of_table){
+    
+    table_entry * transposition_table = NULL;
+    //see how much memory we can get
+    while(! transposition_table ){
+        *size_of_table /=2;
+        transposition_table = malloc(sizeof(table_entry) * *size_of_table );
+    }
     table_entry t;
     t.valid = 0;
-    for (int i = 0; i< size_of_table; i++){
+    for (int i = 0; i< *size_of_table; i++){
         transposition_table[i] = t;
     }
     return transposition_table;
 
 }
 
-
-
-// actually this won't work because the overflows and casting
-// could well lead to undefined behavior????
-// how else could we do it?
-// I guess i gotta read up more on hash functions!
-int hash_function (GS * gs, int size_of_table){
-
-    //don't worry about overflows
-    uint64_t total = 0;
-    for (int i = 0; i<2; i ++ ){
-        total+=gs->pawns[i];
-        total+=gs->bishops[i];
-        total+=gs->rooks[i];
-        total+=gs->knights[i];
-        total+=gs->queens[i];
-        total+=gs->kings[i];
-
-
-    }
-    //add some big number if the player is black
-    total += 10100010101 * gs->color;
-
-    return abs( ((int) total) ) % size_of_table; 
-
-}
 
 int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
                         int * zob_vals, int * zob_dict){
@@ -169,7 +148,7 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
     while (table[hashcode].valid && hashcode != begin){
         hashcode = (hashcode + 1) % size_of_table;
     }
-    if (hashcode < size_of_table){
+    if (hashcode != begin){
         
         table_entry t;
         t.gs = *gs;
