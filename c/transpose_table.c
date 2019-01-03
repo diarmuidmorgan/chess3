@@ -184,7 +184,7 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
                         uint64_t * zob_vals, int * zob_dict, int * collisions){
     //printf("ADDED TO TABLE\n");
     uint64_t hashcode = zob_hash(gs->board_rep, gs->color, zob_vals, zob_dict);
-    int h = ((int) (hashcode >> 33) ) % size_of_table;
+    int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
     int begin = h -1;
     if (table[h].valid){
         *collisions = *collisions + 1;
@@ -223,7 +223,7 @@ int find_in_table(GS * gs, table_entry * table, int * value,
     //printf("\nhasing\n");
     //scanf("%s", &s);
     uint64_t hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
-    int h = ( (int) ( hashcode >> 33  ) ) % size_of_table;
+    int h = ( (int) ( hashcode & 0xfffffffULL  ) ) % size_of_table;
     //printf("\nhashed\n");
     //scanf("%s", &s);
     //i guess the worst case here is the table is completely full and we have to 

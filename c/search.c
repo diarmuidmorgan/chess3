@@ -186,7 +186,7 @@ int main () {
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
     printf("\nbuild base table\n");
-    int size_of_table = 10000000;
+    int size_of_table = 100000000;
     table_entry * transpose_table = make_hash_table( &size_of_table);
     int * zob_dict = malloc(128 * sizeof(int));
     int collisions = 0;
@@ -205,12 +205,12 @@ int main () {
     
     printf("\ninitializing game state");
     printf("\nlooking for best move...");
-    gs = find_best_move(gs, 8, msks, cs_msk, &position_evals, 
+    gs = find_best_move(gs, 6, msks, cs_msk, &position_evals, 
                     zob_vals, zob_dict, transpose_table, size_of_table, 
                     &collisions, &lookup_success);
     print_game_state(&gs);
 
     printf("\n REACHED %d TERMINAL NODES\n", position_evals);
-    printf("\n COLLISIONS : %d", collisions);
+    printf("\n SEMI COLLISIONS : %d", collisions);
     printf("successful lookups: %d \n", lookup_success);
 }
