@@ -46,13 +46,18 @@ int search (GS *gs, int depth, int alpha,
             uint64_t * msks, CS_mask * cs_msk, 
             int * position_evals, int * zob_vals,
              int * zob_dict, table_entry * transpose_table,
-            int size_of_table) {
+            int size_of_table, int * collisions) {
 
+   // print_game_state(gs);
+   // printf(" COLOR %d\n", gs->color);
+    //char s[1000];
+    //scanf("%s",&s);
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
     if (depth == 0 || gs->kings[gs->color] == 0LL){
         *position_evals = *position_evals + 1;
-        return gs->score;
+        //printf("%d\n", gs->score);
+	return gs->score;
     }
     //set all of the values that are manipulated by the move generator.
     
@@ -73,7 +78,7 @@ int search (GS *gs, int depth, int alpha,
     // scanf("%s", &s);
     //look up this piece.
     if ( find_in_table(gs, transpose_table, &value, size_of_table, zob_vals, zob_dict) ){
-        printf("FOUND ENTRY\n");
+        
         return value;
     }
     //printf("\nGOT FURTHER\n"); 
@@ -86,7 +91,7 @@ int search (GS *gs, int depth, int alpha,
 
           
         search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk,
-                                 position_evals, zob_vals, zob_dict, transpose_table, size_of_table);
+                                 position_evals, zob_vals, zob_dict, transpose_table, size_of_table, collisions);
         value = max(value, search_return);
         alpha = max(alpha, value);
 
@@ -97,7 +102,7 @@ int search (GS *gs, int depth, int alpha,
         } 
      
 
-        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict);
+        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict, collisions);
         return value;
 
     }
@@ -109,7 +114,7 @@ int search (GS *gs, int depth, int alpha,
 
           
         search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals,
-                                zob_vals, zob_dict, transpose_table, size_of_table);
+                                zob_vals, zob_dict, transpose_table, size_of_table, collisions);
         value = min(value, search_return);
         beta = min(beta, value);
         if (alpha >= beta)
@@ -118,7 +123,7 @@ int search (GS *gs, int depth, int alpha,
         
         new_gs=*gs;
         }  
-        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict);
+        add_to_table(transpose_table,size_of_table, gs, value, zob_vals, zob_dict, collisions);
         return value;
 
 
@@ -133,8 +138,10 @@ int search (GS *gs, int depth, int alpha,
 GS find_best_move (GS gs, int depth, uint64_t * msks,
                  CS_mask * cs_msk, int * position_evals,
                  int * zob_vals, int * zob_dict, 
-                 table_entry * transpose_table, int size_of_table ){
-
+                 table_entry * transpose_table, int size_of_table, int * collisions ){
+  //  print_game_state(&gs);
+  //  char s[1000];
+   // scanf("%s",&s);
     int alpha = -100000;
     int beta = 100000;
     //*position_evals = *position_evals + 1;
@@ -153,7 +160,8 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
 
           
         search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, 
-                        cs_msk, position_evals, zob_vals, zob_dict, transpose_table, size_of_table);
+                        cs_msk, position_evals, zob_vals, zob_dict, 
+                        transpose_table, size_of_table, collisions);
         if (search_return > best){
 
             best = search_return;
@@ -173,10 +181,11 @@ int main () {
     int size_of_table = 10000000;
     table_entry * transpose_table = make_hash_table( &size_of_table);
     int * zob_dict = malloc(128 * sizeof(int));
+    int collisions = 0;
     printf("\ntable memory allocated\n");
     
     make_zobrist_dict(zob_dict);
-    int * zob_vals = malloc(64*12 * sizeof(int));
+    int * zob_vals = malloc((64*12 + 1) * sizeof(int));
     printf("\nMADE ZOBRIST DICT\n");
     zobrist_values(zob_vals);
     printf("table built\n");
@@ -189,8 +198,9 @@ int main () {
     printf("\ninitializing game state");
     printf("\nlooking for best move...");
     gs = find_best_move(gs, 8, msks, cs_msk, &position_evals, 
-                    zob_vals, zob_dict, transpose_table, size_of_table);
+                    zob_vals, zob_dict, transpose_table, size_of_table, &collisions);
     print_game_state(&gs);
 
     printf("\n REACHED %d TERMINAL NODES\n", position_evals);
+    printf("\n COLLISIONS : %d", collisions);
 }

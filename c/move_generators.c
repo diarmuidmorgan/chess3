@@ -63,9 +63,7 @@ int next_move (GS * gs, int msk_number,
 void make_simple_move (GS * new_gs, GS * gs, uint64_t * selected_pieces, 
 						int * move_incr, int * piece_incr) {
 	
-	int color = new_gs->color;
-	
-	int r_color = (color + 1) % 2;
+
 	uint64_t new_pos = 1LL << (*move_incr - 1);
 	
 	uint64_t old_pos = 1LL  << (*piece_incr -1);

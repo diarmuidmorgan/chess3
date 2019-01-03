@@ -266,7 +266,7 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr,
 
     int color = gs->color;
     //no enpassant squares to play. This is the majority case.
-    if (gs->enpassants[color] == 0LL) return 0;
+    if (gs->enpassants[color] == 0LL || *pawn_incr >1) return 0;
     else{
         int enpassant_index = ffsll(gs->enpassants[color]) - 1;
         *enpassant_square = 1LL << enpassant_index;

@@ -222,7 +222,7 @@ GS * copy_game_state (GS * gs){
 void normal_game_state_update(GS * new_gs, uint64_t new_pos, 
 					uint64_t old_pos, uint64_t * selected_pieces){
 					
-	int color = (new_gs->color + 1);
+	int color = new_gs->color;
 	int r_color = (color + 1) % 2;
 	
 	//update the pieces for the player who just moved.

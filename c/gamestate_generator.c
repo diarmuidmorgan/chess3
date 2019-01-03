@@ -113,7 +113,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *index= *index + 1;
                 
                 //hack
-                //return 0;
+                return 0;
             }
 
         // theres a nasty bug in one of these, so for now we will just skip them
@@ -129,6 +129,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
+                
                 }
         //queenside castling
         case (8) :
@@ -151,7 +152,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             
             if (enpassant_generator_has_next(gs, &pawn_incr, pieces, &pawn_square, &enpassant_square, &target_square)){
                     enpassant_generator_next(new_gs, &pawn_square, &target_square, &enpassant_square);
-                    pawn_incr += 1;
+                    
                     return 1;
             }
             else {
