@@ -77,8 +77,9 @@ int game_state_equals(GS * gs1, GS * gs2) {
 }
 //implementing the wikipedia code above.
 // need an extra bit for color
-void zobrist_values (int * return_arr){
-    srand(time(NULL));
+void zobrist_values (uint64_t * return_arr){
+    
+    //srand(time(NULL));
     
     // for every piece value at every square, we create a random integer value.
     for (int i=0; i<64; i++){
@@ -102,9 +103,10 @@ void make_zobrist_dict(int * return_arr){
     }
 }
 //implementing the wikipedia code above
-int zob_hash(char * board, int color, int * zobrist_vals, int * zobrist_dict){
+// change to 64 bit
+uint64_t zob_hash(char * board, int color, uint64_t * zobrist_vals, int * zobrist_dict){
 
-    int h = 0;
+    uint64_t h = 0;
     for (int i = 0; i<64; i++){
         //printf("%d\n", i);
         if (board[i] != '_'){
@@ -126,9 +128,9 @@ int zob_hash(char * board, int color, int * zobrist_vals, int * zobrist_dict){
 typedef struct {
     
     int valid;
-    int hash;
+    uint64_t hash;
     int value;
-    GS gs;
+    // GS gs;
 
 } table_entry;
 
@@ -155,10 +157,10 @@ table_entry * make_hash_table(int * size_of_table){
 
 
 int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
-                        int * zob_vals, int * zob_dict, int * collisions){
+                        uint64_t * zob_vals, int * zob_dict, int * collisions){
     //printf("ADDED TO TABLE\n");
-    int hashcode = zob_hash(gs->board_rep, gs->color, zob_vals, zob_dict);
-    int h = hashcode % size_of_table;
+    uint64_t hashcode = zob_hash(gs->board_rep, gs->color, zob_vals, zob_dict);
+    int h = ((int) (hashcode >> 32) ) % size_of_table;
     int begin = h -1;
     if (table[h].valid){
         *collisions = *collisions + 1;
@@ -168,14 +170,14 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
         //move is already hashed.
         //maybe we really should use 64bit hashcodes as our basis, then just not bother
         // actually comparing the game state
-        if (table[h].hash == hashcode && game_state_equals(&table[h].gs, gs))
+        // just don't compare the game state? Allow some crappy evaluation to take place?
+        if (table[h].hash == hashcode ) // && game_state_equals(&table[h].gs, gs))
             return 1;
          h = (h + 1) % size_of_table;
     }
     if (h != begin){
         
         table_entry t;
-        t.gs = *gs;
         t.hash = hashcode;
         t.valid = 1;
         t.value = value;
@@ -192,13 +194,13 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
 //function returns 1/0 depending on whether the entry is found or not.
 
 int find_in_table(GS * gs, table_entry * table, int * value,
-                 int size_of_table, int * zob_vals, int * zob_dict){
+                 int size_of_table, uint64_t * zob_vals, int * zob_dict){
 
 	//char s[1000];
     //printf("\nhasing\n");
     //scanf("%s", &s);
-    int hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
-    int h = hashcode % size_of_table;
+    uint64_t hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
+    int h = ( (int) ( hashcode >> 32  ) ) % size_of_table;
     //printf("\nhashed\n");
     //scanf("%s", &s);
     //i guess the worst case here is the table is completely full and we have to 
@@ -216,7 +218,7 @@ int find_in_table(GS * gs, table_entry * table, int * value,
         //char s[1000];
         //printf("\n%d\n", game_state_equals(&t.gs, gs));
         //scanf("%s",&s);
-        if (t.hash = hashcode && game_state_equals(&t.gs, gs)){
+        if (t.hash = hashcode  ) { // && game_state_equals(&t.gs, gs)){
             *value = t.value;
             //printf("\n\n FOUND \n\n");
             return 1;

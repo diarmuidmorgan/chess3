@@ -44,7 +44,7 @@ int min (int a, int b){
 int search (GS *gs, int depth, int alpha, 
             int beta, int maximizingPlayer, 
             uint64_t * msks, CS_mask * cs_msk, 
-            int * position_evals, int * zob_vals,
+            int * position_evals, uint64_t * zob_vals,
              int * zob_dict, table_entry * transpose_table,
             int size_of_table, int * collisions) {
 
@@ -137,7 +137,7 @@ int search (GS *gs, int depth, int alpha,
 
 GS find_best_move (GS gs, int depth, uint64_t * msks,
                  CS_mask * cs_msk, int * position_evals,
-                 int * zob_vals, int * zob_dict, 
+                 uint64_t * zob_vals, int * zob_dict, 
                  table_entry * transpose_table, int size_of_table, int * collisions ){
   //  print_game_state(&gs);
   //  char s[1000];
@@ -178,14 +178,14 @@ int main () {
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
     printf("\nbuild base table\n");
-    int size_of_table = 10000000;
+    int size_of_table = 100000000;
     table_entry * transpose_table = make_hash_table( &size_of_table);
     int * zob_dict = malloc(128 * sizeof(int));
     int collisions = 0;
     printf("\ntable memory allocated\n");
     
     make_zobrist_dict(zob_dict);
-    int * zob_vals = malloc((64*12 + 1) * sizeof(int));
+    uint64_t * zob_vals = malloc((64*12 + 1) * sizeof(uint64_t));
     printf("\nMADE ZOBRIST DICT\n");
     zobrist_values(zob_vals);
     printf("table built\n");
@@ -197,7 +197,7 @@ int main () {
     
     printf("\ninitializing game state");
     printf("\nlooking for best move...");
-    gs = find_best_move(gs, 8, msks, cs_msk, &position_evals, 
+    gs = find_best_move(gs, 9, msks, cs_msk, &position_evals, 
                     zob_vals, zob_dict, transpose_table, size_of_table, &collisions);
     print_game_state(&gs);
 
