@@ -57,16 +57,23 @@ uint64_t set_pieces (GS * gs, int index){
 
         case(1) :
             return gs->pawns[gs->color];
+            break;
         case(2) :
             return gs->rooks[gs->color];
+            break;
         case(3) :
+           
             return gs->knights[gs->color];
+            break;
         case(4) :
             return gs->bishops[gs->color];
+            break;
         case(5) :
             return gs->queens[gs->color];
+            break;
         case(6) :
             return gs->kings[gs->color];
+            break;
 
         default :
             return 0ULL;
@@ -79,7 +86,7 @@ uint64_t set_pieces (GS * gs, int index){
 
 int pin_mask_safe (uint64_t * pin_mask, int piece_incr){
 
-    if ( (*pin_mask | 1LL << (piece_incr - 1)) == *pin_mask) return 0;
+    if ( (*pin_mask | (1LL << (piece_incr - 1)))  == *pin_mask) return 0;
     return 1;
 
 }

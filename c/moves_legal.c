@@ -36,7 +36,7 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
     //pieces actually attacked/defended in the ray
     uint64_t pieces = gs->all_pieces & ray;
     if (pieces == 0LL){
-        printf("ZERO RAY\n");
+        
         return;
     }
     //printf("ABOUT TO BIT SEARCH\n");
@@ -81,7 +81,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     int piece_incr = 0;
     uint64_t ray;
     
-    printf("BUILDING PIN MASK\n");
+    //printf("BUILDING PIN MASK\n");
     /*binary_print_board(gs->kings[r_color]);
     binary_print_board(gs->bishops[r_color]);
     binary_print_board(gs->queens[r_color]);
@@ -89,7 +89,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     */
     //we cycle through the pieces, selecting each ray, and calling the ray_pins_piece 
     // function to add any pinned pieces to the pin mask.
-    printf("CHECKING BISHOPS\n");
+    //printf("CHECKING BISHOPS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
@@ -102,7 +102,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     }
     piece_incr = 0;
     pieces = gs->rooks[color];
-     printf("CHECKING ROOKS\n");
+    // printf("CHECKING ROOKS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + RANKUINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
@@ -115,7 +115,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     }
     piece_incr = 0;
     pieces = gs->queens[color];
-    printf("CHECKING QUEENS\n");
+    //printf("CHECKING QUEENS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse );
@@ -135,7 +135,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward );
 
     }
-    printf("ALL RAYS CHECKED\n");
+    //printf("ALL RAYS CHECKED\n");
     return pin_mask;
 }
 
@@ -197,23 +197,26 @@ uint64_t build_attack_mask (GS * gs, uint64_t * msks){
 */
 
 int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
-
+   
     int color = gs->color;
     //printf("COLOR %d\n", color);
     // printf("CAN CASTLE %d\n", gs->castle_king_side[color]);
     //if castling rules have been previously violated
     if (! gs->castle_king_side[color])
         return 0;
+   
     //if there is nay the free squares to move
     //binary_print_board(cs_msk->kingside_free[(color)]);
     if (cs_msk->kingside_free[color] & gs->all_pieces != 0LL)
         return 0;
+    
    // printf("STILL HERE\n");
     //if we haven't built the attacked square mask, build it.        
     if (attack_mask == NULL)
         *attack_mask = build_attack_mask(gs, msks);
     //binary_print_board(cs_msk->kingside_non_attack[color]);
     //if there are no squares conflicting with the attack mask, then give the go ahead.
+   
     if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL){
        
         return 1;
@@ -230,8 +233,7 @@ int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint6
 int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
    
     int color = gs->color;
-    printf("COLOR %d\n", color);
-    printf("CAN CASTLE %d\n", gs->castle_queen_side[color]);
+    
     //if castling rules have been previously violated
     if (! gs->castle_queen_side[color])
         return 0;
@@ -254,7 +256,7 @@ int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint
 //functions to perform the actual castling procedure.
 
 void kingside_castling_generator_next (GS * new_gs){
-        
+       
         int color = new_gs->color;
     
         uint64_t n_klocation =  1LL << (6 + (7*8*color));
@@ -263,6 +265,8 @@ void kingside_castling_generator_next (GS * new_gs){
         uint64_t o_rlocation = 1LL << (7 + (7*8*color));
         new_gs->all_pieces &= ~(o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
+        new_gs->pieces[color] &= ~(o_klocation | o_rlocation);
+        new_gs->pieces[color] |= (n_klocation | n_rlocation);
         new_gs->kings[color] = n_klocation;  
         new_gs->rooks[color] &= ~o_rlocation;
         new_gs->rooks[color] |= n_rlocation;
@@ -273,7 +277,7 @@ void kingside_castling_generator_next (GS * new_gs){
         int increment = color * 56;      
         new_gs->board_rep[2 + increment] = K;
         new_gs->board_rep[3 + increment] = R;
-        new_gs->color = (color + 1 % 2);
+        new_gs->color = (color + 1) % 2;
 }
 
 void queenside_castling_generator_next (GS * new_gs){
@@ -287,6 +291,8 @@ void queenside_castling_generator_next (GS * new_gs){
         uint64_t o_rlocation = 1LL << (0 + (7*8*color));
         new_gs->all_pieces &= ~(o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
+        new_gs->pieces[color] &= ~(o_klocation | o_rlocation);
+        new_gs->pieces[color] |= (n_klocation | n_rlocation);
         new_gs->kings[color] = n_klocation;  
         new_gs->rooks[color] &= ~o_rlocation;
         new_gs->rooks[color] |= n_rlocation;
@@ -297,11 +303,12 @@ void queenside_castling_generator_next (GS * new_gs){
         int increment = color * 56;      
         new_gs->board_rep[5 + increment] = K;
         new_gs->board_rep[4 + increment] = R;
+        new_gs->color = (color + 1) % 2;
 }
 
 //if there is a valid enpassant, sets the three target squares.
 // returns 1 if valid, false otherwise
-int enpassant_generator_has_next (GS * gs, int * pawn_incr, 
+int enpassant_generator_has_next (GS * gs, int * pawn_incr, int * pawn_square_number, int * target_square_number,
                             uint64_t * pawns, uint64_t * pawn_square,
                             uint64_t * enpassant_square, uint64_t * target_square){
 
@@ -311,45 +318,57 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr,
     else{
         int enpassant_index = ffsll(gs->enpassants[color]) - 1;
         *enpassant_square = 1LL << enpassant_index;
+       
         //test for left pawn
         //not sure if I have the directions right here.
-        if (*pawn_incr == 0 && (enpassant_index % 8 > 0)){
+       
+        if (*pawn_incr == 0 && (enpassant_index % 8 < 7)){
             *pawn_incr = *pawn_incr + 1;
+            *pawn_square_number = enpassant_index + 1;
             *pawn_square = *enpassant_square << 1;
+            
             if ((gs->pawns[color] | *pawn_square) == gs->pawns[color]){
 
                 //target square will be either 8 squares ahead or behind of enpassant square.
                 if (color == 0){
-                    *target_square = *enpassant_square >> 8;
+                    *target_square = *enpassant_square << 8;
+                    *target_square_number = enpassant_index + 8;
 
                 }
                 
                 else {
-                    *target_square = *enpassant_square << 8;
+                    *target_square = *enpassant_square >> 8;
+                    *target_square_number = enpassant_index - 8;
                 }
-
+                
                 return 1;
             }
                 
         }
+        else *pawn_incr = * pawn_incr + 1;
         
-        if (*pawn_incr == 1 && (enpassant_index % 8 < 7)){
+        if (*pawn_incr == 1 && (enpassant_index % 8 > 0)){
             *pawn_incr = *pawn_incr + 1;
             *pawn_square = *enpassant_square >> 1;
+            *pawn_square_number = enpassant_index - 1;
+            //binary_print_board(*pawn_square);
             if ((gs->pawns[color] | *pawn_square) == gs->pawns[color]){
                 
                  if (color == 0){
-                    *target_square = *enpassant_square >> 8;
+                    *target_square = *enpassant_square << 8;
+                    *target_square_number = enpassant_index + 8;
 
                 }
                 
                 else {
-                    *target_square = *enpassant_square << 8;
+                    *target_square = *enpassant_square >> 8;
+                    *target_square_number = enpassant_index - 8;
                 }
                 
                 return 1;
             }
         }
+        else *pawn_incr = *pawn_incr + 1;
         return 0;
     }
 }
@@ -359,11 +378,12 @@ void enpassant_generator_next(GS * new_gs, uint64_t * pawn_square,
                                 uint64_t * target_square, uint64_t * enpassant_square){
     int color = new_gs->color;
     int r_color = (color + 1) % 2;
-    new_gs -> pieces[color] &=  ( ~ *pawn_square );
-    new_gs -> pieces[r_color] &= (~ *enpassant_square);
+    new_gs -> pieces[color] &=   ~( *pawn_square);
+    new_gs -> pieces[r_color] &= ~(*enpassant_square);
     new_gs -> pieces[color] |= *target_square;
-    new_gs -> pawns[color] &= new_gs->pieces[color];
-    new_gs ->pawns[r_color] &= new_gs->pieces[r_color];
+    new_gs -> pawns[color]  &=   ~( *pawn_square);
+    new_gs -> pawns[color] |= *target_square;
+    new_gs ->pawns[r_color] &= ~ ( * enpassant_square);
     new_gs->all_pieces = new_gs->pieces[color] | new_gs->pieces[r_color];
     if (color == 0)
         new_gs->score += 1;

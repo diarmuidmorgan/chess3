@@ -34,7 +34,6 @@ int next_piece(GS * gs, int msk_number,
 	}
 	
 	
-	
 	int index_p = ffsll(*pieces);  
 	
 	*piece_incr = *piece_incr + index_p;
@@ -43,6 +42,8 @@ int next_piece(GS * gs, int msk_number,
 	
 	
 	masking_function(gs, *piece_incr,move_squares, msks, msk_number, gs->color);
+	//binary_print_board(*move_squares);
+	
 	//binary_print_board(*move_squares);
 	if (index_p == 64)
 		*pieces = 0LL;
@@ -63,16 +64,22 @@ int next_move (GS * gs, int msk_number,
 		uint64_t * move_squares, 
 		int * move_incr) {
 	//printf("MOVE INCR %d\n", *move_incr);
+	//printf("THERE IS ANOTHER MOVE\n");
 	if (*move_squares == 0LL){
 		
 		 *move_incr = 0;
 		 return 0;
 	}
 	int index_m = ffsll(*move_squares);
-	
+	if (index_m == 64)
+		*move_squares = 0LL;
+	else
+		*move_squares = *move_squares >> index_m;
 	
 	*move_incr = *move_incr + index_m;
-	*move_squares = *move_squares >> index_m;
+	
+	//binary_print_board(1LL << (*move_incr) -1);
+	//binary_print_board(*move_squares);
 	return 1;
 }
 
@@ -191,9 +198,9 @@ void rook_generator_next (GS * gs, GS * new_gs,
 	//flip castling bits
 	int position = *move_incr - 1;
 	int old_position = *piece_incr - 1;
-	if (position = 0 + (gs->color * 56))
+	if (old_position == 0 + (gs->color * 56))
 		new_gs->castle_queen_side[gs->color] = 0;
-	else if (position = 7 + (gs->color * 56))
+	else if (old_position == 7 + (gs->color * 56))
 		new_gs->castle_king_side[gs->color] = 0;
 	
 	char p = (gs->color) ? 'R' : 'r'; 
@@ -232,7 +239,8 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 
 	if (abs(old_position - position) == 16){
 		
-		new_gs->enpassants[new_gs->color] |= (1<<position);
+		
+		new_gs->enpassants[new_gs->color] = (1LL<<position);
 		
 		
 		//the below code MIGHT be able to check for legal enpassants,
@@ -258,13 +266,13 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 				new_gs->enpassants[r_color] |= (1<<(*move_incr-1));
 		*/		
 
-
+		
 	} 
 
 	//also check for PROMOTION.
 	// at this stage we will only ever award queens.
 	else if ( (position / 8) == 7 * new_gs->color){
-		printf("Shiiiiiiit\n");
+		
 		//destroy this pawn
 	//	new_gs->pawns[gs->color] &= ~ (1LL << (position));
 	//	int multiplier = (gs->color) ? -1 : 1;

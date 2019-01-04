@@ -94,6 +94,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *index = *index + 1;
             }
         case(5):
+            
             if (queen_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
                  queen_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
                 return 1;
@@ -155,19 +156,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         //enpassants - doesnt work
         case (9) :
             
-            if (enpassant_generator_has_next(gs, &pawn_incr, pieces, &pawn_square, &enpassant_square, &target_square)){
-                    enpassant_generator_next(new_gs, &pawn_square, &target_square, &enpassant_square);
-                    
-                    return 1;
-            }
-            else {
-                *piece_incr=0;
-                *move_incr=0;
-                *index= *index + 1;
-                
-                return 0;
-            }
-            break;
+            return 0;
 
         default :
             return 0;

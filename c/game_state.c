@@ -253,6 +253,7 @@ void normal_game_state_update(GS * new_gs, uint64_t new_pos,
 	new_gs->pieces[color] = (new_gs->pieces[color] | new_pos) & (~old_pos);
 	
 	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
+	//binary_print_board(*selected_pieces);
 	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
 
 	//change the game state color;
@@ -270,24 +271,30 @@ void normal_game_state_update(GS * new_gs, uint64_t new_pos,
 	
 	// though it MIGHT be good if we implement move_ordering and quiesence search.
 
-	if ((new_gs->pieces[r_color] & (~new_pos)) != new_gs->pieces[r_color]){
+	if (((new_gs->pieces[r_color] & (~new_pos)) ) != new_gs->pieces[r_color]){
+	//	printf("\nUPDATING\n");
 		int multiplier;
 		if (color == 1) multiplier = 1;
 		else multiplier = -1;
+		//binary_print_board(new_pos);
 		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
-		new_gs->all_pieces |= new_gs->pieces[r_color];
-		
+		//binary_print_board(new_gs->pieces[r_color]);
+		//new_gs->all_pieces |= new_gs->pieces[r_color];
+		//binary_print_board(new_gs->rooks[r_color]);
 		uint64_t new_pieces = new_gs->pawns[r_color] & new_gs->pieces[r_color];
 		
 		if (new_pieces != new_gs->pawns[r_color]){
+			
 			new_gs->score += 1 * multiplier;
 			new_gs->pawns[r_color] = new_pieces;
 			return;
 		}
-		new_pieces = new_gs->bishops[r_color] & new_gs->bishops[r_color];
+		new_pieces = new_gs->pieces[r_color] & new_gs->bishops[r_color];
 		if (new_pieces != new_gs->bishops[r_color]){
+			
 			new_gs->score += 3 * multiplier;
 			new_gs->bishops[r_color] = new_pieces;
+			//binary_print_board(new_gs->bishops[r_color]);
 			return;
 		}
 		new_pieces = new_gs->knights[r_color] & new_gs->pieces[r_color];
@@ -299,6 +306,8 @@ void normal_game_state_update(GS * new_gs, uint64_t new_pos,
 		
 		new_pieces = new_gs->rooks[r_color] & new_gs->pieces[r_color];
 		if (new_pieces != new_gs->rooks[r_color]){
+			//binary_print_board(new_pieces);
+			//binary_print_board(new_gs->rooks[r_color]);
 			new_gs->score += 5 * multiplier;
 			new_gs->rooks[r_color] = new_pieces;
 			return;

@@ -5,6 +5,7 @@
 int real_parse_move(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk, parser_cases * pc){
 
+   
     int result = regexec(&pc->pforwards, line, 0, NULL, 0);
     if (!result)
         return simple_pawn_move(line, gs, new_gs, msks, cs_msk);
@@ -57,9 +58,11 @@ int play_game_string (char * game_str, parser_cases * pc){
     int i = 0;
     char * m;
     while (game_str[i]){
-        print_game_state(&gs);
+        //print_game_state(&gs);
         //scanf("%s",&s1);
         new_gs = gs;
+        new_gs.enpassants[0] = 0LL;
+        new_gs.enpassants[1] = 0LL;
         int j = 0;
         m = malloc(7 * sizeof(char));
         while(game_str[i] && game_str[i] != ' ' && game_str[i] != '\n'){
@@ -69,15 +72,14 @@ int play_game_string (char * game_str, parser_cases * pc){
         }
         m[j] = '_';
         m[j+1] = '\0';
-        printf("%d\n", j);
-        printf("%s\n", m);
-        if (real_parse_move(m, &gs, &new_gs, msks, cs_msk, pc))
-            printf("MATCH\n");
-        else {
+        //printf("%d\n", j);
+       // printf("%s\n", m);
+        if (!real_parse_move(m, &gs, &new_gs, msks, cs_msk, pc)){
+            
+        
             printf("NO MATCH\n");
             free(m);
             return 0;
-
         }
         i++;
         gs = new_gs;
@@ -99,8 +101,11 @@ int main () {
 	parser_cases * pc = build_regex();
 	fp =fopen(filepath,"r");
     int games_played = 0;
+    int count = 0;
 	while(fgets(s,1000, fp)){
 
+        //printf("GAME :::: %d\n", count++);
+        if (count > 1440)
         if(!play_game_string(s, pc))
             return 0;
             

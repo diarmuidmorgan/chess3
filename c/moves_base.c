@@ -34,6 +34,7 @@ uint64_t sliding_ray_lsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	//bit search reverse - this function should be renamed hsb_masking.
 	int index =  64 - (__builtin_clzll(msk));
 	// handles the case where the first piece is of the same color
+	 
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]){ 
 		//binary_print_board(base_msk ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1))));
 		return base_msk ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1)));

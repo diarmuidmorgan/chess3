@@ -32,8 +32,8 @@ parser_cases * build_regex() {
     static char ambiguouspiecemoverow [] = "^[A-Z][1-8][a-z][1-8](_|\\+|#)";
     static char promotionm [] = "^[a-z][1-8]\\=[A-Z]";
     static char promotionc [] = "^[a-z]x[a-z][1-8]\\=[A-Z]";
-    static char kingsidecastle [] = "^O-O_";
-    static char queensidecastle [] = "^O-O-O_$";
+    static char kingsidecastle [] = "^O-O(_|\\+|#)";
+    static char queensidecastle [] = "^O-O-O(_|\\+|#)";
     int reti;
     parser_cases * pc = malloc(sizeof(parser_cases));
     reti = regcomp(&pc->pforwards, pawnforwards, REG_EXTENDED);
@@ -53,9 +53,38 @@ parser_cases * build_regex() {
 
 }
 
+int legal_move_search(GS * gs, uint64_t * msks, CS_mask * cs_msk){
+    //printf("STARRTING SEARCH\n");
+    uint64_t pieces = 0LL;
+    int index = 0;
+    int piece_incr = 0;
+    int move_incr = 0;
+    int value;
+    int search_return;
+    uint64_t attack_squares = 0LL;
+    uint64_t move_squares = 0LL;
+    //printf("GLOBAL VARS ALL FLUSHED\n");
+    GS new_gs = *gs;
+    int r_color = (gs->color + 1) % 2;
+    //new_gs->enpassants[color] = 0LL;
+	new_gs.enpassants[r_color] = 0LL;
+    
+    
+     while (index < 6 && moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, &pieces, &move_squares, &attack_squares, cs_msk)){
+         //printf("INDEX %d\n", index);
+          uint64_t king = new_gs.kings[new_gs.color];
+          if (king == 0LL) return 0;
+          new_gs = *gs;
+     }
+     return 1;
+
+
+
+}
+
 int simple_pawn_move(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-        printf("MATCHED SIMPLE PAWN MOVE\n");
+       // printf("MATCHED SIMPLE PAWN MOVE\n");
         int piece_incr=0;
         int move_incr = 0;
         uint64_t move_squares = 0LL;
@@ -66,17 +95,18 @@ int simple_pawn_move(char * line, GS * gs, GS * new_gs,
         uint64_t attack_squares = build_pin_mask(gs, msks);
         int count = 0;
         *new_gs = *gs;
-        printf("BUILT AND READY TO GO\n");
-        
-        while ( pieces != 0LL && moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+        //printf("BUILT AND READY TO GO\n");
+        //binary_print_board(pieces);   
+        while (  moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                         &move_incr, &pieces, &move_squares,
                             &attack_squares, cs_msk) && index < 2){
                // printf("ITERATION %d PC INCR %d MV INCR %d\n", count++, piece_incr, move_incr);
                 if ( move_square == (move_incr - 1) 
                 && 
-               pin_mask_safe(&attack_squares, piece_incr) ) 
+               legal_move_search(new_gs, msks, cs_msk) ) 
                     
                             return 1;
+               
 
                 *new_gs = *gs;
             }
@@ -85,13 +115,13 @@ int simple_pawn_move(char * line, GS * gs, GS * new_gs,
 
 int simple_pawn_capture(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-        printf("MATCHED SIMPLE PAWN CAPTURE\n");
+       // printf("MATCHED SIMPLE PAWN CAPTURE\n");
         int move_square = ((int) (line[3] - 49)) * 8 + ((int) (line[2]-97)); 
         int col = ((int) (line[0]-97));
         int index = 1;
         int piece_incr=0;
         int move_incr = 0;
-        binary_print_board(gs->rooks[(gs->color + 1) % 2]);
+        //binary_print_board(gs->rooks[(gs->color + 1) % 2]);
         uint64_t move_squares = 0LL;
         uint64_t pieces = gs->pawns[gs->color];
         uint64_t attack_squares = build_pin_mask(gs, msks);
@@ -106,7 +136,7 @@ int simple_pawn_capture(char * line, GS * gs, GS * new_gs,
             
              if ( move_square == (move_incr - 1) && 
              (piece_incr -1) % 8 == col   
-              && pin_mask_safe(&attack_squares, piece_incr)
+              && legal_move_search(new_gs, msks, cs_msk)
 
              )
                 
@@ -114,12 +144,33 @@ int simple_pawn_capture(char * line, GS * gs, GS * new_gs,
 
             *new_gs = *gs;
         }
+        *new_gs = *gs;
+       // binary_print_board(gs->enpassants[gs->color]);
+        uint64_t pawn_square = 0LL;
+        int pawn_incr = 0;
+        uint64_t target_square = 0LL;
+        uint64_t enpassant_square = 0LL;
+        int pawn_square_number = 0;
+        uint64_t pawns = *gs->pawns;
+        int target_square_number;
+        while (enpassant_generator_has_next(gs, &pawn_incr, &pawn_square_number, &target_square_number, &pawns, &pawn_square,
+            &enpassant_square, &target_square)) {
+            enpassant_generator_next(new_gs, &pawn_square, 
+                                &target_square, &enpassant_square);
+               // printf("GOT ONE\n");
+               // printf("%d %d %d %d\n", target_square_number, move_square, pawn_square_number % 8, col);
+                if (target_square_number == move_square && pawn_square_number % 8 == col) return 1;
+            }
+
+
+
+
         return 0;
     }
 
 int  complex_pawn_capture(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED COMPLEX PAWN CAPTURE\n");
+//printf("MATCHED COMPLEX PAWN CAPTURE\n");
     int index = 1;
     int piece_incr=0;
     int move_incr = 0;
@@ -138,7 +189,7 @@ printf("MATCHED COMPLEX PAWN CAPTURE\n");
         
         if (move_square == (move_incr - 1) && 
                 (piece_incr -1) == position &&
-            pin_mask_safe(&attack_squares, piece_incr) )
+            legal_move_search(new_gs, msks, cs_msk) )
                 
                     return 1;
             
@@ -152,30 +203,35 @@ printf("MATCHED COMPLEX PAWN CAPTURE\n");
 int simple_piece_move (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
 
-    printf("MATCHED SIMPLE PIECE MOVE\n");
+   // printf("MATCHED SIMPLE PIECE MOVE\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
     uint64_t attack_squares = build_pin_mask(gs, msks);
+    
     *new_gs = *gs;
     char piece = line[0]; 
     
     int  index = set_index(piece);
+    
     int check_index = index + 1;
     uint64_t pieces = set_pieces(gs, index);
     int move_square = ((int) (line[2]-49)) * 8 + ((int) line[1] -97); 
-    
-    while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+   // binary_print_board(pieces);
+  // printf("WORKING\n");
+    while (index < check_index && moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                     &move_incr, &pieces, &move_squares,
                         &attack_squares, cs_msk)
-                    && 
-                    index < check_index  ){
+    
+                      ){
             //printf("ITERATING\n");
-           
+           //printf("%d %d\n", move_square, move_incr);
+
             if ( move_square == (move_incr - 1) 
-                 && pin_mask_safe(&attack_squares, piece_incr) ) 
+                 && legal_move_search(new_gs, msks, cs_msk) ) {
+               // printf("SUCCESS\n");
                 return 1;
-            
+                 }
             *new_gs = *gs;
         }
         return 0;
@@ -184,7 +240,7 @@ int simple_piece_move (char * line, GS * gs, GS * new_gs,
 int simple_piece_capture (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
 
-    printf("MATCHED SIMPLE PIECE CAPTURE\n");
+   // printf("MATCHED SIMPLE PIECE CAPTURE\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
@@ -202,7 +258,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
                     index < check_index  ){
             
              if ( move_square == (move_incr - 1) && 
-                        pin_mask_safe(&attack_squares, piece_incr) )
+                        legal_move_search(new_gs, msks, cs_msk) )
                 return 1;
             
             *new_gs = *gs;
@@ -212,7 +268,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
 
  int ambiguous_piece_capture_rank(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-    printf("MATCHED AMBIGUOUS PIECE CAPTURE RANK\n");
+  //  printf("MATCHED AMBIGUOUS PIECE CAPTURE RANK\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
@@ -231,10 +287,10 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
                         index < check_index){
 
              if ( move_square == (move_incr - 1) && 
+                         ((piece_incr -1) / 8) == rank &&
+                        legal_move_search(new_gs, msks, cs_msk)
                         
-                        pin_mask_safe(&attack_squares, piece_incr)
-                        
-                        && ((piece_incr -1) / 8) == rank )
+                       )
                 
                 return 1;
             *new_gs = *gs;
@@ -244,7 +300,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
 
  int ambiguous_piece_capture_col(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-    printf("MATCHED AMBI PIECE CAPTURE COL\n");
+   // printf("MATCHED AMBI PIECE CAPTURE COL\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
@@ -263,8 +319,9 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
                         && index < check_index   ){
              
              if ( move_square == (move_incr - 1) && 
-                        pin_mask_safe(&attack_squares, piece_incr)
-                        && ((piece_incr -1) % 8) == col   )
+                        
+                        ((piece_incr -1) % 8) == col &&
+                         legal_move_search(new_gs, msks, cs_msk)  )
                 return 1;
 
             *new_gs = *gs;
@@ -274,7 +331,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
 
 int ambiguous_piece_move_rank(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED AMBIG PIECE MV RANK\n");
+//printf("MATCHED AMBIG PIECE MV RANK\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
@@ -294,9 +351,10 @@ printf("MATCHED AMBIG PIECE MV RANK\n");
 
              if ( move_square == (move_incr - 1) && 
                         
-                        pin_mask_safe(&attack_squares, piece_incr)
                         
-                        && ((piece_incr -1) / 8) == rank )
+                        
+                     ((piece_incr -1) / 8) == rank && 
+                      legal_move_search(new_gs, msks, cs_msk))
                 
                 return 1;
             *new_gs = *gs;
@@ -306,7 +364,7 @@ printf("MATCHED AMBIG PIECE MV RANK\n");
 
 int ambiguous_piece_move_col(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED AMBIG PIECE MOVE COL \n");
+//printf("MATCHED AMBIG PIECE MOVE COL \n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
@@ -325,8 +383,8 @@ printf("MATCHED AMBIG PIECE MOVE COL \n");
                         && index < check_index   ){
              
              if ( move_square == (move_incr - 1) && 
-                        pin_mask_safe(&attack_squares, piece_incr)
-                        && ((piece_incr -1) % 8) == col   )
+                       ((piece_incr -1) % 8) == col &&
+                        legal_move_search(new_gs, msks, cs_msk)  )
                 return 1;
 
             *new_gs = *gs;
@@ -336,7 +394,7 @@ printf("MATCHED AMBIG PIECE MOVE COL \n");
 
 int promotion_move (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED PROMOTION MV\n");
+//printf("MATCHED PROMOTION MV\n");
         uint64_t pieces = gs->pawns[gs->color];
         int piece_incr=0;
         int move_incr = 0;
@@ -349,19 +407,23 @@ printf("MATCHED PROMOTION MV\n");
                         &attack_squares, cs_msk)
                         && index < 2){
             
-            if (index == 1 && move_square == (move_incr - 1)
+            if (move_square == (move_incr - 1)
                 && pin_mask_safe(&attack_squares, piece_incr) ){
                 // this should be handled in the game state logic, not here
                 int color = gs->color;
-                new_gs->pawns[color] &= ~(1LL << (move_incr -1));
-                if (line[4] == 'Q')
+                new_gs->pawns[color] &= ~(1LL << (move_square));
+                new_gs->pieces[color] |= (1LL << move_square);
+                new_gs->all_pieces |= (1LL << move_square);
+                if (line[3] == 'Q')
                     new_gs->queens[color] |= (1LL << (move_incr -1)); 
-                if (line[4] == 'R')
+                if (line[3] == 'R')
                     new_gs->rooks[color] |= (1LL << (move_incr -1)); 
-                if (line[4] == 'K')
+                if (line[3] == 'N')
                     new_gs->knights[color] |= (1LL << (move_incr -1));
-                if (line[4] == 'B')
-                    new_gs->bishops[color] |= (1LL << (move_incr -1));  
+                if (line[3] == 'B')
+                    new_gs->bishops[color] |= (1LL << (move_incr -1));
+               
+                //binary_print_board(new_gs->queens[gs->color]);
                 return 1;
 
                 }
@@ -371,7 +433,7 @@ printf("MATCHED PROMOTION MV\n");
     }
 int promotion_capture (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED PROMOTION CAPTUR\n");
+//printf("MATCHED PROMOTION CAPTUR\n");
         uint64_t pieces = gs->pawns[gs->color];
         int piece_incr=0;
         int move_incr = 0;
@@ -388,16 +450,20 @@ printf("MATCHED PROMOTION CAPTUR\n");
             if ( move_square == (move_incr - 1)
                 && pin_mask_safe(&attack_squares, piece_incr) && ((piece_incr -1) % 8 == col)){
                 // this should be handled in the game state logic, not here
-                int color = gs->color;
-                new_gs->pawns[color] &= ~(1LL << (move_incr -1));
+               int color = gs->color;
+                new_gs->pawns[color] &= ~(1LL << (move_square));
+                new_gs->pieces[color] |= (1LL << move_square);
+                new_gs->all_pieces |= (1LL << move_square);
                 if (line[5] == 'Q')
                     new_gs->queens[color] |= (1LL << (move_incr -1)); 
                 if (line[5] == 'R')
                     new_gs->rooks[color] |= (1LL << (move_incr -1)); 
-                if (line[5] == 'K')
+                if (line[5] == 'N')
                     new_gs->knights[color] |= (1LL << (move_incr -1));
                 if (line[5] == 'B')
-                    new_gs->bishops[color] |= (1LL << (move_incr -1));  
+                    new_gs->bishops[color] |= (1LL << (move_incr -1));
+               
+                //binary_print_board(new_gs->queens[gs->color]);
                 return 1;
 
                 }
@@ -408,7 +474,7 @@ printf("MATCHED PROMOTION CAPTUR\n");
 
 int kscastle_parse (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED KSIDE CASTLE\n");
+//printf("MATCHED KSIDE CASTLE\n");
     uint64_t pieces = gs->pawns[gs->color];
     int piece_incr=0;
     int move_incr = 0;
@@ -428,7 +494,7 @@ printf("MATCHED KSIDE CASTLE\n");
 }
 int qscastle_parse (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){
-printf("MATCHED QSIDE CASTLE\n");
+//printf("MATCHED QSIDE CASTLE\n");
     uint64_t pieces = gs->pawns[gs->color];
     int piece_incr=0;
     int move_incr = 0;

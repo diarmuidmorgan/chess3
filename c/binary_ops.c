@@ -51,7 +51,7 @@ void binary_print_board(uint64_t word) {
 	int incr = 0;
 	while (word != 0LL) {
 	index = ffsll(word);
-	printf("%d\n", index);
+	
 	
 	incr += index;
 	A[incr - 1] = 1;

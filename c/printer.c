@@ -22,6 +22,8 @@ void set_string_cell(char * s, char symbol, uint64_t board){
 		i = ffsll(board);
 		incr += i;
 		s[incr-1] = symbol;	
+		//dirty hack be careful here.
+		if (i==64) break;
 		board = board >> i;
 		q+=1;
 
