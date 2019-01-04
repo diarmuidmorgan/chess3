@@ -45,6 +45,7 @@ int real_parse_move(char * line, GS * gs, GS * new_gs,
      if (!result)
         return qscastle_parse(line, gs, new_gs, msks, cs_msk);      
 
+    return 0;
                     }
 
 int play_game_string (char * game_str, parser_cases * pc){

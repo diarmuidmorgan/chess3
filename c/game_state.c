@@ -109,10 +109,10 @@ GS init_game_state(){
 	gs.enpassants[1] = 0LL;
 	gs.color = 0;
 	gs.score=0;
-	gs.castle_king_side[0] = 0;
-	gs.castle_king_side[1] = 0;
-	gs.castle_queen_side[0] = 0;
-	gs.castle_queen_side[1] = 0;
+	gs.castle_king_side[0] = 1;
+	gs.castle_king_side[1] = 1;
+	gs.castle_queen_side[0] = 1;
+	gs.castle_queen_side[1] = 1;
 	gs.castle_ghost_squares[0]= 0ULL;
 	gs.castle_ghost_squares[1]= 0ULL;
 	

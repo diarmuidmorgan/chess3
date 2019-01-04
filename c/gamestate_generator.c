@@ -118,7 +118,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *index= *index + 1;
                 
                 //hack
-                return 0;
+                
             }
 
         // theres a nasty bug in one of these, so for now we will just skip them
@@ -168,6 +168,9 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 return 0;
             }
             break;
+
+        default :
+            return 0;
     }
 
 

@@ -21,19 +21,19 @@ typedef struct {
 
 parser_cases * build_regex() {
 
-    static char pawnforwards [] = "^[a-z][1-7](_|\\+)";
-    static char pawncapturesimple [] = "^[a-z]x[a-z][1-7](_|\\+)";
-    static char pawncapturescomplex [] = "^[a-z][1-7]x[a-z][1-7](_|\\+)";
-    static char piecemovesimple [] = "^[A-Z][a-z][1-7][_|\\+]";
-    static char piececapturesimple [] = "^[A-Z]x[a-z][1-7][_|\\+]";
-    static char ambiguouspiececapturecol [] = "^[A-Z][a-z]x[a-z][1-7][_|\\+]";
-    static char ambiguouspiececapturerow [] = "^[A-Z][1-7]x[a-z][1-7][_|\\+]";
-    static char ambiguouspiecemovecol [] = "^[A-Z][a-z][a-z][1-7][_|\\+]";
-    static char ambiguouspiecemoverow [] = "^[A-Z][1-7][a-z][1-7][_|\\+]";
-    static char promotionm [] = "[a-z][1-7]\\=[A-Z]";
-    static char promotionc [] = "[a-z]x[a-z][1-7]\\=[A-Z]";
-    static char kingsidecastle [] = "0-0_";
-    static char queensidecastle [] = "0-0-0_";
+    static char pawnforwards [] = "^[a-z][1-8](_|\\+|#)";
+    static char pawncapturesimple [] = "^[a-z]x[a-z][1-8](_|\\+|#)";
+    static char pawncapturescomplex [] = "^[a-z][1-8]x[a-z][1-8](_|\\+|#)";
+    static char piecemovesimple [] = "^[A-Z][a-z][1-8](_|\\+|#)";
+    static char piececapturesimple [] = "^[A-Z]x[a-z][1-8](_|\\+|#)";
+    static char ambiguouspiececapturecol [] = "^[A-Z][a-z]x[a-z][1-8](_|\\+|#)";
+    static char ambiguouspiececapturerow [] = "^[A-Z][1-8]x[a-z][1-8](_|\\+|#)";
+    static char ambiguouspiecemovecol [] = "^[A-Z][a-z][a-z][1-8](_|\\+|#)";
+    static char ambiguouspiecemoverow [] = "^[A-Z][1-8][a-z][1-8](_|\\+|#)";
+    static char promotionm [] = "^[a-z][1-8]\\=[A-Z]";
+    static char promotionc [] = "^[a-z]x[a-z][1-8]\\=[A-Z]";
+    static char kingsidecastle [] = "^O-O_";
+    static char queensidecastle [] = "^O-O-O_$";
     int reti;
     parser_cases * pc = malloc(sizeof(parser_cases));
     reti = regcomp(&pc->pforwards, pawnforwards, REG_EXTENDED);
@@ -62,13 +62,16 @@ int simple_pawn_move(char * line, GS * gs, GS * new_gs,
         int move_square = ((int) (line[1]-49)) * 8 + ((int) line[0] -97);
         int index = 1;
         uint64_t pieces = gs->pawns[gs->color];
-        uint64_t attack_squares = build_attack_mask(gs, msks);
+        
+        uint64_t attack_squares = build_pin_mask(gs, msks);
         int count = 0;
+        *new_gs = *gs;
+        printf("BUILT AND READY TO GO\n");
         
         while ( pieces != 0LL && moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                         &move_incr, &pieces, &move_squares,
                             &attack_squares, cs_msk) && index < 2){
-                printf("ITERATION %d PC INCR %d MV INCR %d\n", count++, piece_incr, move_incr);
+               // printf("ITERATION %d PC INCR %d MV INCR %d\n", count++, piece_incr, move_incr);
                 if ( move_square == (move_incr - 1) 
                 && 
                pin_mask_safe(&attack_squares, piece_incr) ) 
@@ -88,9 +91,10 @@ int simple_pawn_capture(char * line, GS * gs, GS * new_gs,
         int index = 1;
         int piece_incr=0;
         int move_incr = 0;
+        binary_print_board(gs->rooks[(gs->color + 1) % 2]);
         uint64_t move_squares = 0LL;
         uint64_t pieces = gs->pawns[gs->color];
-        uint64_t attack_squares = build_attack_mask(gs, msks);
+        uint64_t attack_squares = build_pin_mask(gs, msks);
         *new_gs = *gs;
        
         while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
@@ -102,7 +106,7 @@ int simple_pawn_capture(char * line, GS * gs, GS * new_gs,
             
              if ( move_square == (move_incr - 1) && 
              (piece_incr -1) % 8 == col   
-             //pin_mask_safe(&attack_squares, piece_incr)
+              && pin_mask_safe(&attack_squares, piece_incr)
 
              )
                 
@@ -121,7 +125,7 @@ printf("MATCHED COMPLEX PAWN CAPTURE\n");
     int move_incr = 0;
     uint64_t move_squares = 0LL;
     uint64_t pieces = gs->pawns[gs->color];
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     int move_square= ((int) (line[3] - 49)) * 8 + ((int) (line[2]-97)); 
     int position =((int) (line[0] - 49)) * 8 + ((int) (line[1]-97)); 
@@ -152,19 +156,22 @@ int simple_piece_move (char * line, GS * gs, GS * new_gs,
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
+    
     int  index = set_index(piece);
     int check_index = index + 1;
     uint64_t pieces = set_pieces(gs, index);
     int move_square = ((int) (line[2]-49)) * 8 + ((int) line[1] -97); 
+    
     while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                     &move_incr, &pieces, &move_squares,
                         &attack_squares, cs_msk)
                     && 
                     index < check_index  ){
-            
+            //printf("ITERATING\n");
+           
             if ( move_square == (move_incr - 1) 
                  && pin_mask_safe(&attack_squares, piece_incr) ) 
                 return 1;
@@ -181,7 +188,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
     int  index = set_index(piece);
@@ -209,7 +216,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
     int  index = set_index(piece);
@@ -241,7 +248,7 @@ int simple_piece_capture (char * line, GS * gs, GS * new_gs,
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
     int  index = set_index(piece);
@@ -271,7 +278,7 @@ printf("MATCHED AMBIG PIECE MV RANK\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
     int  index = set_index(piece);
@@ -303,7 +310,7 @@ printf("MATCHED AMBIG PIECE MOVE COL \n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = build_pin_mask(gs, msks);
     *new_gs = *gs;
     char piece = line[0]; 
     int  index = set_index(piece);
@@ -334,7 +341,7 @@ printf("MATCHED PROMOTION MV\n");
         int piece_incr=0;
         int move_incr = 0;
         uint64_t move_squares = 0LL;
-        uint64_t attack_squares = build_attack_mask(gs, msks);
+        uint64_t attack_squares = build_pin_mask(gs, msks);
         int move_square = ((int) (line[1]-49)) * 8 + ((int) line[0] -97);
         int index = 1;
         while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
@@ -369,7 +376,7 @@ printf("MATCHED PROMOTION CAPTUR\n");
         int piece_incr=0;
         int move_incr = 0;
         uint64_t move_squares = 0LL;
-        uint64_t attack_squares = build_attack_mask(gs, msks);
+        uint64_t attack_squares = build_pin_mask(gs, msks);
         int move_square = ((int) (line[3]-49)) * 8 + ((int) line[2] -97);
         int col = ((int) (line[0]-97));
         int index = 1;
@@ -406,13 +413,13 @@ printf("MATCHED KSIDE CASTLE\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = 0LL;
     int index = 7;
     int check_index = 8;
-     while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+     while (index < check_index  && moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                     &move_incr, &pieces, &move_squares,
                         &attack_squares, cs_msk)
-                    && index < check_index){
+                    ){
              
                 return 1;
                     }
@@ -426,13 +433,13 @@ printf("MATCHED QSIDE CASTLE\n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;
-    uint64_t attack_squares = build_attack_mask(gs, msks);
+    uint64_t attack_squares = 0LL;
     int index = 8;
     int check_index = 9;
-     while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+     while (index < check_index && moves_generator(gs, new_gs, msks, &index, &piece_incr, 
                     &move_incr, &pieces, &move_squares,
                         &attack_squares, cs_msk)
-                    && index < check_index){
+                   ){
              
                 return 1;
                     }

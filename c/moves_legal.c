@@ -26,7 +26,8 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
     
     int r_color = (color + 1) % 2;
     uint64_t king = gs->kings[r_color];
-    
+    //binary_print_board(ray);
+    //binary_print_board(king);
     //if the king is, plain and simple, not in the ray, then we can skip and return
     if ((ray | king) != ray){
      
@@ -34,7 +35,13 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
     }
     //pieces actually attacked/defended in the ray
     uint64_t pieces = gs->all_pieces & ray;
+    if (pieces == 0LL){
+        printf("ZERO RAY\n");
+        return;
+    }
+    //printf("ABOUT TO BIT SEARCH\n");
     int index_of_first_piece = bitsearchfunc(pieces);
+    //printf("BITSEARCHED INDEX IS %d\n", index_of_first_piece);
     uint64_t first_piece = 1LL << (index_of_first_piece - 1);
     
     //if the king is the first piece, then we return here, 
@@ -46,7 +53,9 @@ void ray_pins_piece (uint64_t ray, uint64_t * pin_mask, GS * gs,
     
     //remove the first piece. This is agnostic to scan direction
     pieces = pieces ^ first_piece;
+    //printf("BEGINNING SECOND BIT SEARCH\n");
     int index_of_second_piece = bitsearchfunc(pieces);
+    //printf("BITSEARCHED INDEX IS %d\n", index_of_second_piece);
     uint64_t second_piece = 1ll << (index_of_second_piece - 1);
     //get the second piece in the ray.
     // if the second piece is the king, then we update the pin mask with the first piece
@@ -65,16 +74,22 @@ All the bit searching is really expensive.
 
 uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
 
-    int color = gs->color;
-    int r_color = (color + 1) % 2;
+    int r_color = gs->color;
+    int color = (r_color + 1) % 2;
     uint64_t pin_mask = 0LL;
     uint64_t pieces =gs->bishops[color];
     int piece_incr = 0;
     uint64_t ray;
-
+    
+    printf("BUILDING PIN MASK\n");
+    /*binary_print_board(gs->kings[r_color]);
+    binary_print_board(gs->bishops[r_color]);
+    binary_print_board(gs->queens[r_color]);
+    binary_print_board(gs->rooks[r_color]);
+    */
     //we cycle through the pieces, selecting each ray, and calling the ray_pins_piece 
     // function to add any pinned pieces to the pin mask.
-
+    printf("CHECKING BISHOPS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
@@ -87,6 +102,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     }
     piece_incr = 0;
     pieces = gs->rooks[color];
+     printf("CHECKING ROOKS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + RANKUINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse);
@@ -99,6 +115,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
     }
     piece_incr = 0;
     pieces = gs->queens[color];
+    printf("CHECKING QUEENS\n");
     while (cycle_pieces(gs, &pieces, &piece_incr)){
         ray = msks[(piece_incr-1) * 14 + DIAGULINDEX];
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanreverse );
@@ -118,6 +135,7 @@ uint64_t build_pin_mask (GS * gs, uint64_t * msks) {
         ray_pins_piece(ray, &pin_mask, gs, color, bitscanforward );
 
     }
+    printf("ALL RAYS CHECKED\n");
     return pin_mask;
 }
 
@@ -181,19 +199,25 @@ uint64_t build_attack_mask (GS * gs, uint64_t * msks){
 int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
 
     int color = gs->color;
+    //printf("COLOR %d\n", color);
+    // printf("CAN CASTLE %d\n", gs->castle_king_side[color]);
     //if castling rules have been previously violated
     if (! gs->castle_king_side[color])
         return 0;
     //if there is nay the free squares to move
+    //binary_print_board(cs_msk->kingside_free[(color)]);
     if (cs_msk->kingside_free[color] & gs->all_pieces != 0LL)
         return 0;
+   // printf("STILL HERE\n");
     //if we haven't built the attacked square mask, build it.        
     if (attack_mask == NULL)
         *attack_mask = build_attack_mask(gs, msks);
-
+    //binary_print_board(cs_msk->kingside_non_attack[color]);
     //if there are no squares conflicting with the attack mask, then give the go ahead.
-    if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL)
+    if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL){
+       
         return 1;
+}
     //otherwise, return 0
     return 0;
 
@@ -204,8 +228,10 @@ int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint6
 //does the same but for the queen side.
 
 int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask, uint64_t * msks, CS_mask * cs_msk){
-
+   
     int color = gs->color;
+    printf("COLOR %d\n", color);
+    printf("CAN CASTLE %d\n", gs->castle_queen_side[color]);
     //if castling rules have been previously violated
     if (! gs->castle_queen_side[color])
         return 0;
@@ -235,10 +261,11 @@ void kingside_castling_generator_next (GS * new_gs){
         uint64_t n_rlocation =   1LL << (5 + (7*8*color));
         uint64_t o_klocation = 1LL << (4 + (7*8*color));
         uint64_t o_rlocation = 1LL << (7 + (7*8*color));
-        new_gs->all_pieces ^= (o_klocation | o_rlocation);
+        new_gs->all_pieces &= ~(o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
-        new_gs->kings[color] &= new_gs->pieces[color];  
-        new_gs->rooks[color] &= new_gs->pieces[color];
+        new_gs->kings[color] = n_klocation;  
+        new_gs->rooks[color] &= ~o_rlocation;
+        new_gs->rooks[color] |= n_rlocation;
         new_gs->castle_king_side[color] = 0;
         new_gs->castle_queen_side[color] = 0;
         char K = (color) ? 'K' : 'k';
@@ -246,6 +273,7 @@ void kingside_castling_generator_next (GS * new_gs){
         int increment = color * 56;      
         new_gs->board_rep[2 + increment] = K;
         new_gs->board_rep[3 + increment] = R;
+        new_gs->color = (color + 1 % 2);
 }
 
 void queenside_castling_generator_next (GS * new_gs){
@@ -255,12 +283,15 @@ void queenside_castling_generator_next (GS * new_gs){
 
         uint64_t n_klocation =  1LL << (2 + (7*8*color));
         uint64_t n_rlocation =   1LL << (3 + (7*8*color));
-        uint64_t o_klocation = 1LL << (0 + (7*8*color));
-        uint64_t o_rlocation = 1LL << (5 + (7*8*color));
-        new_gs->all_pieces ^= (o_klocation | o_rlocation);
+        uint64_t o_klocation = 1LL << (4 + (7*8*color));
+        uint64_t o_rlocation = 1LL << (0 + (7*8*color));
+        new_gs->all_pieces &= ~(o_klocation | o_rlocation);
         new_gs->all_pieces |= (n_klocation | n_rlocation);
-        new_gs->kings[color] &= new_gs->pieces[color];  
-        new_gs->rooks[color] &= new_gs->pieces[color];
+        new_gs->kings[color] = n_klocation;  
+        new_gs->rooks[color] &= ~o_rlocation;
+        new_gs->rooks[color] |= n_rlocation;
+        new_gs->castle_king_side[color] = 0;
+        new_gs->castle_queen_side[color] = 0;
         char K = (color) ? 'K' : 'k';
         char R = (color) ? 'R' : 'r';
         int increment = color * 56;      

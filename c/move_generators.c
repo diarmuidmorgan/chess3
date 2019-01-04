@@ -7,7 +7,12 @@ int cycle_pieces (GS * gs, uint64_t * pieces, int * piece_incr){
 	if(*pieces==0LL) return 0;
 	int index_p = ffsll(*pieces);
 	*piece_incr += index_p;
+	if (index_p == 64){
+		*pieces = 0LL;
+		return 1;
+	}
 	*pieces = *pieces >> index_p;
+	
 	return 1;
 }
 
@@ -22,7 +27,7 @@ int next_piece(GS * gs, int msk_number,
 	
 	//return false if pieces have been consumed.
 	//printf("PIECE INCR %d\n", *move_incr);
-	if (*pieces == 0LL){ 
+	if (*pieces == 0ULL){ 
 		//printf("SHITE");
 		//piece_incr = 0;
 		return 0;
@@ -34,12 +39,15 @@ int next_piece(GS * gs, int msk_number,
 	
 	*piece_incr = *piece_incr + index_p;
 	
-	*move_squares = 0LL;
+	*move_squares = 0ULL;
 	
 	
 	masking_function(gs, *piece_incr,move_squares, msks, msk_number, gs->color);
 	//binary_print_board(*move_squares);
-	*pieces = *pieces >> index_p;
+	if (index_p == 64)
+		*pieces = 0LL;
+	else
+		*pieces = *pieces >> index_p;
 	
 	*move_incr = 0;
 	
@@ -54,7 +62,7 @@ int next_move (GS * gs, int msk_number,
 		uint64_t * msks, uint64_t * pieces, 
 		uint64_t * move_squares, 
 		int * move_incr) {
-	printf("MOVE INCR %d\n", *move_incr);
+	//printf("MOVE INCR %d\n", *move_incr);
 	if (*move_squares == 0LL){
 		
 		 *move_incr = 0;
@@ -183,9 +191,9 @@ void rook_generator_next (GS * gs, GS * new_gs,
 	//flip castling bits
 	int position = *move_incr - 1;
 	int old_position = *piece_incr - 1;
-	if (position = 0 + gs->color * 56)
+	if (position = 0 + (gs->color * 56))
 		new_gs->castle_queen_side[gs->color] = 0;
-	else if (position = 7 + gs->color * 56)
+	else if (position = 7 + (gs->color * 56))
 		new_gs->castle_king_side[gs->color] = 0;
 	
 	char p = (gs->color) ? 'R' : 'r'; 
@@ -342,8 +350,10 @@ int king_generator_has_next (GS * gs, int * piece_incr, int * move_incr, uint64_
 					uint64_t * move_squares, uint64_t * msks){
 
 	if (game_state_generator_has_next(gs, piece_incr, move_incr, pieces, 
-							move_squares, msks, king_masking_function ) )
+							move_squares, msks, king_masking_function ) ){
+	
 		return 1;
+							}
 	return 0;
 }
 
@@ -354,6 +364,7 @@ void king_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	game_state_generator_next(gs, new_gs, piece_incr, move_incr, pieces, move_squares,
 								msks, selected_pieces, 0);
 	//flip castling bits
+
 	new_gs->castle_king_side[gs->color] = 0;
 	new_gs->castle_queen_side[gs->color] = 0;
 	int position = *move_incr - 1;

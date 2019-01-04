@@ -15,8 +15,10 @@ int * king_castling_empty (int rank) {
 
 	int * b = blank_bit_array();
 	for (int i = 5; i<7;i++){
+		
 		b[(rank * 8) + i] = 1;
 	}
+	return b;
 
 }
 int * queen_castling_empty(int rank){
@@ -24,6 +26,7 @@ int * queen_castling_empty(int rank){
 	for (int i = 1; i<4;i++){
 		b[(rank * 8) + i] = 1;
 	}
+	return b;
 }
 
 int * king_castling_non_attack(int rank){
@@ -32,6 +35,7 @@ int * king_castling_non_attack(int rank){
 	for (int i = 4; i<7;i++){
 		b[(rank * 8) + i] = 1;
 	}
+	return b;
 }
 int * queen_castling_non_attack(int rank){
 
@@ -39,6 +43,7 @@ int * queen_castling_non_attack(int rank){
 	for (int i = 2; i<5;i++){
 		b[(rank * 8) + i] = 1;
 	}
+	return b;
 }
 
 int * starting_pawns(int rank){

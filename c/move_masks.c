@@ -208,7 +208,7 @@ typedef struct {
 } CS_mask;
 
 CS_mask * build_castle_masks () {
-
+	
 	CS_mask * cs = malloc(sizeof (CS_mask));
 	for (int i=0; i<2; i++){
 		cs->kingside_free[i] = board_to_word(king_castling_empty(7*i));
@@ -219,8 +219,7 @@ CS_mask * build_castle_masks () {
 
 
 	}
-
-
+	
 	return cs;
 
 }
