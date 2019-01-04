@@ -49,6 +49,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *move_incr = 0;
                 *index = *index+1;
                 
+                
 
             }
         case(2):

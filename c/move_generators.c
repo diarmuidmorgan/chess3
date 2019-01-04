@@ -21,9 +21,9 @@ int next_piece(GS * gs, int msk_number,
 		int * move_incr, void (*masking_function)()) {
 	
 	//return false if pieces have been consumed.
-	
-	if (*pieces == 0ULL){ 
-		
+	//printf("PIECE INCR %d\n", *move_incr);
+	if (*pieces == 0LL){ 
+		//printf("SHITE");
 		//piece_incr = 0;
 		return 0;
 	}
@@ -38,7 +38,7 @@ int next_piece(GS * gs, int msk_number,
 	
 	
 	masking_function(gs, *piece_incr,move_squares, msks, msk_number, gs->color);
-	
+	//binary_print_board(*move_squares);
 	*pieces = *pieces >> index_p;
 	
 	*move_incr = 0;
@@ -54,13 +54,15 @@ int next_move (GS * gs, int msk_number,
 		uint64_t * msks, uint64_t * pieces, 
 		uint64_t * move_squares, 
 		int * move_incr) {
-	
+	printf("MOVE INCR %d\n", *move_incr);
 	if (*move_squares == 0LL){
 		
 		 *move_incr = 0;
 		 return 0;
 	}
 	int index_m = ffsll(*move_squares);
+	
+	
 	*move_incr = *move_incr + index_m;
 	*move_squares = *move_squares >> index_m;
 	return 1;

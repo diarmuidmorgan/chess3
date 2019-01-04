@@ -157,7 +157,7 @@ int parse_line(char * line, GS * gs, GS * new_gs, uint64_t * msks, CS_mask * cs_
                     &move_incr, &pieces, &move_squares,
                         &attack_squares, cs_msk)
                     && index < 2){
-         
+           
             if (
                         move_square == (move_incr - 1)
                              && ( (piece_incr-1) % 8 == ((int) line[0] -97) 
@@ -278,7 +278,7 @@ int parse_line(char * line, GS * gs, GS * new_gs, uint64_t * msks, CS_mask * cs_
     if (!result){
         int move_square= ((int) (line[4] - 49)) * 8 + ((int) (line[3]-97)); 
         char piece = line[0];
-        int rank = ((int) (line[1]-48));
+        int rank = ((int) (line[1]-49));
         int check_index = set_index(piece);
         index = check_index;
 
@@ -457,71 +457,3 @@ int grab_game_string (char * s) {
     return 1;
 }
 
-int play_game_string (char * game_str){
-    GS gs = init_game_state();
-    GS new_gs = gs;
-    uint64_t * msks = build_mask_object();
-    CS_mask * cs_msk = build_castle_masks();
-    char s1[1000];
-    int i = 0;
-    char * m;
-    while (game_str[i]){
-        print_game_state(&gs);
-        //scanf("%s",&s1);
-        new_gs = gs;
-        int j = 0;
-        m = malloc(7 * sizeof(char));
-        while(game_str[i] && game_str[i] != ' ' && game_str[i] != '\n'){
-            m[j] = game_str[i];
-            i++;
-            j++;
-        }
-        m[j] = '_';
-        m[j+1] = '\0';
-        printf("%d\n", j);
-        printf("%s\n", m);
-        if (parse_line(m, &gs, &new_gs, msks, cs_msk))
-            printf("MATCH\n");
-        else {
-            printf("NO MATCH\n");
-            free(m);
-            return 0;
-        }
-        i++;
-        gs = new_gs;
-        free(m);
-    }
-    return 1;
-}
-
-
-int main () {
-
-   
-    //grab_game_string(s);
-    //play_game_string(s);
-
-    char * s = malloc(2000 * sizeof(char));
-    char filepath[] = "../data/cfriendly";
-    FILE *fp;
-	
-	fp =fopen(filepath,"r");
-    int games_played = 0;
-	while(fgets(s,1000, fp)){
-
-        play_game_string(s);
-            
-        free(s);
-        s=malloc(2000 * sizeof(char));
-        games_played ++;
-    }
-    
-    printf("%d\n", games_played);
-    
-    fclose(fp);
-    return 1;
-
-
-
-
-}
