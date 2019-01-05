@@ -146,6 +146,7 @@ parser_cases * build_regex() {
     reti = regcomp(&pc->kscastle, kingsidecastle, REG_EXTENDED);
     reti = regcomp(&pc->qscastle, queensidecastle, REG_EXTENDED);
     reti = regcomp(&pc->fullpmove, fullpiecemove, REG_EXTENDED);
+    reti = regcomp(&pc->fullpcapture, fullpiececapture, REG_EXTENDED);
     return pc;
 
 }

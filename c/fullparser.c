@@ -97,6 +97,7 @@ int play_game_string (char * game_str, parser_cases * pc, Zob * z){
     return 1;
 }
 
+/*
 
 int main () {
 
@@ -141,3 +142,5 @@ int main () {
 
 
 }
+
+*/

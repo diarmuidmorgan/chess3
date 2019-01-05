@@ -188,6 +188,16 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
     uint64_t hashcode = gs->hash;
     int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
     int begin = h -1;
+
+    if(table[h].valid && table[h].hash != hashcode){
+        printf("COLLISION\n");
+    }
+    table[h].hash = hashcode;
+    table[h].valid = 1;
+    table[h].value = value;
+
+    return 1;
+
     if (table[h].valid){
         *collisions = *collisions + 1;
     }

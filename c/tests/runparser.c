@@ -10,13 +10,13 @@ int main () {
     //play_game_string(s);
 
     char * s = malloc(4000 * sizeof(char));
-    char filepath[] = "../data/cfriendly";
+    char filepath[] = "../../data/cfriendly";
     Zob * z = make_zob_struct();
     FILE *fp;
 	parser_cases * pc = build_regex();
 	fp =fopen(filepath,"r");
     int games_played = 0;
-    int count = 0;
+    int count = 1;
     printf("STARTING\n");
 	while(fgets(s,3000, fp) != NULL){
 		count++;
