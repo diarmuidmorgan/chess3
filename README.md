@@ -1,5 +1,4 @@
-More of an exercise in masochism/learning C then an actual chess engine that somebody would want to use.
-
+bitboards this time
 
 ### Done
 

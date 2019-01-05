@@ -63,6 +63,7 @@ int play_game_string (char * game_str, parser_cases * pc, Zob * z){
     char s1[1000];
     int i = 0;
     char * m;
+    //printf("READY TO PARSE A GAME\n");
     while (game_str[i]){
         //print_game_state(&gs);
         //scanf("%s",&s1);
@@ -87,10 +88,12 @@ int play_game_string (char * game_str, parser_cases * pc, Zob * z){
             free(m);
             return 0;
         }
+        
         i++;
         gs = new_gs;
         free(m);
     }
+    
     return 1;
 }
 
@@ -109,13 +112,14 @@ int main () {
 	fp =fopen(filepath,"r");
     int games_played = 0;
     int count = 0;
+    printf("STARTING\n");
 	while(fgets(s,3000, fp) != NULL){
 		count++;
-        //printf("GAME :::: %d\n", count++);
+        printf("GAME :::: %d\n", count++);
         
 	if (count > 0)
         if(!play_game_string(s, pc, z)){
-            printf("%d\n", count);
+            printf("BROKE ON GAME : %d\n", count);
             return 0;
         }
         free(s);
@@ -128,7 +132,7 @@ int main () {
         }
     }
     
-    printf("%d\n", count);
+    printf("PLAYED %d  GAMES\n", count);
     
     //fclose(fp);
     return 1;

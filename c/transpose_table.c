@@ -294,9 +294,13 @@ void full_game_state_update(GS * new_gs, int new_index,
 
 	//change the game state color;
 	new_gs->color = r_color;
-
+    //printf("%c\n", p_index);
     int p = z->dict[ (int) p_index ];
+    p=0;
     //flip for new and old positions
+    //printf("%d\n", p);
+    //printf("%d\n", new_index * 12 + p);
+    //printf("%" PRIu64 "\n",z->vals[new_index * 12 + p ] );
     new_gs->hash ^= z->vals[new_index * 12 + p ];
     new_gs->hash ^= z->vals[old_index * 12 + p ];
     //flip for player color
@@ -331,7 +335,7 @@ void full_game_state_update(GS * new_gs, int new_index,
 		if (new_pieces != new_gs->pawns[r_color]){
 			p_index = (r_color) ? 'P' : 'p';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
 			new_gs->score += 1 * multiplier;
 			new_gs->pawns[r_color] = new_pieces;
 			return;
@@ -340,7 +344,7 @@ void full_game_state_update(GS * new_gs, int new_index,
 		if (new_pieces != new_gs->bishops[r_color]){
 			p_index = (r_color) ? 'B' : 'b';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
 			new_gs->score += 3 * multiplier;
 			new_gs->bishops[r_color] = new_pieces;
 			//binary_print_board(new_gs->bishops[r_color]);
@@ -350,7 +354,7 @@ void full_game_state_update(GS * new_gs, int new_index,
 		if (new_pieces != new_gs->knights[r_color]){
 			p_index = (r_color) ? 'H' : 'h';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
             new_gs->score += 3 * multiplier;
 			new_gs->knights[r_color] = new_pieces;
 			return;
@@ -367,7 +371,7 @@ void full_game_state_update(GS * new_gs, int new_index,
             
             p_index = (r_color) ? 'R' : 'R';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
 			new_gs->score += 5 * multiplier;
 			new_gs->rooks[r_color] = new_pieces;
 			return;
@@ -376,7 +380,7 @@ void full_game_state_update(GS * new_gs, int new_index,
 		if (new_pieces != new_gs->queens[r_color]){
             p_index = (r_color) ? 'Q' : 'q';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
 			new_gs->score += 9 * multiplier;
 			new_gs->queens[r_color] = new_pieces;
 			return;
@@ -385,7 +389,7 @@ void full_game_state_update(GS * new_gs, int new_index,
 		if (new_pieces != new_gs->kings[r_color]){
             p_index = (r_color) ? 'K' : 'k';
             p = z->dict[ (int) p_index ];
-            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->hash ^= z->vals[new_index * 12 + p ];
 			new_gs->score += 1000 * multiplier;
 			new_gs->kings[r_color] = new_pieces;
 			return;
