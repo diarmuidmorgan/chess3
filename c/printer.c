@@ -2,7 +2,7 @@
  "Pretty" prints the game state to the command line
 */
 
-#include "game_state.c"
+#include "transpose_table.c"
 #include <strings.h>
 #include <stdint.h>
 #include <stdio.h>

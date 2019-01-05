@@ -16,7 +16,7 @@ Otherwise returns 0.
 
 int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index, 
                 int * piece_incr, int * move_incr, uint64_t * pieces, uint64_t * move_squares,
-                uint64_t * attack_squares, CS_mask * cs_mask) {
+                uint64_t * attack_squares, CS_mask * cs_mask, Zob * zob) {
     
     //nasty hack so we don't have to pass this in
     static int pawn_incr = 0;
@@ -34,7 +34,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         case(1):
             
             if (pawn_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                pawn_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                pawn_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks, zob);
 
                 
 
@@ -55,7 +55,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         case(2):
        
             if (rook_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                rook_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                rook_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks,zob);
                 return 1;
                 break;
             }
@@ -70,7 +70,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         case(3):
             
             if (knight_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                 knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                 knight_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks, zob);
                 return 1;
                break;
             }
@@ -82,7 +82,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             }
         case(4):
             if (bishop_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                 bishop_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                 bishop_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks, zob);
                 return 1;
                 
                 break;
@@ -96,7 +96,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         case(5):
             
             if (queen_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                 queen_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                 queen_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks, zob);
                 return 1;
             
                 break;
@@ -109,7 +109,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
             }
         case (6) :
             if (king_generator_has_next(gs, piece_incr, move_incr, pieces, move_squares, msks)){
-                king_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks);
+                king_generator_next(gs, new_gs,piece_incr, move_incr, pieces,move_squares, msks, zob);
                 return 1;
                 break;
             }
@@ -126,7 +126,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         //kingside castling
         case (7) :
             if (kingside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
-                kingside_castling_generator_next(new_gs);
+                kingside_castling_generator_next(new_gs, zob);
                 *index = *index + 1;
                 return 1;
                 break;
@@ -140,7 +140,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
         //queenside castling
         case (8) :
             if (queenside_castling_generator_has_next(gs, attack_squares, msks, cs_mask)){
-                queenside_castling_generator_next(new_gs);
+                queenside_castling_generator_next(new_gs, zob);
                 *index = *index + 1;
                 return 1;
                 break;
@@ -153,8 +153,10 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *pieces = gs->pawns[gs->color];
                 }
         
-        //enpassants - doesnt work
+        //enpassants - doesnt work --> not yet!
+        //how do I get these horrid extra variables into play here?
         case (9) :
+           // if(enpassant_generator_has_next(gs, pawn_incr,&pawn_square_number, &target))
             
             return 0;
 
@@ -167,7 +169,7 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
 
 //prototype game loop with no evaluation. 
 // Basically just tests how long it takes to play to given depth (again - no evaluation!)
-
+/*
 void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int print_state) {
     if (print_state){
         char s[1000];
@@ -205,4 +207,5 @@ void game_loop (GS * gs, uint64_t * msks, int depth, int * position_evals, int p
      }
 }
 
+*/
 

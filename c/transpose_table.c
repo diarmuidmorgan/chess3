@@ -1,5 +1,5 @@
 //#include <everything.h>
-#include "gamestate_generator.c"
+#include "game_state.c"
 #include <time.h>
 #define RANDDEV "/dev/urandom"
 #include <assert.h>
@@ -50,6 +50,28 @@ constant indices
 // reading dev/rand gives bigger and better hashes I think. 
 // or does it make a difference?
 //seemed to work better when it was 32 bit :(
+
+
+
+typedef struct {
+    
+    int valid;
+    uint64_t hash;
+    int value;
+    // GS gs;
+
+} table_entry;
+
+typedef struct  {
+
+    uint64_t * vals;
+    int * dict;
+
+
+
+} Zob;
+
+
 
 uint64_t rndull(){
 
@@ -116,36 +138,27 @@ uint64_t incremental_hash (uint64_t hashcode, int new_position,
     return 0ULL;
 }
 //as per the wikipedia code above
-uint64_t zob_hash(char * board, int color, uint64_t * zobrist_vals, int * zobrist_dict){
+uint64_t zob_hash(char * board, int color, Zob * z){
 
     uint64_t h = 0;
     for (int i = 0; i<64; i++){
         //printf("%d\n", i);
         if (board[i] != '_'){
             
-            int p = zobrist_dict[ (int) board[i] ];
-            h ^= zobrist_vals[i * 12 + p ];
+            int p = z->dict[ (int) board[i] ];
+            h ^= z->vals[i * 12 + p ];
         }
 
 
 
     }
-    h ^= (zobrist_vals[768] *  color);
+    h ^= (z->vals[768] *  color);
     //printf("%" PRIu64 "\n", h);
     return h;
 
 }
 
 
-
-typedef struct {
-    
-    int valid;
-    uint64_t hash;
-    int value;
-    // GS gs;
-
-} table_entry;
 
 
 table_entry * make_hash_table(int * size_of_table){
@@ -170,9 +183,9 @@ table_entry * make_hash_table(int * size_of_table){
 
 
 int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
-                        uint64_t * zob_vals, int * zob_dict, int * collisions){
+                        Zob * z, int * collisions){
     //printf("ADDED TO TABLE\n");
-    uint64_t hashcode = zob_hash(gs->board_rep, gs->color, zob_vals, zob_dict);
+    uint64_t hashcode = gs->hash;
     int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
     int begin = h -1;
     if (table[h].valid){
@@ -205,9 +218,9 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
 //function returns 1/0 depending on whether the entry is found or not.
 
 int find_in_table(GS * gs, table_entry * table, int * value,
-                 int size_of_table, uint64_t * zob_vals, int * zob_dict){
+                 int size_of_table, Zob z){
 
-    uint64_t hashcode = zob_hash(gs->board_rep,gs->color, zob_vals, zob_dict);
+    uint64_t hashcode = gs->hash;
     int h = ( (int) ( hashcode & 0xfffffffULL  ) ) % size_of_table;
     
     int begin = h-1;
@@ -227,6 +240,167 @@ int find_in_table(GS * gs, table_entry * table, int * value,
     return 0;
 }
 
+
+Zob * make_zob_struct() {
+
+    Zob * zob = malloc(sizeof(zob));
+    uint64_t * zobvals =  malloc((64*12 + 1) * sizeof(uint64_t));
+    zobrist_values(zobvals);
+    int *zobdict =  malloc(128 * sizeof(int));
+    make_zobrist_dict(zobdict);
+    zob->vals = zobvals;
+    zob->dict = zobdict;
+    return zob;
+
+}
+
+uint64_t initial_hash(Zob * z){
+    char s [] = "rhbqkbhrpppppppp________________________________pppppppprhbqkbhr";
+	int i=0;
+    char * board_rep = malloc(64 * sizeof(char));
+	while (s[i]){
+		board_rep[i] = s[i]; 
+		i++;
+	}
+    return zob_hash(board_rep, 0, z);
+
+}
+GS hashed_initial_game_state(Zob * z){
+
+    GS gs = init_game_state();
+    gs.hash = initial_hash(z);
+    return gs;
+
+}
+
+void full_game_state_update(GS * new_gs, int new_index, 
+					int old_index, uint64_t * selected_pieces, Zob * z, char p_index){
+					
+	int color = new_gs->color;
+	int r_color = (color + 1) % 2;
+	uint64_t new_pos = 1LL << new_index;
+    uint64_t old_pos = 1LL << old_index;
+	//update the pieces for the player who just moved.
+	
+	//'selected pieces' is a pointer to the filed in the game state (e.g pawns, rooks)
+	//that needs to be updated. 
+	//despite the game state itself being passed as a pointer.
+	
+	new_gs->pieces[color] = (new_gs->pieces[color] | new_pos) & (~old_pos);
+	
+	*selected_pieces = (*selected_pieces | new_pos) & (~old_pos);
+	//binary_print_board(*selected_pieces);
+	new_gs ->all_pieces = (new_gs->all_pieces | new_pos) & (~old_pos);
+
+	//change the game state color;
+	new_gs->color = r_color;
+
+    int p = z->dict[ (int) p_index ];
+    //flip for new and old positions
+    new_gs->hash ^= z->vals[new_index * 12 + p ];
+    new_gs->hash ^= z->vals[old_index * 12 + p ];
+    //flip for player color
+    new_gs->hash &= z->vals[64 * 12];
+    
+
+	
+	//handle captures.
+	//if this update changes the other sides piece's, we need to update every piece array,
+	// and check for a base score change.
+	// I think this is kind of inefficient, so many if statements.
+	// At least, we should exit on the first condition for the majority of moves.
+	// And hopefully exit on the pawns condition for most of the rest, right?
+
+	//TBH it might not even be worth it keeping a running score count, 
+	//easier to just check for it on the terminal nodes?
+	
+	// though it MIGHT be good if we implement move_ordering and quiesence search.
+
+	if (((new_gs->pieces[r_color] & (~new_pos)) ) != new_gs->pieces[r_color]){
+	//	printf("\nUPDATING\n");
+		int multiplier;
+		if (color == 1) multiplier = 1;
+		else multiplier = -1;
+		//binary_print_board(new_pos);
+		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
+		//binary_print_board(new_gs->pieces[r_color]);
+		//new_gs->all_pieces |= new_gs->pieces[r_color];
+		//binary_print_board(new_gs->rooks[r_color]);
+		uint64_t new_pieces = new_gs->pawns[r_color] & new_gs->pieces[r_color];
+		
+		if (new_pieces != new_gs->pawns[r_color]){
+			p_index = (r_color) ? 'P' : 'p';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+			new_gs->score += 1 * multiplier;
+			new_gs->pawns[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->pieces[r_color] & new_gs->bishops[r_color];
+		if (new_pieces != new_gs->bishops[r_color]){
+			p_index = (r_color) ? 'B' : 'b';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+			new_gs->score += 3 * multiplier;
+			new_gs->bishops[r_color] = new_pieces;
+			//binary_print_board(new_gs->bishops[r_color]);
+			return;
+		}
+		new_pieces = new_gs->knights[r_color] & new_gs->pieces[r_color];
+		if (new_pieces != new_gs->knights[r_color]){
+			p_index = (r_color) ? 'H' : 'h';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+            new_gs->score += 3 * multiplier;
+			new_gs->knights[r_color] = new_pieces;
+			return;
+		}
+		
+		new_pieces = new_gs->rooks[r_color] & new_gs->pieces[r_color];
+		if (new_pieces != new_gs->rooks[r_color]){
+			//binary_print_board(new_pieces);
+			//binary_print_board(new_gs->rooks[r_color]);
+            if (new_index + (56*r_color) == 0)
+                new_gs->castle_queen_side[r_color]=0;
+            if (new_index + (56*r_color) == 7)
+                new_gs->castle_king_side[r_color]=0;
+            
+            p_index = (r_color) ? 'R' : 'R';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+			new_gs->score += 5 * multiplier;
+			new_gs->rooks[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->queens[r_color] & new_gs->pieces[r_color];
+		if (new_pieces != new_gs->queens[r_color]){
+            p_index = (r_color) ? 'Q' : 'q';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+			new_gs->score += 9 * multiplier;
+			new_gs->queens[r_color] = new_pieces;
+			return;
+		}
+		new_pieces = new_gs->kings[r_color] & new_gs->pieces[r_color];
+		if (new_pieces != new_gs->kings[r_color]){
+            p_index = (r_color) ? 'K' : 'k';
+            p = z->dict[ (int) p_index ];
+            new_gs->hash ^= z->vals[new_pos * 12 + p ];
+			new_gs->score += 1000 * multiplier;
+			new_gs->kings[r_color] = new_pieces;
+			return;
+		}
+       
+        //here we catch and penalize illegal castling moves
+        new_pieces = new_gs->ghost_squares[r_color] & new_gs->pieces[r_color];
+        if (new_pieces != new_gs->kings[r_color]){
+            new_gs->score += 100000 * multiplier;
+            new_gs->kings[r_color] = 0LL;
+            return;
+
+        }
+	}
+}
 
 
 

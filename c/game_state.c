@@ -27,13 +27,15 @@ typedef struct {
 	uint64_t pieces[2];
 	uint64_t all_pieces;
 	uint64_t enpassants[2];
+	//marks the squares the king passed after a castling attempt
+	uint64_t ghost_squares[2];
 	//is this really a good idea like?
 	// actually we don't need this board_rep thing, or if we do,
 	// not if we can use incremental hashing instead. That's 64 bytes that don't have 
 	// to be copied?? And updating that, replaces the process of updating this. And makes
 	// hash function computation fairly trivial.
 	// thank fuck!
-	char board_rep[64];
+	
 	int castle_king_side[2];
 	int castle_queen_side[2];
 	int color;
@@ -73,8 +75,8 @@ GS * initial_game_state(){
 	gs->castle_queen_side[0] = 0;
 	gs->castle_queen_side[1] = 0;
 	gs->score = 0;
-	gs->castle_ghost_squares[0] = 0ULL;
-	gs->castle_ghost_squares[1] = 0ULL;
+	gs->ghost_squares[0] = 0LL;
+	gs->ghost_squares[1] = 0LL;
 	return gs;
 
 }
@@ -113,17 +115,12 @@ GS init_game_state(){
 	gs.castle_king_side[1] = 1;
 	gs.castle_queen_side[0] = 1;
 	gs.castle_queen_side[1] = 1;
-	gs.castle_ghost_squares[0]= 0ULL;
-	gs.castle_ghost_squares[1]= 0ULL;
+	gs.ghost_squares[0]= 0LL;
+	gs.ghost_squares[1]= 0LL;
 	
 	//is this really a good idea? Do we want a transposition table?
 	// want to get rid of this at the first opportunity.
-	char s [] = "rhbqkbhrpppppppp________________________________pppppppprhbqkbhr";
-	int i=0;
-	while (s[i]){
-		gs.board_rep[i] = s[i]; 
-		i++;
-	}
+	
 	return gs;
 
 
