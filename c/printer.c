@@ -51,13 +51,13 @@ void print_game_state(GS * gs) {
 	set_string_cell(string, 'K', gs->kings[1]);
 	
 	printf("\n");
-	for (int i = 0; i <8; i++){
+	for (int i = 7; i >=0; i--){
 
 		for (int j = 0; j<8; j++){
-		printf("%c",string[i*8 + j]);
+		printf(" %c ",string[i*8 + j]);
 
 		}
-		printf("\n");
+		printf("\n\n");
 
 
 	}	

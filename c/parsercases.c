@@ -1,5 +1,97 @@
-#include "parser.c"
+#include "transpose_table.c"
 // Abstract the parser of death 
+#include <regex.h>
+
+
+//write the parser of death :(
+
+// this is like the worst code ever :(
+
+/* There are seemingly so many cases and so much code repettition to get through here.
+    Just feels like a massive head ache and I would rather do this in python :(
+*
+*/
+
+
+
+
+
+int string_length (char * s){
+    int length = 0;
+    int i=0;
+    while(s[i++]) length++;
+    return length;
+
+}
+int chars_to_pos(char letter, char number){
+
+    int j = (int) (number - 49);
+    int i = (int) (letter - 97);
+    return (j*8) + i;
+}
+int is_digit(char c){
+    if (c>=48 && c <=57) return 1;
+    return 0;
+}
+int is_character(char c){
+
+    if (c>=97 && c <=122) return 1;
+    return 0;
+}
+
+int set_index (char c){
+
+    static char pieces[] = {'Z', 'P', 'R', 'N', 'B', 'Q', 'K'};
+    for (int i=0; i<7; i++){
+        if (pieces[i] == c){
+            //printf("%c %d\n", c, i);
+            return i;
+        }
+
+    }
+    return -1;
+}
+
+uint64_t set_pieces (GS * gs, int index){
+
+    switch(index) {
+
+        case(1) :
+            return gs->pawns[gs->color];
+            break;
+        case(2) :
+            return gs->rooks[gs->color];
+            break;
+        case(3) :
+           
+            return gs->knights[gs->color];
+            break;
+        case(4) :
+            return gs->bishops[gs->color];
+            break;
+        case(5) :
+            return gs->queens[gs->color];
+            break;
+        case(6) :
+            return gs->kings[gs->color];
+            break;
+
+        default :
+            return 0ULL;
+
+
+    }
+
+
+}
+
+int pin_mask_safe (uint64_t * pin_mask, int piece_incr){
+
+    if ( (*pin_mask | (1LL << (piece_incr - 1)))  == *pin_mask) return 0;
+    return 1;
+
+}
+
 
 typedef struct {
 
@@ -17,6 +109,8 @@ typedef struct {
     regex_t kscastle;
     regex_t qscastle;
     regex_t ep;
+    regex_t fullpmove;
+    regex_t fullpcapture;
 } parser_cases;
 
 parser_cases * build_regex() {
@@ -30,6 +124,8 @@ parser_cases * build_regex() {
     static char ambiguouspiececapturerow [] = "^[A-Z][1-8]x[a-z][1-8](_|\\+|#)";
     static char ambiguouspiecemovecol [] = "^[A-Z][a-z][a-z][1-8](_|\\+|#)";
     static char ambiguouspiecemoverow [] = "^[A-Z][1-8][a-z][1-8](_|\\+|#)";
+    static char fullpiecemove [] = "^[A-Z][a-z][1-8][a-z][1-8](_|\\+|#)";
+    static char fullpiececapture [] = "^[A-Z][a-z]x[1-8][a-z][1-8](_|\\+|#)";
     static char promotionm [] = "^[a-z][1-8]\\=[A-Z]";
     static char promotionc [] = "^[a-z]x[a-z][1-8]\\=[A-Z]";
     static char kingsidecastle [] = "^O-O(_|\\+|#)";
@@ -49,6 +145,7 @@ parser_cases * build_regex() {
      reti = regcomp(&pc->promoc, promotionc, REG_EXTENDED);
     reti = regcomp(&pc->kscastle, kingsidecastle, REG_EXTENDED);
     reti = regcomp(&pc->qscastle, queensidecastle, REG_EXTENDED);
+    reti = regcomp(&pc->fullpmove, fullpiecemove, REG_EXTENDED);
     return pc;
 
 }
@@ -160,6 +257,8 @@ int simple_pawn_capture(char * line, GS * gs, GS * new_gs,
                // printf("GOT ONE\n");
                // printf("%d %d %d %d\n", target_square_number, move_square, pawn_square_number % 8, col);
                 if (target_square_number == move_square && pawn_square_number % 8 == col) return 1;
+                else
+                    *new_gs = *gs;
             }
 
 
@@ -391,6 +490,71 @@ int ambiguous_piece_move_col(char * line, GS * gs, GS * new_gs,
         }
     return 0;
 }
+
+int full_piece_move(char * line, GS * gs, GS * new_gs, 
+                    uint64_t * msks, CS_mask * cs_msk){
+//printf("MATCHED AMBIG PIECE MOVE COL \n");
+    int piece_incr=0;
+    int move_incr = 0;
+    uint64_t move_squares = 0LL;
+    uint64_t attack_squares = build_pin_mask(gs, msks);
+    *new_gs = *gs;
+    char piece = line[0]; 
+    int  index = set_index(piece);
+    uint64_t pieces = set_pieces(gs, index);
+    int check_index = index + 1;
+    int move_square= ((int) (line[4] - 49)) * 8 + ((int) (line[3]-97)); 
+    int col = ((int) (line[1]-97));
+    int rank = ((int) (line[2]) - 49);
+    int origin_square = rank * 8 + col;
+
+    while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+                    &move_incr, &pieces, &move_squares,
+                        &attack_squares, cs_msk)
+                        && index < check_index   ){
+             
+             if ( move_square == (move_incr - 1) && 
+                       (piece_incr -1)  == origin_square &&
+                        legal_move_search(new_gs, msks, cs_msk)  )
+                return 1;
+
+            *new_gs = *gs;
+        }
+    return 0;
+}
+
+int full_piece_capture(char * line, GS * gs, GS * new_gs, 
+                    uint64_t * msks, CS_mask * cs_msk){
+//printf("MATCHED AMBIG PIECE MOVE COL \n");
+    int piece_incr=0;
+    int move_incr = 0;
+    uint64_t move_squares = 0LL;
+    uint64_t attack_squares = build_pin_mask(gs, msks);
+    *new_gs = *gs;
+    char piece = line[0]; 
+    int  index = set_index(piece);
+    uint64_t pieces = set_pieces(gs, index);
+    int check_index = index + 1;
+    int move_square= ((int) (line[5] - 49)) * 8 + ((int) (line[4]-97)); 
+    int col = ((int) (line[1]-97));
+    int rank = ((int) (line[2]) - 49);
+    int origin_square = rank * 8 + col;
+
+    while (moves_generator(gs, new_gs, msks, &index, &piece_incr, 
+                    &move_incr, &pieces, &move_squares,
+                        &attack_squares, cs_msk)
+                        && index < check_index   ){
+             
+             if ( move_square == (move_incr - 1) && 
+                       (piece_incr -1)  == origin_square &&
+                        legal_move_search(new_gs, msks, cs_msk)  )
+                return 1;
+
+            *new_gs = *gs;
+        }
+    return 0;
+}
+
 
 int promotion_move (char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk){

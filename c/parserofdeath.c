@@ -44,7 +44,13 @@ int real_parse_move(char * line, GS * gs, GS * new_gs,
         return kscastle_parse(line, gs, new_gs, msks, cs_msk);
     result = regexec(&pc->qscastle, line, 0, NULL, 0);  
      if (!result)
-        return qscastle_parse(line, gs, new_gs, msks, cs_msk);      
+        return qscastle_parse(line, gs, new_gs, msks, cs_msk); 
+    result = regexec(&pc->fullpmove, line, 0, NULL, 0);  
+     if (!result)
+        return full_piece_move(line, gs, new_gs, msks, cs_msk); 
+    result = regexec(&pc->fullpcapture, line, 0, NULL, 0);  
+     if (!result)
+        return full_piece_capture(line, gs, new_gs, msks, cs_msk);      
 
     return 0;
                     }
@@ -73,7 +79,7 @@ int play_game_string (char * game_str, parser_cases * pc){
         m[j] = '_';
         m[j+1] = '\0';
         //printf("%d\n", j);
-       // printf("%s\n", m);
+        //printf("%s\n", m);
         if (!real_parse_move(m, &gs, &new_gs, msks, cs_msk, pc)){
             
         
@@ -95,31 +101,35 @@ int main () {
     //grab_game_string(s);
     //play_game_string(s);
 
-    char * s = malloc(2000 * sizeof(char));
+    char * s = malloc(4000 * sizeof(char));
     char filepath[] = "../data/cfriendly";
     FILE *fp;
 	parser_cases * pc = build_regex();
 	fp =fopen(filepath,"r");
     int games_played = 0;
     int count = 0;
-	while(fgets(s,1000, fp)){
-
+	while(fgets(s,3000, fp) != NULL){
+		count++;
         //printf("GAME :::: %d\n", count++);
-        if (count > 1440)
-        if(!play_game_string(s, pc))
+        
+	if (count > 0)
+        if(!play_game_string(s, pc)){
+            printf("%d\n", count);
             return 0;
-            
+        }
         free(s);
         s=malloc(2000 * sizeof(char));
         games_played ++;
-        fgets(s,1000, fp);
+        if(fgets(s,1000, fp)!=NULL){
+
         free(s);
         s=malloc(2000 * sizeof(char));
+        }
     }
     
-    printf("%d\n", games_played);
+    printf("%d\n", count);
     
-    fclose(fp);
+    //fclose(fp);
     return 1;
 
 

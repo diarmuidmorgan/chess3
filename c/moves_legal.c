@@ -313,6 +313,7 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr, int * pawn_square_nu
                             uint64_t * enpassant_square, uint64_t * target_square){
 
     int color = gs->color;
+    //printf("%d\n", *pawn_incr);
     //no enpassant squares to play. This is the majority case.
     if (gs->enpassants[color] == 0LL || *pawn_incr >1) return 0;
     else{
@@ -322,7 +323,8 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr, int * pawn_square_nu
         //test for left pawn
         //not sure if I have the directions right here.
        
-        if (*pawn_incr == 0 && (enpassant_index % 8 < 7)){
+        if (*pawn_incr == 0){
+            if (enpassant_index % 8 < 7){
             *pawn_incr = *pawn_incr + 1;
             *pawn_square_number = enpassant_index + 1;
             *pawn_square = *enpassant_square << 1;
@@ -343,9 +345,13 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr, int * pawn_square_nu
                 
                 return 1;
             }
+            else{
+
+            }
                 
         }
         else *pawn_incr = * pawn_incr + 1;
+        }
         
         if (*pawn_incr == 1 && (enpassant_index % 8 > 0)){
             *pawn_incr = *pawn_incr + 1;
@@ -357,19 +363,26 @@ int enpassant_generator_has_next (GS * gs, int * pawn_incr, int * pawn_square_nu
                  if (color == 0){
                     *target_square = *enpassant_square << 8;
                     *target_square_number = enpassant_index + 8;
+                   //  binary_print_board(*target_square);
+                   //  binary_print_board(*enpassant_square);
+
 
                 }
                 
                 else {
                     *target_square = *enpassant_square >> 8;
                     *target_square_number = enpassant_index - 8;
+                  //  binary_print_board(*target_square);
+                   //  binary_print_board(*enpassant_square);
+
                 }
                 
                 return 1;
             }
         }
-        else *pawn_incr = *pawn_incr + 1;
+        else{ *pawn_incr = *pawn_incr + 1;
         return 0;
+        }
     }
 }
 
