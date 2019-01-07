@@ -1,4 +1,4 @@
-#include "openingbook.c"
+#include "qsearch.c"
 #include <math.h>
 
 /* FROM THE WIKIPEDIA PAGE
@@ -58,12 +58,17 @@ int search (GS *gs, int depth, int alpha,
     //scanf("%s",&s);
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
-    if (depth == 0)  
-        //printf("%d\n", gs->score);
-	return gs->score;
+    if (depth == 0)  {
+        //printf("STARTING Q SEARCH %d\n", gs->score);
+    //printf("%d\n",gs->score);
+        return gs->score;
+    }
+	//return q_search(gs, alpha, beta, msks, 
+    //    cs_msk, transpose_table, size_of_table, z);}
     
     if (gs->kings[gs->color] == 0LL || gs->kings[(gs->color + 1) % 2] == 0LL){
        // printf("KINGS ALL DEAD\n");
+      // printf("%d\n",gs->score);
         return gs->score;}
     //set all of the values that are manipulated by the move generator.
    //char s[1000];
@@ -174,6 +179,8 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     
     if (gs.color){
     int best = 10000000;
+    int alpha = -10000000;
+    int beta = 10000000;
 
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
@@ -188,6 +195,11 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
             best = search_return;
             best_gs = new_gs;
         }
+        
+        beta = min(beta,best);
+
+
+
         new_gs = gs;
      }
 
@@ -198,12 +210,14 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     else {
 
         int best = -10000000;
+        int alpha = -10000000;
+    int beta = 10000000;
 
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, gs.color, msks, 
+        search_return = search(&new_gs, depth-1, alpha, beta, (gs.color+1)%2, msks, 
                         cs_msk, 
                         transpose_table, size_of_table, 
                         z);
@@ -212,6 +226,7 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
             best = search_return;
             best_gs = new_gs;
         }
+        //alpha = max(best, alpha);
         new_gs = gs;
      }
 

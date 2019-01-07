@@ -39,7 +39,7 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
         }
         
         i++;
-        add_to_table(table, &size_of_table, &gs, value, z, collisions);
+        add_to_table(table, *size_of_table, &gs, value, z, collisions);
         gs = new_gs;
         free(m);
     }
@@ -60,11 +60,11 @@ table_entry * make_opening_book (int * size_of_table) {
     int count = 1;
     while(reading){
         count ++;
-        if(count % 10000 == 0)
+        
             
         if (fscanf(FP, "%" PRIu64 "\n", &hashcode) != EOF && fscanf(FP, "%d\n", &value) != EOF){
             
-            add_to_table_hash_opening(table,*size_of_table,hashcode,value);
+            add_to_table_hash_opening(table,*size_of_table,hashcode,value /500);
 
         }
         else{
