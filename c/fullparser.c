@@ -65,7 +65,7 @@ int play_game_string (char * game_str, parser_cases * pc, Zob * z){
     char * m;
     //printf("READY TO PARSE A GAME\n");
     while (game_str[i]){
-        //print_game_state(&gs);
+        print_game_state(&gs);
         //scanf("%s",&s1);
         new_gs = gs;
         new_gs.enpassants[0] = 0LL;
@@ -80,7 +80,7 @@ int play_game_string (char * game_str, parser_cases * pc, Zob * z){
         m[j] = '_';
         m[j+1] = '\0';
         //printf("%d\n", j);
-        //printf("%s\n", m);
+        printf("%s\n", m);
         if (!real_parse_move(m, &gs, &new_gs, msks, cs_msk, pc, z)){
             
         

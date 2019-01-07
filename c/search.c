@@ -1,4 +1,4 @@
-#include "argp.hgamestate_generator.c"
+#include "fullparser.c"
 #include <math.h>
 
 /* FROM THE WIKIPEDIA PAGE
@@ -47,19 +47,19 @@ int min (int a, int b){
 int search (GS *gs, int depth, int alpha, 
             int beta, int maximizingPlayer, 
             uint64_t * msks, CS_mask * cs_msk, 
-            int * position_evals, uint64_t * zob_vals,
-             int * zob_dict, table_entry * transpose_table,
-            int size_of_table, int * collisions, int * lookup_success, 
+         table_entry * transpose_table,
+            int size_of_table, 
             Zob * z) {
 
    // print_game_state(gs);
    // printf(" COLOR %d\n", gs->color);
+   printf("%d\n", depth);
     //char s[1000];
     //scanf("%s",&s);
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
     if (depth == 0 || gs->kings[gs->color] == 0LL){
-        *position_evals = *position_evals + 1;
+        
         //printf("%d\n", gs->score);
 	return gs->score;
     }
@@ -83,10 +83,10 @@ int search (GS *gs, int depth, int alpha,
     // char s[1000];
     // scanf("%s", &s);
     //look up this piece.
-    if ( find_in_table(gs, transpose_table, &value, size_of_table, z) ){
+    if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
        	//:wq
-	//printf("FOUND IN TABLE\n");	
-        *lookup_success = *lookup_success + 1;
+	    //printf("FOUND IN TABLE\n");	
+        
         return value;
     }
     //printf("\nGOT FURTHER\n"); 
@@ -100,8 +100,8 @@ int search (GS *gs, int depth, int alpha,
 
           
         search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, cs_msk,
-                                 position_evals, zob_vals, zob_dict,
-                                  transpose_table, size_of_table, collisions, lookup_success, z);
+                                 
+                                  transpose_table, size_of_table, z);
         value = max(value, search_return);
         alpha = max(alpha, value);
 
@@ -111,8 +111,8 @@ int search (GS *gs, int depth, int alpha,
         new_gs = *gs;
         } 
      
-
-        add_to_table(transpose_table,size_of_table, gs, value, z, collisions);
+        int collisions = 1;
+        add_to_table(transpose_table,size_of_table, gs, value, z, &collisions );
         return value;
 
     }
@@ -123,9 +123,9 @@ int search (GS *gs, int depth, int alpha,
                         &pieces, &move_squares, &attack_squares, cs_msk, z )){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk, position_evals,
-                                zob_vals, zob_dict, transpose_table, 
-                                size_of_table, collisions, lookup_success, z);
+        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, cs_msk,
+                               transpose_table, 
+                                size_of_table,  z);
         value = min(value, search_return);
         beta = min(beta, value);
         if (alpha >= beta)
@@ -134,7 +134,8 @@ int search (GS *gs, int depth, int alpha,
         
         new_gs=*gs;
         }  
-        add_to_table(transpose_table,size_of_table, gs, value, z, collisions);
+        int collisions = 1;
+        add_to_table(transpose_table,size_of_table, gs, value, z, &collisions);
         return value;
 
 
@@ -147,10 +148,9 @@ int search (GS *gs, int depth, int alpha,
 }
 
 GS find_best_move (GS gs, int depth, uint64_t * msks,
-                 CS_mask * cs_msk, int * position_evals,
-                 uint64_t * zob_vals, int * zob_dict, 
+                 CS_mask * cs_msk, 
                  table_entry * transpose_table, int size_of_table, 
-                 int * collisions, int * lookup_success,
+                 
                  Zob * z ){
   //  print_game_state(&gs);
   //  char s[1000];
@@ -174,8 +174,8 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
 
           
         search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, 
-                        cs_msk, position_evals, zob_vals, zob_dict, 
-                        transpose_table, size_of_table, collisions, lookup_success,
+                        cs_msk, 
+                        transpose_table, size_of_table, 
                         z);
         if (search_return > best){
 
@@ -189,6 +189,7 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     return best_gs;
 
 }
+/*
 int main () {
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
@@ -221,3 +222,4 @@ int main () {
     printf("\n SEMI COLLISIONS : %d", collisions);
     printf("successful lookups: %d \n", lookup_success);
 }
+*/

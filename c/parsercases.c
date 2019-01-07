@@ -125,7 +125,7 @@ parser_cases * build_regex() {
     static char ambiguouspiecemovecol [] = "^[A-Z][a-z][a-z][1-8](_|\\+|#)";
     static char ambiguouspiecemoverow [] = "^[A-Z][1-8][a-z][1-8](_|\\+|#)";
     static char fullpiecemove [] = "^[A-Z][a-z][1-8][a-z][1-8](_|\\+|#)";
-    static char fullpiececapture [] = "^[A-Z][a-z]x[1-8][a-z][1-8](_|\\+|#)";
+    static char fullpiececapture [] = "^[A-Z][a-z][1-8]x[a-z][1-8](_|\\+|#)";
     static char promotionm [] = "^[a-z][1-8]\\=[A-Z]";
     static char promotionc [] = "^[a-z]x[a-z][1-8]\\=[A-Z]";
     static char kingsidecastle [] = "^O-O(_|\\+|#)";
@@ -527,7 +527,7 @@ int full_piece_move(char * line, GS * gs, GS * new_gs,
 
 int full_piece_capture(char * line, GS * gs, GS * new_gs, 
                     uint64_t * msks, CS_mask * cs_msk, Zob * z){
-//printf("MATCHED AMBIG PIECE MOVE COL \n");
+    printf("MATCHED AMBIG PIECE MOVE COL \n");
     int piece_incr=0;
     int move_incr = 0;
     uint64_t move_squares = 0LL;

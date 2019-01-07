@@ -22,11 +22,11 @@ int main () {
 		count++;
         printf("GAME :::: %d\n", count++);
         
-	if (count > 0)
+	if (count > 20500)
         if(!play_game_string(s, pc, z)){
             printf("BROKE ON GAME : %d\n", count);
             return 0;
-        }
+          }
         free(s);
         s=malloc(2000 * sizeof(char));
         games_played ++;

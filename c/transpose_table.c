@@ -103,7 +103,7 @@ void zobrist_values (uint64_t * return_arr){
         for (int j=0; j<12; j++){
 
             return_arr[i*12 + j] =  rndull(); 
-	    printf("%" PRIu64 "\n", return_arr[i*12 + j]);
+	    //printf("%" PRIu64 "\n", return_arr[i*12 + j]);
         }
 
     }

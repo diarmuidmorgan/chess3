@@ -64,4 +64,23 @@ void print_game_state(GS * gs) {
 
 }
 
+void write_game_state(GS * gs, FILE * fp){
+	int index;
+	char * string = malloc(64 * sizeof(char));
+	for (int i =0; i<64;i++) string[i] = '_';
+	set_string_cell(string, 'p', gs->pawns[0]);
+	set_string_cell(string, 'r', gs->rooks[0]);
+	set_string_cell(string, 'h', gs->knights[0]);
+	set_string_cell(string, 'b', gs->bishops[0]);
+	set_string_cell(string, 'q', gs->queens[0]);
+	set_string_cell(string, 'k', gs->kings[0]);
+	set_string_cell(string, 'P', gs->pawns[1]);
+	set_string_cell(string, 'R', gs->rooks[1]);
+	set_string_cell(string, 'H', gs->knights[1]);
+	set_string_cell(string, 'B', gs->bishops[1]);
+	set_string_cell(string, 'Q', gs->queens[1]);
+	set_string_cell(string, 'K', gs->kings[1]);
+	fprintf(fp, "%s", string);
+
+}
 
