@@ -1,0 +1,10 @@
+Today - find a way to get the opening book on disc and into play. Maybe just write the positions to file,
+and hash them?
+
+Ok, leave openingbook for the time being. To much to decide on, in terms of the format in which we 
+want to save things.
+
+Put together a little cli 
+
+
+Work on itsearch.c

@@ -53,7 +53,7 @@ int search (GS *gs, int depth, int alpha,
 
    // print_game_state(gs);
    // printf(" COLOR %d\n", gs->color);
-   printf("%d\n", depth);
+   //printf("%d\n", depth);
     //char s[1000];
     //scanf("%s",&s);
     //we'll interpret terminal node as the king has been captured.
@@ -83,12 +83,12 @@ int search (GS *gs, int depth, int alpha,
     // char s[1000];
     // scanf("%s", &s);
     //look up this piece.
-    if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
+   // if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
        	//:wq
 	    //printf("FOUND IN TABLE\n");	
         
-        return value;
-    }
+     //   return value;
+   // }
     //printf("\nGOT FURTHER\n"); 
     // scanf("%s", &s);
      
@@ -173,7 +173,7 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 1, msks, 
+        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, 
                         cs_msk, 
                         transpose_table, size_of_table, 
                         z);

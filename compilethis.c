@@ -1,4 +1,4 @@
-#include "search.c"
+#include "c/search.c"
 
 int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
          parser_cases * pc, Zob * z, table_entry * table, int size_of_table) {
