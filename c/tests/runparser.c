@@ -22,7 +22,7 @@ int main () {
 		count++;
         printf("GAME :::: %d\n", count++);
         
-	if (count > 20500)
+	if (count > 0)
         if(!play_game_string(s, pc, z)){
             printf("BROKE ON GAME : %d\n", count);
             return 0;

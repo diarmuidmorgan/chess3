@@ -117,7 +117,8 @@ int moves_generator(GS * gs, GS * new_gs, uint64_t * msks, int * index,
                 *piece_incr=0;
                 *move_incr=0;
                 *index= *index + 1;
-                
+                //hack - no castling for now. doesn't seem to get castling. Prick.
+                return 0;
                 //hack
                 
             }

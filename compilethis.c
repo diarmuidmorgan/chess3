@@ -10,8 +10,14 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
     while(!matched){
         printf("ENTER A MOVE\n");
         scanf("%s", &s);
-        if (real_parse_move(s, gs, new, msks, cs_msk, pc, z))
+	int i = 0;
+	while (s[i])
+		i++;
+	s[i] = '_';
+
+        if (real_parse_move(s, gs, new, msks, cs_msk, pc, z)){
             matched = 1;
+			}
         else
             printf("MOVE NOT RECOGNIZED\n");
     }

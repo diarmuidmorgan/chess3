@@ -1,4 +1,4 @@
-#include "fullparser.c"
+#include "openingbook.c"
 #include <math.h>
 
 /* FROM THE WIKIPEDIA PAGE
@@ -83,12 +83,12 @@ int search (GS *gs, int depth, int alpha,
     // char s[1000];
     // scanf("%s", &s);
     //look up this piece.
-   // if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
+    if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
        	//:wq
 	    //printf("FOUND IN TABLE\n");	
         
-     //   return value;
-   // }
+       return value;
+    }
     //printf("\nGOT FURTHER\n"); 
     // scanf("%s", &s);
      
@@ -177,7 +177,7 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
                         cs_msk, 
                         transpose_table, size_of_table, 
                         z);
-        if (search_return > best){
+        if (search_return >= best){
 
             best = search_return;
             best_gs = new_gs;

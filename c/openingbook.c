@@ -4,7 +4,7 @@
 
 
 int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z, 
-                            int value, table_entry * table, int * collisions, int size_of_table){
+                            int value, table_entry * table, int * collisions, int * size_of_table){
     GS gs = hashed_initial_game_state(z);
     GS new_gs = gs;
     uint64_t * msks = build_mask_object();
@@ -39,7 +39,7 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
         }
         
         i++;
-        add_to_table(table, size_of_table, &gs, value, z, collisions);
+        add_to_table(table, &size_of_table, &gs, value, z, collisions);
         gs = new_gs;
         free(m);
     }
@@ -47,55 +47,43 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
     return 1;
 }
 
-table_entry * make_opening_book () {
+table_entry * make_opening_book (int * size_of_table) {
 
-    char * s = malloc(4000 * sizeof(char));
-    char filepath [] = "../data/cfriendly2";
-    printf("ALL GOOD");
-    int collisions = 0;
-    Zob * z = make_zob_struct();
-    FILE *fp;
-    fp =fopen(filepath,"r");
-	parser_cases * pc = build_regex();
-    int size_of_table = table_size;
-    table_entry * table = make_hash_table(&size_of_table);
+    char * filename = "../data/openings";
     
-    char * v = malloc(20 * sizeof(char));
-    int count = 0;
+    table_entry * table = make_hash_table(size_of_table);
+    Zob * z = zob_from_file("../data/zobrist");
+    FILE * FP = fopen(filename, "r");
+    int reading = 1;
     int value;
-    while(fgets(s,3000, fp) != NULL && count < 19000){
-        printf("%d\n", count++);
-        fgets(v, 3000, fp);
-        if (v[0] == '-')
-            value = -1 * 100;
-        else if (v[1] == '0')
-            value=0;
-        else
-            value = 1 * 1000;
+    uint64_t hashcode;
+    int count = 1;
+    while(reading){
+        count ++;
+        if(count % 10000 == 0)
+            
+        if (fscanf(FP, "%" PRIu64 "\n", &hashcode) != EOF && fscanf(FP, "%d\n", &value) != EOF){
+            value = value;
+            add_to_table_hash(table,*size_of_table,hashcode,value);
 
-        if (!parse_string_to_table(s, pc, z, value, table, &collisions, size_of_table))
-            return NULL;
-        
-        free(s);
-        s=malloc(2000 * sizeof(char));
-        free(v);
-        v=malloc(300 * sizeof(char));
-
+        }
+        else{
+            reading = 0;
+        }
 
 
     }
 
-
     return table;
-
 }
-
+/*
 int main () {
-    table_entry * t = make_opening_book();
+    int size_of_table = table_size;
+    table_entry * t = make_opening_book(&size_of_table);
     return 0;
 
 
     
 }
 
-
+*/

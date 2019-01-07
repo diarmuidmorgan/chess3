@@ -5,7 +5,13 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
 
     *new = *gs;
     char s[1000];
-    print_game_state(gs);
+    
+    printf("THINKING...\n");
+    *new = find_best_move(*new, 6, msks, cs_msk,  table, size_of_table,z);
+   
+    *gs = *new;
+print_game_state(gs);
+    
     int matched = 0;
     while(!matched){
         printf("ENTER A MOVE\n");
@@ -16,19 +22,17 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
             printf("MOVE NOT RECOGNIZED\n");
     }
     print_game_state(new);
-    printf("THINKING...\n");
-    *new = find_best_move(*new, 6, msks, cs_msk,  table, size_of_table,z);
-   
-    *gs = *new;
 
+    *gs = *new;
 }
 
 
 int main () {
 
-    Zob * z = make_zob_struct();
-      int size_of_table = 1000000;
-    table_entry * t = make_hash_table(&size_of_table);
+    Zob * z = zob_from_file("../data/zobrist");
+    int size_of_table = 100000000;
+    printf("Allocating hash table and getting opening book from file\n");
+    table_entry * t = make_opening_book(&size_of_table);
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
     GS gs = init_game_state();

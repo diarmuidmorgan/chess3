@@ -180,27 +180,15 @@ table_entry * make_hash_table(int * size_of_table){
     return transposition_table;
 
 }
+int add_to_table_hash(table_entry * table, int size_of_table, uint64_t hashcode, int value){
 
-
-int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
-                        Zob * z, int * collisions){
-    //printf("ADDED TO TABLE\n");
-    uint64_t hashcode = gs->hash;
     int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
     int begin = h -1;
 
-    if(table[h].valid && table[h].hash != hashcode){
-        printf("COLLISION\n");
-    }
-    table[h].hash = hashcode;
-    table[h].valid = 1;
-    table[h].value = value;
+    
+    
 
-    return 1;
-
-    if (table[h].valid){
-        *collisions = *collisions + 1;
-    }
+  
     while (table[h].valid && h != begin){
        
         //move is already hashed.
@@ -221,6 +209,54 @@ int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
     //table is full
    }
    return 0;
+
+}
+
+int add_to_table_hash_opening(table_entry * table, int size_of_table, uint64_t hashcode, int value){
+
+    int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
+    int begin = h -1;
+
+    if(table[h].valid && table[h].hash != hashcode){
+       //here we have to decide what to do with collisions
+       return 1;
+    }
+    
+  
+    while (table[h].valid && h != begin){
+       
+        //move is already hashed.
+        // now we only compare the hashcode. Figure that a real collision should
+        // be rare enough that we don't have to worry about it.
+        if (table[h].hash == hashcode ){ // && game_state_equals(&table[h].gs, gs))
+            table[h].value = table[h].value + value;
+            return 1;
+        }
+         h = (h + 1) % size_of_table;
+    }
+    if (h != begin){
+        
+        table_entry t;
+        t.hash = hashcode;
+        t.valid = 1;
+        t.value = value;
+        table[h] = t;
+        return 1;
+    //table is full
+   }
+   return 0;
+
+}
+
+
+
+
+int add_to_table (table_entry * table, int size_of_table, GS * gs, int value,
+                        Zob * z, int * collisions){
+    //printf("ADDED TO TABLE\n");
+    uint64_t hashcode = gs->hash;
+    return add_to_table_hash(table, size_of_table, hashcode, value);
+    
 }
 //actually the null values probably won't work? Maybe we need an array of invalid/bogus table entries?
 
@@ -262,6 +298,35 @@ Zob * make_zob_struct() {
     zob->dict = zobdict;
     return zob;
 
+}
+void save_zobrist (Zob * zob) {
+
+    char filename[] = "../../data/zobrist";
+    FILE * fp = fopen(filename, "a");
+    int i=0;
+    while (i<=64*12){
+        printf("%" PRIu64 "\n", zob->vals[i]);
+        fprintf(fp, "%" PRIu64 "\n", zob->vals[i]);
+
+        i++;
+
+    }
+   
+}
+
+Zob * zob_from_file(char * filename){
+    Zob * z = make_zob_struct();
+    FILE * fp = fopen(filename, "r");
+    int i;
+    uint64_t val;
+    while (i <=64*12){
+
+        fscanf(fp, "%" PRIu64 "\n", &val);
+        printf("%" PRIu64 "\n", val);
+        z->vals[i] = val;
+        i++;
+    }
+    return z;
 }
 
 uint64_t initial_hash(Zob * z){
@@ -314,7 +379,7 @@ void full_game_state_update(GS * new_gs, int new_index,
     new_gs->hash ^= z->vals[new_index * 12 + p ];
     new_gs->hash ^= z->vals[old_index * 12 + p ];
     //flip for player color
-    new_gs->hash &= z->vals[64 * 12];
+    new_gs->hash ^= z->vals[64 * 12];
     
 
 	
