@@ -63,8 +63,8 @@ table_entry * make_opening_book (int * size_of_table) {
         if(count % 10000 == 0)
             
         if (fscanf(FP, "%" PRIu64 "\n", &hashcode) != EOF && fscanf(FP, "%d\n", &value) != EOF){
-            value = value;
-            add_to_table_hash(table,*size_of_table,hashcode,value);
+            
+            add_to_table_hash_opening(table,*size_of_table,hashcode,value);
 
         }
         else{

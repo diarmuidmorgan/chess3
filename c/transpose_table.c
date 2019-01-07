@@ -58,6 +58,7 @@ typedef struct {
     int valid;
     uint64_t hash;
     int value;
+    int played;
     // GS gs;
 
 } table_entry;
@@ -240,12 +241,36 @@ int add_to_table_hash_opening(table_entry * table, int size_of_table, uint64_t h
         t.hash = hashcode;
         t.valid = 1;
         t.value = value;
+        t.played = 0;
         table[h] = t;
         return 1;
     //table is full
    }
    return 0;
 
+}
+
+void set_table_played (table_entry * table, GS * gs, int size_of_table){
+
+
+     uint64_t hashcode = gs->hash;
+    int h = ( (int) ( hashcode & 0xfffffffULL  ) ) % size_of_table;
+    
+    int begin = h-1;
+    //we could end up reading the entire table every time, if there are enough collisions!!
+    while(table[h].valid && h != begin){
+     
+        if (table[h].hash == hashcode && !table[h].played ) { 
+           table[h].played = 1;
+          
+            return;
+        }
+          h = (h + 1) % size_of_table;
+        }
+      
+    
+
+    return;
 }
 
 
@@ -273,7 +298,7 @@ int find_in_table(GS * gs, table_entry * table, int * value,
     //we could end up reading the entire table every time, if there are enough collisions!!
     while(table[h].valid && h != begin){
      
-        if (table[h].hash == hashcode  ) { 
+        if (table[h].hash == hashcode && !table[h].played ) { 
             *value = table[h].value;
           
             return 1;
@@ -299,14 +324,14 @@ Zob * make_zob_struct() {
     return zob;
 
 }
-void save_zobrist (Zob * zob) {
+void save_zobrist (Zob * zob, char * filename) {
 
-    char filename[] = "../../data/zobrist";
-    FILE * fp = fopen(filename, "a");
+   
+    FILE * fp = fopen(filename, "ab");
     int i=0;
     while (i<=64*12){
-        printf("%" PRIu64 "\n", zob->vals[i]);
-        fprintf(fp, "%" PRIu64 "\n", zob->vals[i]);
+        uint64_t val = zob->vals[i];
+        fwrite(&val, sizeof(uint64_t),1, fp);
 
         i++;
 
@@ -316,16 +341,17 @@ void save_zobrist (Zob * zob) {
 
 Zob * zob_from_file(char * filename){
     Zob * z = make_zob_struct();
-    FILE * fp = fopen(filename, "r");
-    int i;
+    FILE * fp = fopen(filename, "rb");
+    int i=0;
     uint64_t val;
     while (i <=64*12){
 
-        fscanf(fp, "%" PRIu64 "\n", &val);
+        fread(&val, sizeof(uint64_t), 1, fp);
         printf("%" PRIu64 "\n", val);
         z->vals[i] = val;
         i++;
     }
+    
     return z;
 }
 
@@ -398,8 +424,8 @@ void full_game_state_update(GS * new_gs, int new_index,
 	if (((new_gs->pieces[r_color] & (~new_pos)) ) != new_gs->pieces[r_color]){
 	//	printf("\nUPDATING\n");
 		int multiplier;
-		if (color == 1) multiplier = 1;
-		else multiplier = -1;
+		if (color == 1) multiplier = -1;
+		else multiplier = 0;
 		//binary_print_board(new_pos);
 		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
 		//binary_print_board(new_gs->pieces[r_color]);

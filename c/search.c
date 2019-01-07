@@ -58,11 +58,12 @@ int search (GS *gs, int depth, int alpha,
     //scanf("%s",&s);
     //we'll interpret terminal node as the king has been captured.
     //don't actually evaluate for checkmate, at least not at this stage.
-    if (depth == 0 || gs->kings[gs->color] == 0LL){
-        
+    if (depth == 0)  
         //printf("%d\n", gs->score);
 	return gs->score;
-    }
+    
+    if (gs->kings[gs->color] == 0LL){
+        printf("KINGS ALL DEAD\n");}
     //set all of the values that are manipulated by the move generator.
    //char s[1000];
   //print_game_state(gs);
@@ -85,10 +86,10 @@ int search (GS *gs, int depth, int alpha,
     //look up this piece.
     if ( find_in_table(gs, transpose_table, &value, size_of_table, *z) ){
        	//:wq
-	    //printf("FOUND IN TABLE\n");	
-        
+       
        return value;
     }
+    
     //printf("\nGOT FURTHER\n"); 
     // scanf("%s", &s);
      
@@ -168,12 +169,39 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     uint64_t attack_squares = 0LL;
     GS new_gs = gs;
     GS best_gs;
-    int best = -10000;
+    
+    if (gs.color){
+    int best = 100000;
+
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, 0, msks, 
+        search_return = search(&new_gs, depth-1, alpha, beta, gs.color, msks, 
+                        cs_msk, 
+                        transpose_table, size_of_table, 
+                        z);
+        if (search_return <= best){
+
+            best = search_return;
+            best_gs = new_gs;
+        }
+        new_gs = gs;
+     }
+
+    set_table_played(transpose_table, &gs, size_of_table);
+    printf("BEST VALUE %d\n", best);
+    return best_gs;
+    }
+    else {
+
+        int best = -100000;
+
+     while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
+      &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
+
+          
+        search_return = search(&new_gs, depth-1, alpha, beta, (gs.color + 1) % 2, msks, 
                         cs_msk, 
                         transpose_table, size_of_table, 
                         z);
@@ -185,9 +213,14 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
         new_gs = gs;
      }
 
-
+    set_table_played(transpose_table, &gs, size_of_table);
+    printf("BEST VALUE %d\n", best);
     return best_gs;
 
+
+
+
+    }
 }
 /*
 int main () {

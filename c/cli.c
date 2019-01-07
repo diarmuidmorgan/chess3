@@ -35,7 +35,7 @@ int main () {
     table_entry * t = make_opening_book(&size_of_table);
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
-    GS gs = init_game_state();
+    GS gs = hashed_initial_game_state(z);
     parser_cases * pc = build_regex();
     GS new = gs;
   
