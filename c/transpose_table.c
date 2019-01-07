@@ -424,8 +424,8 @@ void full_game_state_update(GS * new_gs, int new_index,
 	if (((new_gs->pieces[r_color] & (~new_pos)) ) != new_gs->pieces[r_color]){
 	//	printf("\nUPDATING\n");
 		int multiplier;
-		if (color == 1) multiplier = -1;
-		else multiplier = 0;
+		if (r_color == 1) multiplier = 1;
+		else multiplier = -1;
 		//binary_print_board(new_pos);
 		new_gs ->pieces[r_color] = new_gs->pieces[r_color] & (~new_pos);
 		//binary_print_board(new_gs->pieces[r_color]);

@@ -62,8 +62,9 @@ int search (GS *gs, int depth, int alpha,
         //printf("%d\n", gs->score);
 	return gs->score;
     
-    if (gs->kings[gs->color] == 0LL){
-        printf("KINGS ALL DEAD\n");}
+    if (gs->kings[gs->color] == 0LL || gs->kings[(gs->color + 1) % 2] == 0LL){
+       // printf("KINGS ALL DEAD\n");
+        return gs->score;}
     //set all of the values that are manipulated by the move generator.
    //char s[1000];
   //print_game_state(gs);
@@ -94,7 +95,7 @@ int search (GS *gs, int depth, int alpha,
     // scanf("%s", &s);
      
      if (maximizingPlayer){
-           value = -100000;
+           value = -10000000;
         //c doesn't implement the max and min functions?
         while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, 
                         &pieces, &move_squares, &attack_squares, cs_msk, z)){
@@ -119,7 +120,7 @@ int search (GS *gs, int depth, int alpha,
     }
     else {
 
-        value = 100000;
+        value = 10000000;
         while (moves_generator(gs, &new_gs, msks, &index, &piece_incr, &move_incr, 
                         &pieces, &move_squares, &attack_squares, cs_msk, z )){
 
@@ -154,10 +155,11 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
                  
                  Zob * z ){
   //  print_game_state(&gs);
+  printf("COLOR: %d\n", gs.color);
   //  char s[1000];
    // scanf("%s",&s);
-    int alpha = -100000;
-    int beta = 100000;
+    int alpha = -10000000;
+    int beta = 10000000;
     //*position_evals = *position_evals + 1;
     uint64_t pieces = 0LL;
     int index = 0;
@@ -171,7 +173,7 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     GS best_gs;
     
     if (gs.color){
-    int best = 100000;
+    int best = 10000000;
 
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
@@ -195,13 +197,13 @@ GS find_best_move (GS gs, int depth, uint64_t * msks,
     }
     else {
 
-        int best = -100000;
+        int best = -10000000;
 
      while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr,
       &move_incr, &pieces, &move_squares, &attack_squares, cs_msk, z)){
 
           
-        search_return = search(&new_gs, depth-1, alpha, beta, (gs.color + 1) % 2, msks, 
+        search_return = search(&new_gs, depth-1, alpha, beta, gs.color, msks, 
                         cs_msk, 
                         transpose_table, size_of_table, 
                         z);
