@@ -201,22 +201,26 @@ int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask,
    
     //if there is nay the free squares to move
     //binary_print_board(cs_msk->kingside_free[(color)]);
-    if (cs_msk->kingside_free[color] & gs->all_pieces != 0LL)
-        return 0;
     
+    if (cs_msk->kingside_free[color] & gs->all_pieces == 0ULL){
+        
+    
+    //printf("COLOR: %d\n",gs->color);
+    //binary_print_board(cs_msk->kingside_free[color] & gs->all_pieces);
    // printf("STILL HERE\n");
     //if we haven't built the attacked square mask, build it.        
-    if (attack_mask == NULL)
-        *attack_mask = build_attack_mask(gs, msks);
+    //if (attack_mask == NULL)
+    //    *attack_mask = build_attack_mask(gs, msks);
     //binary_print_board(cs_msk->kingside_non_attack[color]);
     //if there are no squares conflicting with the attack mask, then give the go ahead.
    
-    if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL){
+    //if (cs_msk->kingside_non_attack[color] && *attack_mask == 0LL){
        
-        return 1;
-}
-    //otherwise, return 0
+    return 1;
+    }
     return 0;
+    //otherwise, return 0
+    //return 0;
 
 
 }
@@ -233,17 +237,17 @@ int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask,
     if (! gs->castle_queen_side[color])
         return 0;
     //if there is nay the free squares to move
-    if (cs_msk->queenside_free[color] & gs->all_pieces != 0LL)
-        return 0;
+    if (cs_msk->queenside_free[color] & gs->all_pieces == 0LL)
+        return 1;
     //if we haven't built the attacked square mask, build it.        
-    if (attack_mask == NULL)
-        *attack_mask = build_attack_mask(gs, msks);
+    //if (attack_mask == NULL)
+    //    *attack_mask = build_attack_mask(gs, msks);
 
     //if there are no squares conflicting with the attack mask, then give the go ahead.
-    if (cs_msk->queenside_non_attack[color] && *attack_mask == 0LL)
-        return 1;
-    //otherwise, return 0
+    //if (cs_msk->queenside_non_attack[color] && *attack_mask == 0LL)
     return 0;
+    //otherwise, return 0
+    //return 0;
 
 
 }
@@ -277,6 +281,7 @@ void kingside_castling_generator_next (GS * new_gs, Zob * z){
         new_gs->hash ^= z->vals[(5 + 7*8*color) * 12 + r_index ];
         new_gs->hash ^= z->vals[(4 + 7*8*color) * 12 + k_index ];
          new_gs->hash ^= z->vals[(7 + 7*8*color) * 12 + r_index ];
+         new_gs->has_castled[color]=1;
 }
 
 void queenside_castling_generator_next (GS * new_gs, Zob * z){
@@ -301,7 +306,7 @@ void queenside_castling_generator_next (GS * new_gs, Zob * z){
         new_gs->rooks[color] |= n_rlocation;
         new_gs->castle_king_side[color] = 0;
         new_gs->castle_queen_side[color] = 0;
-       
+        new_gs->has_castled[color]=1;
         new_gs->color = (color + 1) % 2;
         new_gs->hash ^= z->vals[(2 + 7*8*color) * 12 + k_index ];
         new_gs->hash ^= z->vals[(3 + 7*8*color) * 12 + r_index ];

@@ -1,0 +1,428 @@
+Allocating hash table and getting opening book from file
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ R  H  B  Q  K  B  H  R 
+
+ P  P  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ p  _  _  _  _  _  _  _ 
+
+ _  p  p  p  p  p  p  p 
+
+ r  h  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ R  H  B  Q  K  B  H  R 
+
+ P  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ p  _  _  _  _  _  _  _ 
+
+ _  p  p  p  p  p  p  p 
+
+ r  h  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ R  H  B  Q  K  B  H  R 
+
+ P  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ p  p  _  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  h  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ R  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ P  P  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ p  p  _  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  h  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ R  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ P  P  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ p  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ R  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ P  _  _  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ p  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ R  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ P  _  _  _  _  _  _  _ 
+
+ _  p  _  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ R  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ r  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ r  H  B  Q  K  B  H  R 
+
+ _  _  P  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ r  H  B  Q  K  B  H  R 
+
+ _  _  _  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  P  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  r  B  Q  K  B  H  R 
+
+ _  _  _  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  P  _  _  _  _  _ 
+
+ _  P  _  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  r  B  Q  K  B  H  R 
+
+ _  _  _  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  P  P  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  P  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  r  P  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  P  _  _  _  _ 
+
+ _  r  P  _  _  _  _  _ 
+
+ _  p  h  _  _  _  _  _ 
+
+ _  _  p  p  p  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  P  _  _  _  _ 
+
+ _  r  P  _  _  _  _  _ 
+
+ _  p  h  _  p  _  _  _ 
+
+ _  _  p  p  _  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  r  P  P  _  _  _  _ 
+
+ _  p  h  _  p  _  _  _ 
+
+ _  _  p  p  _  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  r  P  _  _  _  _ 
+
+ _  p  h  _  p  _  _  _ 
+
+ _  _  p  p  _  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  _  P  _  _  _ 
+
+ _  _  p  p  _  p  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  P  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  _  p  _  _  _ 
+
+ _  _  p  p  _  _  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  _  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  P  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  _  p  _  _  _ 
+
+ _  _  p  p  _  _  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  P  _  P  P 
+
+ _  _  _  _  _  _  _  _ 
+
+ _  _  _  _  _  P  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  p  p  _  _  _ 
+
+ _  _  p  _  _  _  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  _  _  P  P 
+
+ _  _  _  _  P  _  _  _ 
+
+ _  _  _  _  _  P  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  p  p  _  _  _ 
+
+ _  _  p  _  _  _  p  p 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  _  _  P  P 
+
+ _  _  _  _  P  _  _  _ 
+
+ _  _  _  _  _  P  _  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  p  p  _  _  p 
+
+ _  _  p  _  _  _  p  _ 
+
+ _  _  b  q  k  b  h  r 
+
+COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1COLOR : 1
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  _  _  _  P 
+
+ _  _  _  _  P  _  _  _ 
+
+ _  _  _  _  _  P  P  _ 
+
+ _  _  r  _  _  _  _  _ 
+
+ _  p  h  p  p  _  _  p 
+
+ _  _  p  _  _  _  p  _ 
+
+ _  _  b  q  k  b  h  r 
+
+THINKING...
+COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0COLOR : 0
+ _  _  B  Q  K  B  H  R 
+
+ _  _  _  _  _  _  _  P 
+
+ _  _  _  _  P  _  _  _ 

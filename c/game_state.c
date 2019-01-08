@@ -40,6 +40,7 @@ typedef struct {
 	int castle_queen_side[2];
 	int color;
 	int score;
+	int has_castled[2];
 
 } GS;
 /* Constructor prodcedure. Returns a game state * with starting position set.
@@ -77,6 +78,8 @@ GS * initial_game_state(){
 	gs->score = 0;
 	gs->ghost_squares[0] = 0LL;
 	gs->ghost_squares[1] = 0LL;
+	gs->has_castled[0] = 0;
+	gs->has_castled[1] = 0;
 	return gs;
 
 }
@@ -117,7 +120,8 @@ GS init_game_state(){
 	gs.castle_queen_side[1] = 1;
 	gs.ghost_squares[0]= 0LL;
 	gs.ghost_squares[1]= 0LL;
-	
+	gs.has_castled[0] = 0;
+	gs.has_castled[1] = 0;
 	//is this really a good idea? Do we want a transposition table?
 	// want to get rid of this at the first opportunity.
 	
