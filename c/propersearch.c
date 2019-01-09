@@ -132,6 +132,7 @@ int alpha_beta (GS *gs, int depth, int alpha,
 
     //player is maximizing.
     Move m;
+    int s_return;
     if (gs->color==0){
         value = -100000000;
         
@@ -139,11 +140,14 @@ int alpha_beta (GS *gs, int depth, int alpha,
            
             if (m.playable)
                 value = max(value, m.value);
-            else
-                value = max(value, alpha_beta(&m.gs, depth-1, alpha, beta, msks, cs_msk,
-                                        transpose_table, size_of_table, z, iteration, move_number));
+            else {
+                s_return =alpha_beta(&m.gs, depth-1, alpha, beta, msks, cs_msk,
+                                        transpose_table, size_of_table, z, iteration, move_number); 
+                value = max(value, s_return);
             alpha = max(alpha, value);
-
+            add_to_table_hash(transpose_table, size_of_table, m.gs.hash,s_return, iteration, move_number);
+            
+            }
             if (alpha>=beta)
                 break;
 
@@ -161,11 +165,14 @@ int alpha_beta (GS *gs, int depth, int alpha,
           
             if (m.playable)
                 value = min(value, m.value );
-            else
-                value = min(value, alpha_beta(&m.gs, depth-1, alpha, beta, msks, cs_msk,
+            else {
+                s_return =alpha_beta(&m.gs, depth-1, alpha, beta, msks, cs_msk,
                                  
-                                  transpose_table, size_of_table, z, iteration, move_number));
+                                  transpose_table, size_of_table, z, iteration, move_number);
+                value = min(value, s_return);
             beta = min(beta, value);
+            add_to_table_hash(transpose_table, size_of_table, m.gs.hash,s_return, iteration, move_number);
+            }
 
             if (alpha>=beta)
                 break;
@@ -221,6 +228,7 @@ GS root_search (GS gs, int depth, uint64_t * msks,
         new_gs = gs;
      }
      if (found_opening_move){
+        printf("FOUND OPENING MOVE\n");
         Move m;
         max_move(&move_list,&m);
         return m.gs;

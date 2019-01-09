@@ -194,7 +194,7 @@ table_entry * make_hash_table(int * size_of_table){
 /* Add the move hash and value to the tranposition table.
 */
 int add_to_table_hash(table_entry * table, int size_of_table,
-                         GS * gs, uint64_t hashcode, int value,
+                          uint64_t hashcode, int value,
                         int iteration, int move_number){
     //we don't care about collisions here.
     int h = abs((int) (hashcode & 0xfffffffULL) ) % size_of_table;
@@ -228,8 +228,10 @@ int add_to_table_opening(table_entry * table, int size_of_table,
         table[h] = t;
 
 }
-//should return 0 for no find of move just in table
+//should return 0 for no find or move just in table
 // 1 if the item is found with the same iteration and move number
+
+//its the *value pointer that actually receives the hashed move value
 
 int find_in_table(table_entry * table, int size_of_table,
                       uint64_t hashcode, int * value, int iteration, int move_number){
@@ -238,8 +240,11 @@ int find_in_table(table_entry * table, int size_of_table,
     table_entry t = table[h];
     if (t.valid && t.hash == hashcode){
         *value = t.value;
-        if(t.move_number = -1 || (t.iteration == iteration && t.move_number == move_number))
+        //if this move was evaled on the same iteration and game move number
+        //we won't have to evaluate any deeper, and *value will be used
+        if( t.iteration == iteration && t.move_number == move_number)
             return 1;
+        //otherwise *value will still be used for move ordering
         else
             return 0;
     }
