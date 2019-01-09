@@ -269,13 +269,15 @@ void pawn_generator_next (GS * gs, GS * new_gs, int * piece_incr, int * move_inc
 	//also check for PROMOTION.
 	// at this stage we will only ever award queens.
 	else if ( (position / 8) == 7 * new_gs->color){
-		
+		char p_index = (gs->color) ? 'Q' : 'q';
+        int p1 = z->dict[ (int) p_index ];
+        new_gs->hash ^= z->vals[position * 12 + p1 ];
 		//destroy this pawn
-	//	new_gs->pawns[gs->color] &= ~ (1LL << (position));
-	//	int multiplier = (gs->color) ? -1 : 1;
+		new_gs->pawns[gs->color] &= ~ (1LL << (position));
+		int multiplier = (gs->color) ? -1 : 1;
 	//	// always award a queen. Only give 8 because we lose a pawn in the process.
-	//	new_gs->score += multiplier * 8;
-	//	new_gs->queens[gs->color] |= (1LL << position);
+		new_gs->score += multiplier * 8;
+		new_gs->queens[gs->color] |= (1LL << position);
 	}
 
 
