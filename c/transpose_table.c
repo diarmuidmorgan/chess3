@@ -166,7 +166,7 @@ Zob * zob_from_file(char * filename){
         z->vals[i] = val;
         i++;
     }
-    
+    fclose(fp);
     return z;
 }
 
@@ -222,7 +222,7 @@ int add_to_table_opening(table_entry * table, int size_of_table,
     t.move_number=-1;
     t.valid = 1;
     t.value = value;
-    if(table[h].valid)
+    if(table[h].valid && table[h].hash == hashcode)
         table[h].value = table[h].value + value;
     else
         table[h] = t;

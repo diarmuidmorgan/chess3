@@ -2,7 +2,7 @@
 #define table_size 100000000
 
 
-
+/*
 int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z, 
                             int value, table_entry * table, int * collisions, int * size_of_table){
     GS gs = hashed_initial_game_state(z);
@@ -39,6 +39,7 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
         }
         
         i++;
+        add_to_table_hash(table, size_of_table, &gs, value, )
         add_to_table(table, *size_of_table, &gs, value, z, collisions);
         gs = new_gs;
         free(m);
@@ -46,34 +47,35 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
     
     return 1;
 }
-
+*/
 table_entry * make_opening_book (int * size_of_table) {
 
     char * filename = "../data/openings";
     
     table_entry * table = make_hash_table(size_of_table);
     Zob * z = zob_from_file("../data/zobrist");
-    FILE * FP = fopen(filename, "r");
+    FILE * FP = fopen(filename, "rb");
     int reading = 1;
     int value;
     uint64_t hashcode;
     int count = 1;
     while(reading){
-        count ++;
+        count = count + 1;
         
             
-        if (fscanf(FP, "%" PRIu64 "\n", &hashcode) != EOF && fscanf(FP, "%d\n", &value) != EOF){
+        if (fread(&hashcode, sizeof(uint64_t), 1, FP)==1 && fread(&value, sizeof(int), 1, FP)==1){
             //1 point for each time this position appears
-            add_to_table_hash_opening(table,*size_of_table,hashcode,value / 1000);
+            add_to_table_opening(table, *size_of_table, hashcode, value/500);
 
         }
         else{
+            printf("BROKE ON COUNT: %d", count);
             reading = 0;
         }
 
 
     }
-
+    fclose(FP);
     return table;
 }
 
@@ -118,8 +120,9 @@ int play_write_game_string (char * game_str, parser_cases * pc, Zob * z,
         i++;
         gs = new_gs;
         uint64_t hashcode = gs.hash;
-        fprintf(fp, "%" PRIu64 "\n", hashcode);
-        fprintf(fp, "%d\n", value);
+        fwrite(&hashcode, sizeof(uint64_t),1, fp);
+        fwrite(&value, sizeof(int),1, fp);
+        
         free(m);
         move++;
     }

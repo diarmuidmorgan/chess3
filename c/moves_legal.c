@@ -201,7 +201,10 @@ int kingside_castling_generator_has_next (GS * gs, uint64_t * attack_mask,
    
     //if there is nay the free squares to move
     //binary_print_board(cs_msk->kingside_free[(color)]);
-    
+
+
+    //dirty hack
+   
     if (cs_msk->kingside_free[color] & gs->all_pieces == 0ULL){
         
     
@@ -237,6 +240,9 @@ int queenside_castling_generator_has_next (GS * gs, uint64_t * attack_mask,
     if (! gs->castle_queen_side[color])
         return 0;
     //if there is nay the free squares to move
+
+    //dirty hack
+    
     if (cs_msk->queenside_free[color] & gs->all_pieces == 0LL)
         return 1;
     //if we haven't built the attacked square mask, build it.        

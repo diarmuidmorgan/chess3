@@ -9,9 +9,10 @@ int main () {
     int i = 0;
     while (i<300){
 
-        if (z->vals[i] != g->vals[i])
+        if (z->vals[i] != g->vals[i]){
             printf("%" PRIu64 " %" PRIu64 "\n", z->vals[i], g->vals[i]);
-            printf("FUCKED\n");
+
+            printf("FUCKED\n");}
         i++;
 
     }

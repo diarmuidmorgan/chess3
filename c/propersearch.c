@@ -1,4 +1,4 @@
-#include "fullparser.c"
+#include "openingbook.c"
 #define QS_SEARCH_DEPTH  3
 #define MOVE_LIST_SIZE 50
 int max(int a, int b){
@@ -271,7 +271,7 @@ GS root_search (GS gs, int depth, uint64_t * msks,
 
 
 
-    
+    printf("VALUE: %d\n",value);
     return best_gs;
 }
 

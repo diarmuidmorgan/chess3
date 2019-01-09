@@ -9,6 +9,55 @@
 
 */
 
+int play_write_game_string (char * game_str, parser_cases * pc, Zob * z,
+                             int value, FILE * fp){
+    GS gs = hashed_initial_game_state(z);
+    GS new_gs = gs;
+    uint64_t * msks = build_mask_object();
+    CS_mask * cs_msk = build_castle_masks();
+    char s1[1000];
+    int i = 0;
+    char * m;
+    //printf("READY TO PARSE A GAME\n");
+    int move = 0;
+    while (game_str[i] && move < 10){
+       // print_game_state(&gs);
+        //scanf("%s",&s1);
+        //printf("%" PRIu64 "\n", gs.hash);
+        new_gs = gs;
+        new_gs.enpassants[0] = 0LL;
+        new_gs.enpassants[1] = 0LL;
+        int j = 0;
+        m = malloc(7 * sizeof(char));
+        while(game_str[i] && game_str[i] != ' ' && game_str[i] != '\n'){
+            m[j] = game_str[i];
+            i++;
+            j++;
+        }
+        m[j] = '_';
+        m[j+1] = '\0';
+        //printf("%d\n", j);
+        //printf("%s\n", m);
+        if (!real_parse_move(m, &gs, &new_gs, msks, cs_msk, pc, z)){
+            
+        
+            printf("NO MATCH\n");
+            free(m);
+            return 0;
+        }
+        
+        i++;
+        gs = new_gs;
+        uint64_t hashcode = new_gs.hash;
+        fwrite(&hashcode, sizeof(uint64_t),1, fp);
+        fwrite(&value, sizeof(int),1, fp);
+        
+        free(m);
+        move++;
+    }
+    
+    return 1;
+}
 
 
 int main () {
@@ -24,7 +73,7 @@ int main () {
     Zob * z = zob_from_file("../data/zobrist");
     FILE *fp;
     FILE * op;
-    op = fopen(outfilepath, "a");
+    op = fopen(outfilepath, "ab");
 	parser_cases * pc = build_regex();
 	fp =fopen(filepath,"r");
     int games_played = 0;
