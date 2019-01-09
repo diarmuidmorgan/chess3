@@ -33,7 +33,7 @@ int main () {
     int size_of_table = 100000000;
     printf("Allocating hash table and getting opening book from file\n");
     //table_entry * t = make_opening_book(&size_of_table);
-    table_entry * t = make_opening_book(size_of_table);
+    table_entry * t = make_opening_book(size_of_table, z, "data/openings");
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
     GS gs = hashed_initial_game_state(z);

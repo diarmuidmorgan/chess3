@@ -48,12 +48,12 @@ int parse_string_to_table (char * game_str, parser_cases * pc, Zob * z,
     return 1;
 }
 */
-table_entry * make_opening_book (int * size_of_table) {
+table_entry * make_opening_book (int * size_of_table, Zob * z, char * filename) {
 
-    char * filename = "../data/openings";
+    
     
     table_entry * table = make_hash_table(size_of_table);
-    Zob * z = zob_from_file("../data/zobrist");
+    
     FILE * FP = fopen(filename, "rb");
     int reading = 1;
     int value;

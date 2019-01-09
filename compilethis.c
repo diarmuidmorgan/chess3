@@ -43,9 +43,10 @@ int main () {
     
     int size_of_table = 100000000;
     printf("Allocating hash table...\n");
-    table_entry * t = make_hash_table(&size_of_table);
+     Zob * z = zob_from_file("data/zobrist");
+    table_entry * t = make_opening_book(&size_of_table, z, "data/openings");
     printf("Initializing...\n");
-    Zob * z = make_zob_struct();
+   
     //table_entry * t = make_hash_table(&size_of_table);
     uint64_t * msks = build_mask_object();
     CS_mask * cs_msk = build_castle_masks();
