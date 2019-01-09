@@ -228,7 +228,7 @@ GS root_search (GS gs, int depth, uint64_t * msks,
         new_gs = gs;
      }
      if (found_opening_move){
-        printf("FOUND OPENING MOVE\n");
+        //printf("FOUND OPENING MOVE\n");
         Move m;
         max_move(&move_list,&m);
         return m.gs;

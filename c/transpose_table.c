@@ -242,7 +242,7 @@ int find_in_table(table_entry * table, int size_of_table,
         *value = t.value;
         //if this move was evaled on the same iteration and game move number
         //we won't have to evaluate any deeper, and *value will be used
-        if( t.iteration == iteration && t.move_number == move_number)
+        if( t.iteration == -1 || (t.iteration == iteration && t.move_number == move_number))
             return 1;
         //otherwise *value will still be used for move ordering
         else
