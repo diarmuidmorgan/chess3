@@ -6,7 +6,7 @@
 */
 int cycle_pieces (GS * gs, uint64_t * pieces, int * piece_incr){
 	if(*pieces==0LL) return 0;
-	int index_p = ffsll(*pieces);
+	int index_p = __builtin_ffsll(*pieces);
 	*piece_incr += index_p;
 	if (index_p == 64){
 		*pieces = 0LL;
@@ -35,7 +35,7 @@ int next_piece(GS * gs, int msk_number,
 	}
 	
 	
-	int index_p = ffsll(*pieces);  
+	int index_p = __builtin_ffsll(*pieces);  
 	
 	*piece_incr = *piece_incr + index_p;
 	
@@ -71,7 +71,7 @@ int next_move (GS * gs, int msk_number,
 		 *move_incr = 0;
 		 return 0;
 	}
-	int index_m = ffsll(*move_squares);
+	int index_m = __builtin_ffsll(*move_squares);
 	if (index_m == 64)
 		*move_squares = 0LL;
 	else

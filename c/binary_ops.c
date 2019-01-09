@@ -33,7 +33,7 @@ uint64_t board_to_word(int * a){
 // for some reason?
 
 int bitscanforward(uint64_t msk){
-	return ffsll(msk);
+	return __builtin_ffsll(msk);
 }
 int bitscanreverse(uint64_t msk){
 
@@ -50,7 +50,7 @@ void binary_print_board(uint64_t word) {
 	for(int i=0;i<64;i++) A[i] = 0;
 	int incr = 0;
 	while (word != 0LL) {
-	index = ffsll(word);
+	index = __builtin_ffsll(word);
 	
 	
 	incr += index;

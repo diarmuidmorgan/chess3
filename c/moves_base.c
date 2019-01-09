@@ -52,7 +52,7 @@ uint64_t sliding_ray_hsb_masking (int INDEX, uint64_t * msks, GS * gs, int color
 	uint64_t msk = base_msk & gs->all_pieces;
 	if(msk == 0LL) return base_msk;
 	// this shit here --> this can be a maximum of 14??  uint64_t calculations.
-	int index = ffsll(msk);
+	int index = __builtin_ffsll(msk);
 	// handles the case where the first piece is of the same color
 	if ( (gs->pieces[color] | (1LL << (index - 1) )) == gs->pieces[color]) {
 		//binary_print_board(base_msk ^ (msks[(index -1) * 14 + INDEX] | (1LL << (index -1))));
@@ -129,7 +129,7 @@ void pawn_forward_masking_function (GS * gs, int piece_incr,
 	uint64_t temp_move_squares = msk & ~gs->all_pieces;
 	//find the first valid square
 	int index;
-	if(color==0) index = ffsll(temp_move_squares);
+	if(color==0) index = __builtin_ffsll(temp_move_squares);
 	else index = bitscanreverse(temp_move_squares);
 	//check that the first free square is directly in front. If it isn't, we set moves squares
 	// to 0, as the possible double pawn move won't be valid either.

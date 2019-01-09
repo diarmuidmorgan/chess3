@@ -19,7 +19,7 @@ void set_string_cell(char * s, char symbol, uint64_t board){
 	int q=0;
 	while (board != 0 && q <8) {
 	
-		i = ffsll(board);
+		i = __builtin_ffsll(board);
 		incr += i;
 		s[incr-1] = symbol;	
 		//dirty hack be careful here.

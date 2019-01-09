@@ -11,7 +11,7 @@ int count_pieces (uint64_t pieces) {
 	
 	int count = 0;
 	while (pieces != 0LL)
-		pieces = pieces >> ffsll(pieces);
+		pieces = pieces >> __builtin_ffsll(pieces);
 		count ++;
 	return count;
 }
