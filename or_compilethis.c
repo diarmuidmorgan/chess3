@@ -8,7 +8,7 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
     *new = *gs;
     *move_number = *move_number + 1;
     printf("THINKING\n");
-    *new = iterative_deepen(*gs, 8, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
+    *new = iterative_deepen(*gs, 7, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
     sleep(1);
     print_game_state(new);
 

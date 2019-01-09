@@ -144,10 +144,11 @@ int alpha_beta (GS *gs, int depth, int alpha,
                 s_return =alpha_beta(&m.gs, depth-1, alpha, beta, msks, cs_msk,
                                         transpose_table, size_of_table, z, iteration, move_number); 
                 value = max(value, s_return);
-            alpha = max(alpha, value);
+            
             add_to_table_hash(transpose_table, size_of_table, m.gs.hash,s_return, iteration, move_number);
             
             }
+            alpha = max(alpha, value);
             if (alpha>=beta)
                 break;
 
@@ -170,9 +171,10 @@ int alpha_beta (GS *gs, int depth, int alpha,
                                  
                                   transpose_table, size_of_table, z, iteration, move_number);
                 value = min(value, s_return);
-            beta = min(beta, value);
+           
             add_to_table_hash(transpose_table, size_of_table, m.gs.hash,s_return, iteration, move_number);
             }
+            beta = min(beta, value);
 
             if (alpha>=beta)
                 break;
@@ -322,6 +324,7 @@ GS iterative_deepen (GS gs, int max_depth, uint64_t * msks,
                  CS_mask * cs_msk,  Zob * z,
                  table_entry * transpose_table, table_entry * opening_book, int size_of_table, 
                             int opening_book_size, int move_number) {
+    
     GS best_gs;
     int iteration = 0;
     while (iteration < max_depth){
