@@ -6,23 +6,10 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
                         int opening_book_size, int * move_number) {
 
     *new = *gs;
-    char s[1000];
-    *move_number = *move_number +1;
-    
-   int matched = 0;
-    while(!matched){
-        printf("ENTER A MOVE\n");
-        scanf("%s", &s);
-        int i;
-        while(s[i]) i++;
-        s[i] = '_';
-        s[i+1]='\0'; 
-        if (real_parse_move(s, gs, new, msks, cs_msk, pc, z))
-            matched = 1;
-        else
-            printf("MOVE NOT RECOGNIZED. Use pgni e.g e4\n");
-    }
-
+    *move_number = *move_number + 1;
+    printf("THINKING\n");
+    *new = iterative_deepen(*gs, 7, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
+    sleep(1);
     print_game_state(new);
 
     
@@ -30,7 +17,7 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
     
     *move_number = *move_number +1;
     printf("THINKING..\n");
-    *new = iterative_deepen(*gs, 7, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
+    *new = iterative_deepen(*gs, 4, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
     sleep(1);
 
     print_game_state(new);
