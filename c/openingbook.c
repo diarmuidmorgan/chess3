@@ -65,7 +65,7 @@ table_entry * make_opening_book (int * size_of_table, Zob * z, char * filename) 
             
         if (fread(&hashcode, sizeof(uint64_t), 1, FP)==1 && fread(&value, sizeof(int), 1, FP)==1){
             //1 point for each time this position appears
-            add_to_table_opening(table, *size_of_table, hashcode, value/500);
+            add_to_table_opening(table, *size_of_table, hashcode, value);
 
         }
         else{
@@ -120,6 +120,7 @@ int play_write_game_string (char * game_str, parser_cases * pc, Zob * z,
         i++;
         gs = new_gs;
         uint64_t hashcode = gs.hash;
+        value = 1;
         fwrite(&hashcode, sizeof(uint64_t),1, fp);
         fwrite(&value, sizeof(int),1, fp);
         

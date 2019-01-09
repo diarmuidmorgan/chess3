@@ -1,29 +1,37 @@
-bitboards this time
+Simple chess engine with bitboards done as a learning exercise in C.
+
+Compile the file 'compilethis.c' in the root directory. Type in commands like *exg8=Q_*. Remember to add '_' after each command. It might work and **it might not**.
 
 ### Done
 
-     1. Board representation (uses classical bitboards) including pesky enpassants. 
+     1. Board representation (uses classical bitboards, no rotation or magic numbers) including pesky enpassants. 
 
      2. Parser - gets through all the games with no bugs, but not actually verified that it makes the right moves.
 
      3. Basic alpha beta search.
 
-     4. Basic transpose table (hashes every move from scratch, no multi threading strategy)
+     4. Basic transpose table and hashing.
 
-### In process
+     5. Opening book. Well kinda. Just picks the most common move from the parsed internet games.
 
-     1. Opening book (should be easy).
+     6. Search - Move ordering/iterative deepening. Works. Can get to depth 6 pretty quick but will really struggle to go much further before the end of the universe.
 
-     2. Search - Move ordering/iterative deepening.
+     7. Command line interface.
 
-     3. Incremental move hashing (think this should be easy)
+### In Process
 
-     4. Command line interface.
+     1. Simple flask app with chess.js and some pipes so it can be played in a browser
+
+     2. An evaluation function that does more than just count material.
 
 ### To do
 
     1. More search. Maybe some multi threading?
-    
-    2. Interface - Hopefully wrap everything in a Pyobject and make it playable in a browser? Or just provide a pipe that a pyapp can use. Not too sure if there is much point creating a winboard/xboard interface, just so it can be crushed into oblivion by stockfish.
 
-    3. Evaluation - Just counting pieces at the moment. Kind of hope to dive into tensor flow and train on a bunch of internet game data. In reality the engine will probably be too slow already for an ML model to be feasible. 
+    2. Still can't seem to legally castle or enpassant off its own accord.
+
+    3. Still has no concept of checkmate, though it avoids check like the plague.
+    
+    4. Interface - How difficult would it be to plug it into winboard?
+
+    5. Evaluation - Purely counting pieces at the moment. Kind of hoped to dive into tensor flow and train on a bunch of internet game data. However, I sincerely doubt the basic engine is fast enough for this additional overhead.

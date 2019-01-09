@@ -162,7 +162,7 @@ Zob * zob_from_file(char * filename){
     while (i <=64*12){
 
         fread(&val, sizeof(uint64_t), 1, fp);
-        printf("%" PRIu64 "\n", val);
+        
         z->vals[i] = val;
         i++;
     }

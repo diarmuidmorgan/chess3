@@ -1,6 +1,6 @@
 #include "openingbook.c"
 #define QS_SEARCH_DEPTH  3
-#define MOVE_LIST_SIZE 50
+#define MOVE_LIST_SIZE 100
 int max(int a, int b){
 
     return (a > b) ? a : b;
@@ -177,7 +177,8 @@ int alpha_beta (GS *gs, int depth, int alpha,
 
 GS root_search (GS gs, int depth, uint64_t * msks,
                  CS_mask * cs_msk,  Zob * z,
-                 table_entry * transpose_table, int size_of_table, int iteration, int move_number) {
+                 table_entry * transpose_table, table_entry * opening_book, int size_of_table,
+                            int opening_book_size, int iteration, int move_number) {
 
     uint64_t pieces = 0LL;
     int index = 0;
@@ -195,7 +196,40 @@ GS root_search (GS gs, int depth, uint64_t * msks,
     move_list.top = 0;
     int value=0;
     int sreturn;
+    int found_opening_move = 0;
     //get all moves from the tranpose table of just set their value to 0
+    if (move_number <= 10){
+        while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr, &move_incr, 
+                        &pieces, &move_squares, &attack_squares, cs_msk, z)){
+
+        int reti = find_in_table(opening_book, opening_book_size, new_gs.hash, 
+                    &value, iteration, move_number);
+        if(reti) 
+            found_opening_move = 1;
+        
+        Move m;
+        m.gs = new_gs;
+        m.value = value;
+        m.retrieved = 0;
+        m.playable = reti;
+        move_list.list[move_list.top]=m;
+        new_gs = gs;
+        move_list.top = move_list.top + 1;
+        //run out of slots.
+        if (move_list.top == MOVE_LIST_SIZE)
+            break;
+        new_gs = gs;
+     }
+     if (found_opening_move){
+        Move m;
+        max_move(&move_list,&m);
+        return m.gs;
+
+
+     }
+
+    }
+
     while (moves_generator(&gs, &new_gs, msks, &index, &piece_incr, &move_incr, 
                         &pieces, &move_squares, &attack_squares, cs_msk, z)){
 
@@ -278,13 +312,14 @@ GS root_search (GS gs, int depth, uint64_t * msks,
 
 GS iterative_deepen (GS gs, int max_depth, uint64_t * msks,
                  CS_mask * cs_msk,  Zob * z,
-                 table_entry * transpose_table, int size_of_table, int move_number) {
+                 table_entry * transpose_table, table_entry * opening_book, int size_of_table, 
+                            int opening_book_size, int move_number) {
     GS best_gs;
     int iteration = 0;
     while (iteration < max_depth){
         
-        best_gs = root_search(gs, iteration + 1, msks, cs_msk, z, transpose_table,
-                                size_of_table, iteration, move_number);
+        best_gs = root_search(gs, iteration + 1, msks, cs_msk, z, transpose_table, opening_book,
+                                size_of_table, opening_book_size, iteration, move_number);
         iteration = iteration + 1;
     }
     return best_gs;

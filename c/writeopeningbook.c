@@ -49,6 +49,8 @@ int play_write_game_string (char * game_str, parser_cases * pc, Zob * z,
         i++;
         gs = new_gs;
         uint64_t hashcode = new_gs.hash;
+        //just write 1 and add up the most common ones
+        value = 1;
         fwrite(&hashcode, sizeof(uint64_t),1, fp);
         fwrite(&value, sizeof(int),1, fp);
         

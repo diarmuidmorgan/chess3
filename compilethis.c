@@ -2,7 +2,8 @@
 #include <unistd.h>
 
 int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
-         parser_cases * pc, Zob * z, table_entry * table, int size_of_table, int * move_number) {
+         parser_cases * pc, Zob * z, table_entry * table, table_entry * opening_book, int size_of_table,
+                        int opening_book_size, int * move_number) {
 
     *new = *gs;
     char s[1000];
@@ -29,7 +30,7 @@ int turn (GS * gs, GS * new, uint64_t * msks, CS_mask * cs_msk,
     
     *move_number = *move_number +1;
     printf("THINKING..\n");
-    *new = iterative_deepen(*gs, 6, msks, cs_msk, z, table, size_of_table, *move_number);
+    *new = iterative_deepen(*gs, 6, msks, cs_msk, z, table, opening_book, size_of_table,opening_book_size, *move_number);
     sleep(2);
 
     print_game_state(new);
@@ -42,9 +43,11 @@ int main () {
 
     
     int size_of_table = 100000000;
-    printf("Allocating hash table...\n");
+    int opening_book_size = 1000000;
+    printf("Allocating hash table and building opening book...\n");
      Zob * z = zob_from_file("data/zobrist");
-    table_entry * t = make_opening_book(&size_of_table, z, "data/openings");
+    table_entry * opening_book = make_opening_book(&opening_book_size, z, "data/openings");
+    table_entry * t = make_hash_table(&size_of_table);
     printf("Initializing...\n");
    
     //table_entry * t = make_hash_table(&size_of_table);
@@ -57,7 +60,7 @@ int main () {
     int move_number = 0;
     printf("Ready...\n");
     while(1)
-        turn(&gs, &new, msks, cs_msk,pc, z, t, size_of_table, &move_number);
+        turn(&gs, &new, msks, cs_msk,pc, z, t, opening_book, size_of_table, opening_book_size, &move_number);
 
 
 }
